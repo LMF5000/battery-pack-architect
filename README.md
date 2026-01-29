@@ -5,7 +5,7 @@
 
 **Battery Pack Architect** is a free, open-source, browser-based tool for designing, visualizing, and estimating the specs of custom battery packs in 3D.
 
-**[🚀 Try it Live Here](https://your-username.github.io/battery-pack-architect/)** *(Replace "your-username" with your actual GitHub username)*
+**[🚀 Try it Live Here](https://LMF5000.github.io/battery-pack-architect/)**
 
 ---
 
@@ -14,7 +14,7 @@
 I created **Battery Pack Architect** because I needed a better way to visualize custom battery configurations before committing to spot welding. As a mechanical engineer with a passion for sustainable tech, I often find myself with a pile of 18650 cells recovered from old devices, trying to figure out the most efficient way to repack them.
 
 This tool allows DIYers and engineers to:
-* Visualize packs in **3D** with realistic physics (spacers, caps, busbars).
+* Visualize packs in **3D** with realistic components (spacers, caps, busbars).
 * Toggle between **Hexagonal** (honeycomb) and Rectangular nesting.
 * Calculate **Nickel Strip requirements** instantly.
 * Estimate **Cost, Weight, Volume, and Electrical Specs** (Voltage/Ah/Wh).
@@ -24,8 +24,9 @@ This tool allows DIYers and engineers to:
 
 * **Real-time 3D Rendering:** Built with [Three.js](https://threejs.org/). Rotate, pan, and zoom around your pack.
 * **Custom Cell Specs:** Pre-loaded presets for 18650, 21700, LiFePO4, LTO, and more—or enter custom dimensions.
-* **Smart Logic:** * Spacers automatically appear/disappear based on gap settings.
-    * Nickel strip length is calculated based on busbar geometry.
+* **Smart Logic:**
+  * Spacers automatically appear/disappear based on gap settings.
+  * Nickel strip length is calculated based on busbar geometry.
 * **Comparison Matrix:** Save snapshots of different builds and compare them in a table to optimize for density, cost, or power.
 * **Privacy Focused:** Runs entirely in your browser. No data is sent to a server.
 
