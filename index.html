@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Battery Pack Architect - V40</title>
+    <title>Battery Pack Architect - V41</title>
     <style>
         /* --- LAYOUT & THEME --- */
         body { 
@@ -36,17 +36,19 @@
         #watermark { bottom: 10px; right: 15px; font-weight: 600; opacity: 0.6; }
         #controls-hint { bottom: 10px; left: 15px; display: flex; flex-direction: column; gap: 2px; }
 
-        /* RESPONSIVE */
+        /* RESPONSIVE - MOBILE OPTIMIZED */
         @media (max-width: 800px) {
             body { flex-direction: column; }
-            #render-area { height: 45vh; width: 100%; border-bottom: 1px solid #e5e7eb; }
-            #sidebar { width: 100%; height: 55vh; border-right: none; }
+            #render-area { height: 35vh; width: 100%; border-bottom: 1px solid #e5e7eb; }
+            #sidebar { width: 100%; height: 65vh; border-right: none; }
         }
 
         /* --- UI ELEMENTS --- */
         .header {
             padding: 12px 15px; border-bottom: 1px solid #f0f0f0; background: #fff;
             display: flex; justify-content: space-between; align-items: center;
+            /* Sticky header on desktop, scrolls on mobile if inside container */
+            position: sticky; top: 0; z-index: 30; 
         }
         h2 { margin: 0; font-size: 1rem; color: #1e293b; display: flex; align-items: center; gap: 6px; font-weight: 700; }
         
@@ -64,11 +66,11 @@
         }
         #btn-donate:hover { background: #facc15; }
 
-        #controls-container { flex: 1; overflow-y: auto; padding: 15px; }
+        #controls-container { flex: 1; overflow-y: auto; padding: 0; /* Padding moved to inner elements */ }
 
         .group-box {
             background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;
-            padding: 10px; margin-bottom: 10px;
+            padding: 10px; margin-bottom: 10px; margin-left: 15px; margin-right: 15px;
         }
         
         .section-title {
@@ -97,7 +99,7 @@
         input[type="checkbox"] { accent-color: #3b82f6; cursor: pointer; margin: 0; }
 
         /* VISUAL SETTINGS */
-        details { margin-top: 8px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; }
+        details { margin-top: 8px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; margin-left: 15px; margin-right: 15px; }
         summary { 
             cursor: pointer; font-weight: 600; color: #64748b; font-size: 0.75rem; 
             padding: 6px 10px; background: #f1f5f9; list-style: none;
@@ -119,7 +121,7 @@
         input[type="color"] { border: none; width: 22px; height: 22px; padding: 0; background: none; cursor: pointer; flex-shrink: 0; }
         input[type="range"] { flex: 1; height: 4px; background: #e2e8f0; width: 100%; }
 
-        /* TOOLTIP STYLE - REVISED V40 */
+        /* TOOLTIP STYLE */
         .help-icon {
             display: inline-block; width: 12px; height: 12px; margin-left: 5px;
             background: #cbd5e1; color: white; border-radius: 50%;
@@ -130,22 +132,21 @@
         
         .help-icon .tip-content {
             visibility: hidden; opacity: 0; 
-            width: 220px; /* Wider to prevent squishing */
+            width: 220px; 
             background: #334155; color: #fff;
             text-align: center; border-radius: 6px; padding: 10px; 
             position: absolute;
             z-index: 100; bottom: 135%; 
-            right: -10px; /* Anchor to right side of icon */
-            left: auto; /* Ignore left */
+            right: -10px; 
+            left: auto;
             box-shadow: 0 4px 10px rgba(0,0,0,0.25); 
             transition: opacity 0.2s;
             font-size: 0.7rem; font-weight: 400; line-height: 1.4;
-            white-space: normal; /* Allow wrapping */
+            white-space: normal;
         }
         
-        /* Arrow for tooltip */
         .help-icon .tip-content::after {
-            content: ""; position: absolute; top: 100%; right: 10px; /* Align arrow with icon */
+            content: ""; position: absolute; top: 100%; right: 10px;
             border-width: 6px; border-style: solid; border-color: #334155 transparent transparent transparent;
             width: 0; height: 0; font-size: 0; line-height: 0;
         }
@@ -302,25 +303,25 @@
 <body>
 
 <div id="sidebar">
-    <div class="header">
-        <h2><span style="font-size:1.2em">🔋</span> Pack Architect <span style="font-size:0.8em; color:#94a3b8; font-weight:400; margin-left: 5px;">v40</span></h2>
-        
-        <div style="display:flex; gap:8px; align-items:center;">
-            <a href="https://buymeacoffee.com/lmf5000" target="_blank" style="text-decoration:none;">
-                <button id="btn-donate">☕ Donate</button>
-            </a>
-            <button id="btn-reset">Reset</button>
-        </div>
-    </div>
-
-    <div style="padding: 10px 15px 0 15px;">
-        <label>Configuration Name</label>
-        <input type="text" id="pack-name" value="My Custom Pack" placeholder="e.g. Long Range V1">
-    </div>
-
     <div id="controls-container">
         
-        <div class="group-box">
+        <div class="header">
+            <h2><span style="font-size:1.2em">🔋</span> Pack Architect <span style="font-size:0.8em; color:#94a3b8; font-weight:400; margin-left: 5px;">v41</span></h2>
+            
+            <div style="display:flex; gap:8px; align-items:center;">
+                <a href="https://buymeacoffee.com/lmf5000" target="_blank" style="text-decoration:none;">
+                    <button id="btn-donate">☕ Donate</button>
+                </a>
+                <button id="btn-reset">Reset</button>
+            </div>
+        </div>
+
+        <div style="padding: 10px 15px 0 15px;">
+            <label>Configuration Name</label>
+            <input type="text" id="pack-name" value="My Custom Pack" placeholder="e.g. Long Range V1">
+        </div>
+        
+        <div class="group-box" style="margin-top: 15px;">
             <div class="section-title">1. Cell Specifications</div>
             <div class="control-item full-width" style="margin-bottom: 8px;">
                 <label>Cell Preset</label>
