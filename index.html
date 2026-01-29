@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Battery Pack Architect - V40</title>
+    <style>
+        /* --- LAYOUT & THEME --- */
+        body { 
+            margin: 0; padding: 0; overflow: hidden; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background: #f0f2f5; color: #333;
+            display: flex; flex-direction: row; 
+            height: 100vh; width: 100vw;
+        }
+        
+        /* SIDEBAR */
+        #sidebar {
+            width: 380px; height: 100%; background: #ffffff; 
+            border-right: 1px solid #e5e7eb; display: flex; flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.03); z-index: 20; flex-shrink: 0; 
+        }
+
+        /* RENDER AREA */
+        #render-area { 
+            flex-grow: 1; height: 100%; position: relative; 
+            overflow: hidden; background: #f4f6f9;
+        }
+
+        /* OVERLAYS */
+        .overlay-text {
+            position: absolute; pointer-events: none; user-select: none;
+            color: #94a3b8; font-size: 0.7rem; font-weight: 500;
+            z-index: 10;
+        }
+        #watermark { bottom: 10px; right: 15px; font-weight: 600; opacity: 0.6; }
+        #controls-hint { bottom: 10px; left: 15px; display: flex; flex-direction: column; gap: 2px; }
+
+        /* RESPONSIVE */
+        @media (max-width: 800px) {
+            body { flex-direction: column; }
+            #render-area { height: 45vh; width: 100%; border-bottom: 1px solid #e5e7eb; }
+            #sidebar { width: 100%; height: 55vh; border-right: none; }
+        }
+
+        /* --- UI ELEMENTS --- */
+        .header {
+            padding: 12px 15px; border-bottom: 1px solid #f0f0f0; background: #fff;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        h2 { margin: 0; font-size: 1rem; color: #1e293b; display: flex; align-items: center; gap: 6px; font-weight: 700; }
+        
+        #btn-reset {
+            background: none; border: 1px solid #e5e7eb; color: #666; 
+            font-size: 0.7rem; padding: 3px 8px; border-radius: 4px; cursor: pointer;
+        }
+        #btn-reset:hover { border-color: #d32f2f; color: #d32f2f; }
+
+        /* DONATE BUTTON */
+        #btn-donate {
+            background: #FFDD00; border: 1px solid #eab308; color: #000; 
+            font-weight: 700; font-size: 0.7rem; padding: 3px 10px; 
+            border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 4px;
+        }
+        #btn-donate:hover { background: #facc15; }
+
+        #controls-container { flex: 1; overflow-y: auto; padding: 15px; }
+
+        .group-box {
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;
+            padding: 10px; margin-bottom: 10px;
+        }
+        
+        .section-title {
+            font-size: 0.65rem; color: #64748b; margin: 0 0 8px 0; 
+            text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+        }
+
+        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: end; }
+        .controls-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; align-items: end; }
+        .control-item { display: flex; flex-direction: column; }
+        .control-item.full-width { grid-column: span 2; }
+        
+        label { font-size: 0.7rem; color: #475569; margin-bottom: 3px; font-weight: 600; white-space: nowrap; display: flex; align-items: center; }
+        
+        input[type="number"], input[type="text"], select { 
+            background: #fff; border: 1px solid #cbd5e1; color: #1e293b; 
+            padding: 4px 6px; width: 100%; border-radius: 4px; 
+            font-size: 0.8rem; box-sizing: border-box;
+        }
+        input[type="number"]:focus, input[type="text"]:focus, select:focus { border-color: #3b82f6; outline: none; }
+        
+        .toggle-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-top: 6px; margin-top: 6px; border-top: 1px dashed #e2e8f0;
+        }
+        input[type="checkbox"] { accent-color: #3b82f6; cursor: pointer; margin: 0; }
+
+        /* VISUAL SETTINGS */
+        details { margin-top: 8px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; }
+        summary { 
+            cursor: pointer; font-weight: 600; color: #64748b; font-size: 0.75rem; 
+            padding: 6px 10px; background: #f1f5f9; list-style: none;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary:after { content: "+"; float: right; font-weight: bold; }
+        details[open] summary:after { content: "-"; }
+        .details-content { padding: 10px; }
+
+        .mat-header-row {
+            display: grid; grid-template-columns: 60px 1fr 50px; gap: 8px;
+            font-size: 0.65rem; color: #94a3b8; font-weight: 700; margin-bottom: 6px; text-transform: uppercase;
+        }
+        .mat-row { display: grid; grid-template-columns: 60px 1fr 50px; gap: 8px; align-items: center; margin-bottom: 6px; }
+        .mat-label { font-size: 0.75rem; font-weight: 600; color: #555; }
+        .perc-label { font-size: 0.65rem; color: #999; text-align: right; }
+        
+        .color-wrap { display: flex; align-items: center; gap: 5px; }
+        input[type="color"] { border: none; width: 22px; height: 22px; padding: 0; background: none; cursor: pointer; flex-shrink: 0; }
+        input[type="range"] { flex: 1; height: 4px; background: #e2e8f0; width: 100%; }
+
+        /* TOOLTIP STYLE - REVISED V40 */
+        .help-icon {
+            display: inline-block; width: 12px; height: 12px; margin-left: 5px;
+            background: #cbd5e1; color: white; border-radius: 50%;
+            text-align: center; line-height: 12px; font-size: 9px; cursor: help;
+            position: relative;
+        }
+        .help-icon:hover { background: #3b82f6; }
+        
+        .help-icon .tip-content {
+            visibility: hidden; opacity: 0; 
+            width: 220px; /* Wider to prevent squishing */
+            background: #334155; color: #fff;
+            text-align: center; border-radius: 6px; padding: 10px; 
+            position: absolute;
+            z-index: 100; bottom: 135%; 
+            right: -10px; /* Anchor to right side of icon */
+            left: auto; /* Ignore left */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25); 
+            transition: opacity 0.2s;
+            font-size: 0.7rem; font-weight: 400; line-height: 1.4;
+            white-space: normal; /* Allow wrapping */
+        }
+        
+        /* Arrow for tooltip */
+        .help-icon .tip-content::after {
+            content: ""; position: absolute; top: 100%; right: 10px; /* Align arrow with icon */
+            border-width: 6px; border-style: solid; border-color: #334155 transparent transparent transparent;
+            width: 0; height: 0; font-size: 0; line-height: 0;
+        }
+        .help-icon:hover .tip-content { visibility: visible; opacity: 1; }
+
+        /* --- COMPARISON DRAWER --- */
+        #snapshot-area {
+            border-top: 1px solid #e5e7eb; background: #f8fafc;
+            padding: 8px 12px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0;
+        }
+        .snap-controls { display: flex; gap: 6px; }
+        .btn-action {
+            flex: 1; padding: 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; cursor: pointer; text-align: center;
+        }
+        .btn-add { background: #3b82f6; color: white; border: 1px solid #2563eb; }
+        .btn-add:hover { background: #2563eb; }
+        .btn-comp { background: #fff; border: 1px solid #cbd5e1; color: #334155; }
+        .btn-comp:hover { border-color: #94a3b8; background: #f1f5f9; }
+
+        #snap-list { display: flex; flex-direction: column; gap: 4px; max-height: 120px; overflow-y: auto; }
+        
+        .snap-item {
+            display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;
+            background: #fff; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 8px;
+            font-size: 0.75rem;
+        }
+        .snap-info { display: flex; flex-direction: column; line-height: 1.2; overflow: hidden; }
+        .snap-name { font-weight: 700; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .snap-detail { font-size: 0.68rem; color: #64748b; }
+        
+        .snap-tools { display: flex; gap: 4px; }
+        .tool-btn {
+            background: none; border: 1px solid transparent; cursor: pointer; 
+            color: #64748b; padding: 2px 4px; border-radius: 3px; font-size: 0.8rem;
+        }
+        .tool-btn:hover { background: #f1f5f9; border-color: #e2e8f0; color: #0f172a; }
+        .tool-load { color: #2563eb; font-weight: bold; }
+        .tool-del:hover { color: #dc2626; border-color: #fee2e2; background: #fef2f2; }
+
+        /* --- STATS PANEL --- */
+        #stats-panel {
+            flex-shrink: 0; padding: 10px 15px; 
+            background: #fff; border-top: 1px solid #e2e8f0;
+            display: flex; gap: 20px; z-index: 20;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        
+        .stats-col { flex: 1; display: flex; flex-direction: column; gap: 3px; overflow: hidden; justify-content: center; }
+        
+        .stat-header { 
+            font-size: 0.68rem; font-weight: 800; color: #94a3b8; text-transform: uppercase; 
+            margin-bottom: 3px; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px; 
+        }
+        
+        .stat-row { 
+            display: flex; justify-content: space-between; align-items: baseline;
+            font-size: 0.75rem; line-height: 1.35; color: #64748b; font-weight: 600;
+        }
+        
+        .stat-divider { border-top: 1px dashed #e2e8f0; margin: 3px 0; }
+
+        .val { 
+            font-weight: 700; text-align: right; 
+            font-family: 'SF Mono', 'Menlo', monospace; 
+            letter-spacing: -0.3px;
+            white-space: nowrap; 
+            margin-left: 8px;
+        }
+        
+        .stats-v-sep { width: 1px; background: #f1f5f9; margin: 5px 0; }
+
+        /* Colors */
+        .c-dark   { color: #334155; }
+        .c-blue   { color: #008cc9; } 
+        .c-teal   { color: #008796; }
+        .c-red    { color: #d32f2f; }
+        .c-purp   { color: #7c3aed; } 
+        .c-orange { color: #d97706; }
+        .c-pink   { color: #db2777; } 
+        .c-green  { color: #059669; }
+        .c-gray   { color: #94a3b8; font-weight: 500; }
+
+        /* 3D LABELS */
+        .label-tag {
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 5px 10px; border-radius: 4px;
+            border: 1px solid #2563eb; color: #2563eb; font-family: 'SF Mono', monospace; font-size: 11px;
+            font-weight: 700; pointer-events: none; user-select: none; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            transition: opacity 0.2s ease, filter 0.2s ease;
+        }
+        .dim-tag {
+            color: #111; font-weight: bold; font-size: 12px; text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
+            pointer-events: none; font-family: sans-serif; opacity: 0.8;
+            transition: opacity 0.2s ease, filter 0.2s ease;
+        }
+
+        /* Occlusion Class */
+        .occluded {
+            opacity: 0.3 !important;
+            filter: blur(0.5px);
+        }
+
+        /* MODAL */
+        #modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center;
+            backdrop-filter: blur(2px);
+        }
+        #comp-modal {
+            background: #fff; width: 95%; max-width: 900px; max-height: 90vh;
+            border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            display: flex; flex-direction: column;
+        }
+        .modal-header { padding: 12px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 15px 20px; overflow-y: auto; }
+        
+        /* Compact Table */
+        .comp-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        .comp-table th, .comp-table td { padding: 4px 8px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+        .comp-table th { background: #f8fafc; color: #475569; font-weight: 600; position: sticky; top: 0; }
+        .comp-table td { font-family: 'SF Mono', monospace; color: #334155; }
+        
+        /* TABLE STYLING */
+        .comp-table td:first-child {
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .comp-header-sub { font-size: 0.7em; color: #64748b; font-weight: normal; margin-top: 1px; }
+        .best-val { background: #dcfce7; color: #166534; padding: 1px 5px; border-radius: 4px; font-weight: 700; }
+        .row-group { background: #f8fafc; font-weight: 700; color: #64748b; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* PRESET BUTTONS */
+        .btn-icon {
+            background: none; border: 1px solid #cbd5e1; color: #64748b; 
+            border-radius: 4px; cursor: pointer; padding: 0 6px;
+            font-size: 0.9rem; line-height: 1; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-icon:hover { color: #3b82f6; border-color: #3b82f6; }
+        .btn-icon.del:hover { color: #dc2626; border-color: #dc2626; }
+        .btn-icon:disabled { opacity: 0.3; cursor: not-allowed; }
+    </style>
+    
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+
+<div id="sidebar">
+    <div class="header">
+        <h2><span style="font-size:1.2em">🔋</span> Pack Architect <span style="font-size:0.8em; color:#94a3b8; font-weight:400; margin-left: 5px;">v40</span></h2>
+        
+        <div style="display:flex; gap:8px; align-items:center;">
+            <a href="https://buymeacoffee.com/lmf5000" target="_blank" style="text-decoration:none;">
+                <button id="btn-donate">☕ Donate</button>
+            </a>
+            <button id="btn-reset">Reset</button>
+        </div>
+    </div>
+
+    <div style="padding: 10px 15px 0 15px;">
+        <label>Configuration Name</label>
+        <input type="text" id="pack-name" value="My Custom Pack" placeholder="e.g. Long Range V1">
+    </div>
+
+    <div id="controls-container">
+        
+        <div class="group-box">
+            <div class="section-title">1. Cell Specifications</div>
+            <div class="control-item full-width" style="margin-bottom: 8px;">
+                <label>Cell Preset</label>
+                <div style="display:flex; gap: 4px;">
+                    <select id="preset-selector" style="flex:1;">
+                        <option value="custom">Custom Cell</option>
+                        </select>
+                    <button class="btn-icon" id="btn-save-preset-size" title="Save current cell specs as preset">💾</button>
+                    <button class="btn-icon del" id="btn-del-preset-size" title="Delete selected preset" disabled>🗑️</button>
+                </div>
+            </div>
+            <div class="controls-grid" style="margin-bottom: 8px;">
+                <div class="control-item"><label>Diameter (mm)</label><input type="number" id="c-diam" value="18.4"></div>
+                <div class="control-item"><label>Length (mm)</label><input type="number" id="c-len" value="65"></div>
+            </div>
+            <div class="controls-grid" style="margin-bottom: 8px;">
+                <div class="control-item"><label>Weight (g)</label><input type="number" id="c-weight" value="45"></div>
+                <div class="control-item"><label>Cost (Unit)</label><input type="text" id="c-cost" value="€4.50"></div>
+            </div>
+            <div class="controls-grid">
+                <div class="control-item"><label>Capacity (mAh)</label><input type="number" id="c-mah" value="2500" step="100"></div>
+                <div class="control-item"><label>Max Current (A)</label><input type="number" id="c-amp" value="20"></div>
+            </div>
+        </div>
+
+        <div class="group-box">
+            <div class="section-title">2. Chemistry & Voltage</div>
+            <div class="control-item full-width" style="margin-bottom: 8px;">
+                <label>Chemistry</label>
+                <div style="display:flex; gap: 4px;">
+                    <select id="chem-selector" style="flex:1;">
+                        <option value="custom">Custom Voltage</option>
+                        </select>
+                    <button class="btn-icon" id="btn-save-preset-chem" title="Save current chemistry as preset">💾</button>
+                    <button class="btn-icon del" id="btn-del-preset-chem" title="Delete selected preset" disabled>🗑️</button>
+                </div>
+            </div>
+            <div class="controls-grid-3">
+                <div class="control-item"><label>Min (V)</label><input type="number" id="c-min-v" value="2.5" step="0.1"></div>
+                <div class="control-item"><label>Nom (V)</label><input type="number" id="c-volts" value="3.6" step="0.1"></div>
+                <div class="control-item"><label>Max (V)</label><input type="number" id="c-max-v" value="4.2" step="0.1"></div>
+            </div>
+        </div>
+
+        <div class="group-box">
+            <div class="section-title">3. Pack Configuration</div>
+            <div class="controls-grid-3" style="margin-bottom:8px;">
+                <div class="control-item"><label>Series (S)</label><input type="number" id="s-count" value="10" min="1"></div>
+                <div class="control-item"><label>Parallel (P)</label><input type="number" id="p-count" value="4" min="1"></div>
+                <div class="control-item">
+                    <label>Spacing (mm) 
+                        <span class="help-icon">?
+                            <div class="tip-content">
+                                <svg width="100" height="40" style="margin-bottom:4px;">
+                                    <circle cx="20" cy="20" r="10" stroke="#fff" fill="none" />
+                                    <circle cx="80" cy="20" r="10" stroke="#fff" fill="none" />
+                                    <line x1="32" y1="20" x2="68" y2="20" stroke="#94a3b8" />
+                                    <text x="50" y="15" text-anchor="middle" fill="#94a3b8" font-size="9">Gap</text>
+                                </svg>
+                                <div>Distance between cells.</div>
+                                <div style="color:#94a3b8; margin-top:3px; font-size:0.6rem;">This thickness is also applied to outer edges, increasing total dimensions.</div>
+                            </div>
+                        </span>
+                    </label>
+                    <input type="number" id="c-spacing" value="1.0" min="0" step="0.5">
+                </div>
+            </div>
+            <div class="control-item full-width" style="margin-bottom:8px;">
+                <label>Busbar Visualization</label>
+                <select id="bus-mode">
+                    <option value="none">None</option>
+                    <option value="geo">Strips Only</option>
+                    <option value="bn">Strips + B-Numbers</option>
+                    <option value="both" selected>Strips + Numbers + Voltages</option>
+                </select>
+            </div>
+            <div class="toggle-row">
+                <label for="hex-mode" style="cursor:pointer;">Hexagonal Nesting</label>
+                <input type="checkbox" id="hex-mode" checked>
+            </div>
+        </div>
+
+        <details>
+            <summary>Visual Settings</summary>
+            <div class="details-content">
+                <div class="mat-header-row">
+                    <div>Element</div>
+                    <div>Color</div>
+                    <div style="text-align:right;">Metallic %</div>
+                </div>
+
+                <div class="mat-row">
+                    <div class="mat-label">Cell</div>
+                    <div class="color-wrap">
+                        <input type="color" id="col-cell" value="#f0a3ff">
+                        <input type="range" id="met-cell" min="0" max="1" step="0.1" value="0.15">
+                    </div>
+                    <div class="perc-label" id="val-met-cell">15%</div>
+                </div>
+                <div class="mat-row">
+                    <div class="mat-label">Cap</div>
+                    <div class="color-wrap">
+                        <input type="color" id="col-cap" value="#e2e8f0">
+                        <input type="range" id="met-cap" min="0" max="1" step="0.1" value="0.5">
+                    </div>
+                    <div class="perc-label" id="val-met-cap">50%</div>
+                </div>
+                <div class="mat-row">
+                    <div class="mat-label">Busbar</div>
+                    <div class="color-wrap">
+                        <input type="color" id="col-bus" value="#ff8f00">
+                        <input type="range" id="met-bus" min="0" max="1" step="0.1" value="0.3">
+                    </div>
+                    <div class="perc-label" id="val-met-bus">30%</div>
+                </div>
+                <div class="mat-row">
+                    <div class="mat-label">Spacer</div>
+                    <div class="color-wrap">
+                        <input type="color" id="col-spacer" value="#111111">
+                        <input type="range" id="met-spacer" min="0" max="1" step="0.1" value="0.0">
+                    </div>
+                    <div class="perc-label" id="val-met-spacer">0%</div>
+                </div>
+                <div class="mat-row">
+                    <div class="mat-label" style="width: auto;">Background</div>
+                    <div class="color-wrap">
+                        <input type="color" id="col-bg" value="#f4f6f9">
+                    </div>
+                    <div></div>
+                </div>
+            </div>
+        </details>
+    </div>
+
+    <div id="snapshot-area">
+        <div class="snap-controls">
+            <button id="btn-snap" class="btn-action btn-add">+ Add to Compare</button>
+            <button id="btn-compare" class="btn-action btn-comp">Compare All (<span id="snap-count">0</span>)</button>
+        </div>
+        <div id="snap-list">
+            </div>
+    </div>
+
+    <div id="stats-panel">
+        
+        <div class="stats-col">
+            <div class="stat-header">Electrical</div>
+            <div class="stat-row">
+                <span>Config</span> 
+                <span class="val c-dark" id="out-config">--</span>
+            </div>
+            <div class="stat-row">
+                <span>Nickel Strip</span> 
+                <span class="val c-dark" id="out-nickel" style="font-size:0.75rem;">--</span>
+            </div>
+            <div class="stat-row">
+                <span>Label Rating</span> 
+                <span class="val c-blue" id="out-nom-label">--</span>
+            </div>
+            <div class="stat-row">
+                <span>V Range</span> 
+                <span class="val c-gray" style="font-size:0.75rem;" id="out-v-range">--</span>
+            </div>
+            <div class="stat-row">
+                <span>Max Output</span> 
+                <span class="val c-red" id="out-output">--</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-row">
+                <span>Total Energy</span> 
+                <span class="val c-purp" id="out-wh">--</span>
+            </div>
+        </div>
+
+        <div class="stats-v-sep"></div>
+
+        <div class="stats-col">
+            <div class="stat-header">Physical</div>
+            <div class="stat-row">
+                <span>Length</span> 
+                <span class="val c-teal" id="dim-l">--</span>
+            </div>
+            <div class="stat-row">
+                <span>Width</span> 
+                <span class="val c-teal" id="dim-w">--</span>
+            </div>
+            <div class="stat-row">
+                <span>Height</span> 
+                <span class="val c-teal" id="dim-h">--</span>
+            </div>
+            <div class="stat-row">
+                <span>Volume</span> 
+                <span class="val c-pink" id="out-vol">--</span>
+            </div>
+            <div class="stat-row">
+                <span>Weight</span> 
+                <span class="val c-orange" id="out-weight">--</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-row">
+                <span>Est. Cost</span> 
+                <span class="val c-green" id="out-cost">--</span>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="render-area">
+    <div id="watermark" class="overlay-text">Designed by Luke Formosa</div>
+    <div id="controls-hint" class="overlay-text">
+        <span>🖱️ Left: Rotate</span>
+        <span>🖱️ Right: Pan</span>
+        <span>🖱️ Scroll: Zoom</span>
+    </div>
+</div>
+
+<div id="modal-overlay">
+    <div id="comp-modal">
+        <div class="modal-header">
+            <h3 style="margin:0; color:#1e293b;">Comparison Matrix</h3>
+            <button onclick="document.getElementById('modal-overlay').style.display='none'" style="border:none; background:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
+        </div>
+        <div class="modal-body">
+            <table class="comp-table">
+                <thead>
+                    <tr id="comp-head-row">
+                        <th>Parameter</th>
+                    </tr>
+                </thead>
+                <tbody id="comp-body">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+
+    // --- SETUP SCENE ---
+    const container = document.getElementById('render-area');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf4f6f9); 
+
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 10000);
+    camera.position.set(200, 200, 250);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.domElement.style.position = 'absolute';
+    container.appendChild(renderer.domElement);
+
+    const labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize(container.clientWidth, container.clientHeight);
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.top = '0';
+    labelRenderer.domElement.style.pointerEvents = 'none';
+    container.appendChild(labelRenderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    
+    // Raycaster for occlusion
+    const raycaster = new THREE.Raycaster();
+    const occluders = [];
+    const labels = [];
+    const v3 = new THREE.Vector3();
+
+    // --- LIGHTS ---
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+    dirLight.position.set(100, 300, 150);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 2048;
+    dirLight.shadow.mapSize.height = 2048;
+    dirLight.shadow.bias = -0.0001;
+    scene.add(dirLight);
+    scene.add(new THREE.GridHelper(2000, 200, 0xd1d5db, 0xe5e7eb));
+
+    const packGroup = new THREE.Group();
+    scene.add(packGroup);
+    const dimGroup = new THREE.Group();
+    scene.add(dimGroup);
+
+    // --- INPUT BINDING ---
+    const inputIds = [
+        'c-diam','c-len','c-volts','c-mah','c-amp','c-min-v','c-max-v','c-weight', 'c-cost',
+        's-count','p-count','c-spacing','hex-mode','bus-mode',
+        'col-cell', 'col-cap', 'col-bus', 'col-bg', 'col-spacer',
+        'met-cell', 'met-cap', 'met-bus', 'met-spacer', 'pack-name'
+    ];
+    const inputs = {};
+    inputIds.forEach(id => inputs[id] = document.getElementById(id));
+    
+    // --- PRESET DATABASE ---
+    const DEFAULT_SIZE_PRESETS = [
+        { name: "18650 [⌀18.4 x 65.0mm]", group: "Market Leaders", data: { d:18.4, l:65.0, w:45, cost:'€4.50', cap:2500, amp:20, type:'li-ion' } },
+        { name: "21700 [⌀21.4 x 70.0mm]", group: "Market Leaders", data: { d:21.4, l:70.0, w:70, cost:'€6.00', cap:4000, amp:35, type:'li-ion' } },
+        { name: "AAA [⌀10.5 x 44.5mm]", group: "Consumer Standard", data: { d:10.5, l:44.5, w:12, cost:'€1.50', cap:800, amp:2, type:'nimh' } },
+        { name: "AA [⌀14.5 x 50.5mm]", group: "Consumer Standard", data: { d:14.5, l:50.5, w:28, cost:'€2.00', cap:2000, amp:4, type:'nimh' } },
+        { name: "C [⌀26.2 x 50.0mm]", group: "Consumer Standard", data: { d:26.2, l:50.0, w:70, cost:'€4.00', cap:4000, amp:5, type:'nimh' } },
+        { name: "D [⌀34.2 x 61.5mm]", group: "Consumer Standard", data: { d:34.2, l:61.5, w:140, cost:'€5.00', cap:8000, amp:8, type:'nimh' } },
+        { name: "10440 [⌀10.4 x 44.0mm]", group: "Specialist Lithium", data: { d:10.4, l:44.0, w:12, cost:'€3.00', cap:350, amp:3, type:'li-ion' } },
+        { name: "14500 [⌀14.4 x 50.0mm]", group: "Specialist Lithium", data: { d:14.4, l:50.0, w:20, cost:'€3.50', cap:900, amp:5, type:'li-ion' } },
+        { name: "18350 [⌀18.4 x 35.0mm]", group: "Specialist Lithium", data: { d:18.4, l:35.0, w:25, cost:'€4.00', cap:1100, amp:10, type:'li-ion' } },
+        { name: "18500 [⌀18.4 x 50.0mm]", group: "Specialist Lithium", data: { d:18.4, l:50.0, w:32, cost:'€4.20', cap:1500, amp:15, type:'li-ion' } },
+        { name: "20700 [⌀20.4 x 70.0mm]", group: "Specialist Lithium", data: { d:20.4, l:70.0, w:60, cost:'€5.50', cap:3000, amp:30, type:'li-ion' } },
+        { name: "26650 [⌀26.4 x 65.0mm]", group: "Specialist Lithium", data: { d:26.4, l:65.0, w:95, cost:'€8.00', cap:3500, amp:15, type:'lfp' } },
+        { name: "32700 [⌀32.4 x 70.0mm]", group: "Specialist Lithium", data: { d:32.4, l:70.0, w:145, cost:'€12.00', cap:6000, amp:20, type:'lfp' } },
+        { name: "4680 [⌀46.0 x 80.0mm]", group: "Specialist Lithium", data: { d:46.0, l:80.0, w:350, cost:'€20.00', cap:9000, amp:50, type:'li-ion' } }
+    ];
+
+    const DEFAULT_CHEM_PRESETS = [
+        { name: "Li-ion", group: "Standard", id:'li-ion', data: { nom:3.6, min:2.5, max:4.2 } },
+        { name: "LiFePO4", group: "Standard", id:'lfp', data: { nom:3.2, min:2.5, max:3.65 } },
+        { name: "LTO", group: "Standard", id:'lto', data: { nom:2.4, min:1.5, max:2.8 } },
+        { name: "NiMH/NiCd", group: "Standard", id:'nimh', data: { nom:1.2, min:1.0, max:1.4 } },
+        { name: "Alkaline", group: "Standard", id:'alk', data: { nom:1.5, min:0.9, max:1.6 } }
+    ];
+
+    // Load User Presets
+    let userSizePresets = JSON.parse(localStorage.getItem('batt_vis_presets_size_v40') || '[]');
+    let userChemPresets = JSON.parse(localStorage.getItem('batt_vis_presets_chem_v40') || '[]');
+
+    function populatePresets() {
+        // 1. CELL SPEC PRESETS
+        const selSize = document.getElementById('preset-selector');
+        const currentSizeVal = selSize.value;
+        selSize.innerHTML = '<option value="custom">Custom Cell</option>';
+        
+        const sizeGroups = {};
+        [...DEFAULT_SIZE_PRESETS, ...userSizePresets].forEach(p => {
+            const gName = p.group || "My Saved Presets";
+            if(!sizeGroups[gName]) sizeGroups[gName] = [];
+            sizeGroups[gName].push(p);
+        });
+
+        for(const gName in sizeGroups) {
+            const grp = document.createElement('optgroup'); grp.label = gName;
+            sizeGroups[gName].forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = JSON.stringify(p.data);
+                opt.innerText = p.name;
+                if(p.group === undefined) opt.dataset.user = "true"; 
+                grp.appendChild(opt);
+            });
+            selSize.appendChild(grp);
+        }
+        
+        if(currentSizeVal !== 'custom' && currentSizeVal !== '') selSize.value = currentSizeVal;
+
+        // 2. CHEM PRESETS
+        const selChem = document.getElementById('chem-selector');
+        const currentChemVal = selChem.value;
+        selChem.innerHTML = '<option value="custom">Custom Voltage</option>';
+
+        const chemGroups = {};
+        [...DEFAULT_CHEM_PRESETS, ...userChemPresets].forEach(p => {
+            const gName = p.group || "My Saved Presets";
+            if(!chemGroups[gName]) chemGroups[gName] = [];
+            chemGroups[gName].push(p);
+        });
+
+        for(const gName in chemGroups) {
+            const grp = document.createElement('optgroup'); grp.label = gName;
+            chemGroups[gName].forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = JSON.stringify(p.data);
+                opt.innerText = `${p.name} ${p.data.nom}V (${p.data.min}V - ${p.data.max}V)`;
+                if(p.id) opt.dataset.id = p.id;
+                if(p.group === undefined) opt.dataset.user = "true";
+                grp.appendChild(opt);
+            });
+            selChem.appendChild(grp);
+        }
+        
+        if(currentChemVal !== 'custom' && currentChemVal !== '') selChem.value = currentChemVal;
+        updateDeleteButtons();
+    }
+    
+    function updateDeleteButtons() {
+        const selSize = document.getElementById('preset-selector');
+        const optSize = selSize.selectedOptions[0];
+        document.getElementById('btn-del-preset-size').disabled = !(optSize && optSize.dataset.user === "true");
+
+        const selChem = document.getElementById('chem-selector');
+        const optChem = selChem.selectedOptions[0];
+        document.getElementById('btn-del-preset-chem').disabled = !(optChem && optChem.dataset.user === "true");
+    }
+
+    populatePresets();
+    
+    // Force Defaults on Load (18650 + Li-ion)
+    const selSize = document.getElementById('preset-selector');
+    const defSizeData = JSON.stringify(DEFAULT_SIZE_PRESETS[0].data);
+    for(let i=0; i<selSize.options.length; i++) {
+        if(selSize.options[i].value === defSizeData) {
+            selSize.selectedIndex = i;
+            break;
+        }
+    }
+    // Now force correct chemistry for that default
+    const defType = DEFAULT_SIZE_PRESETS[0].data.type;
+    const selChem = document.getElementById('chem-selector');
+    for(let i=0; i<selChem.options.length; i++) {
+        if(selChem.options[i].dataset.id === defType) {
+            selChem.selectedIndex = i;
+            break;
+        }
+    }
+
+
+    // --- EVENT LISTENERS FOR PRESETS ---
+
+    // 1. SIZE/SPECS
+    document.getElementById('preset-selector').addEventListener('change', (e) => {
+        updateDeleteButtons();
+        if(e.target.value === 'custom') return;
+        const d = JSON.parse(e.target.value);
+        inputs['c-diam'].value = d.d; inputs['c-len'].value = d.l;
+        inputs['c-weight'].value = d.w; inputs['c-cost'].value = d.cost;
+        if(d.cap) inputs['c-mah'].value = d.cap; 
+        if(d.amp) inputs['c-amp'].value = d.amp;
+        
+        // AUTO-SELECT CHEMISTRY
+        if(d.type) {
+             const chemSel = document.getElementById('chem-selector');
+             for(let i=0; i<chemSel.options.length; i++) {
+                 if(chemSel.options[i].dataset.id === d.type) {
+                     chemSel.selectedIndex = i;
+                     chemSel.dispatchEvent(new Event('change'));
+                     break;
+                 }
+             }
+        }
+
+        updatePack();
+    });
+
+    document.getElementById('btn-save-preset-size').addEventListener('click', () => {
+        const name = prompt("Name for Cell preset:");
+        if(name) {
+            const newData = {
+                d: parseFloat(inputs['c-diam'].value),
+                l: parseFloat(inputs['c-len'].value),
+                w: parseFloat(inputs['c-weight'].value),
+                cost: inputs['c-cost'].value,
+                cap: parseFloat(inputs['c-mah'].value),
+                amp: parseFloat(inputs['c-amp'].value)
+            };
+            userSizePresets.push({ name: name, data: newData });
+            localStorage.setItem('batt_vis_presets_size_v40', JSON.stringify(userSizePresets));
+            populatePresets();
+            const sel = document.getElementById('preset-selector');
+            sel.selectedIndex = sel.options.length - 1; 
+            updateDeleteButtons();
+        }
+    });
+
+    document.getElementById('btn-del-preset-size').addEventListener('click', () => {
+        if(confirm("Delete this custom preset?")) {
+            const sel = document.getElementById('preset-selector');
+            const name = sel.options[sel.selectedIndex].text;
+            userSizePresets = userSizePresets.filter(p => p.name !== name);
+            localStorage.setItem('batt_vis_presets_size_v40', JSON.stringify(userSizePresets));
+            sel.value = "custom";
+            populatePresets();
+        }
+    });
+
+    // 2. CHEMISTRY
+    document.getElementById('chem-selector').addEventListener('change', (e) => {
+        updateDeleteButtons();
+        if(e.target.value === 'custom') return;
+        const d = JSON.parse(e.target.value);
+        inputs['c-volts'].value = d.nom;
+        inputs['c-min-v'].value = d.min;
+        inputs['c-max-v'].value = d.max;
+        updatePack();
+    });
+
+    document.getElementById('btn-save-preset-chem').addEventListener('click', () => {
+        const name = prompt("Name for Chemistry preset:");
+        if(name) {
+            const newData = {
+                nom: parseFloat(inputs['c-volts'].value),
+                min: parseFloat(inputs['c-min-v'].value),
+                max: parseFloat(inputs['c-max-v'].value)
+            };
+            userChemPresets.push({ name: name, data: newData });
+            localStorage.setItem('batt_vis_presets_chem_v40', JSON.stringify(userChemPresets));
+            populatePresets();
+            const sel = document.getElementById('chem-selector');
+            sel.selectedIndex = sel.options.length - 1;
+            updateDeleteButtons();
+        }
+    });
+
+    document.getElementById('btn-del-preset-chem').addEventListener('click', () => {
+        if(confirm("Delete this custom preset?")) {
+            const sel = document.getElementById('chem-selector');
+            const txt = sel.options[sel.selectedIndex].text;
+            const name = txt.split(' (')[0]; 
+            userChemPresets = userChemPresets.filter(p => p.name !== name && !txt.startsWith(p.name));
+            localStorage.setItem('batt_vis_presets_chem_v40', JSON.stringify(userChemPresets));
+            sel.value = "custom";
+            populatePresets();
+        }
+    });
+
+    // --- AUTO SWITCH TO CUSTOM ---
+    ['c-diam', 'c-len', 'c-weight', 'c-cost', 'c-mah', 'c-amp'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+            document.getElementById('preset-selector').value = 'custom';
+            updateDeleteButtons();
+        });
+    });
+    ['c-volts', 'c-min-v', 'c-max-v'].forEach(id => {
+        document.getElementById(id).addEventListener('input', () => {
+            document.getElementById('chem-selector').value = 'custom';
+            updateDeleteButtons();
+        });
+    });
+
+    // Metallic Sliders Update
+    ['met-cell', 'met-cap', 'met-bus', 'met-spacer'].forEach(id => {
+        const el = document.getElementById(id);
+        const valEl = document.getElementById('val-'+id);
+        el.addEventListener('input', () => {
+            valEl.innerText = Math.round(el.value * 100) + "%";
+            updatePack();
+        });
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => location.reload());
+
+    // --- RENDER ENGINE ---
+    const wireRedMat = new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.5 });
+    const wireBlackMat = new THREE.MeshStandardMaterial({ color: 0x212121, roughness: 0.5 });
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x333333 });
+
+    let currentStats = {}; 
+    let currentNickelLen = 0; // Accumulator for nickel strip length
+
+    function updatePack() {
+        scene.background.set(inputs['col-bg'].value);
+        currentNickelLen = 0; // Reset
+        
+        // CLEANUP
+        occluders.length = 0;
+        labels.forEach(l => { 
+            if(l.parent) l.parent.remove(l); 
+            if(l.element && l.element.parentNode) l.element.parentNode.removeChild(l.element);
+        });
+        labels.length = 0;
+
+        while(packGroup.children.length > 0) {
+            const c = packGroup.children[0];
+            if(c.geometry) c.geometry.dispose();
+            packGroup.remove(c);
+        }
+        while(dimGroup.children.length > 0) dimGroup.remove(dimGroup.children[0]);
+        const domLabels = document.querySelectorAll('.label-tag, .dim-tag');
+        domLabels.forEach(el => el.remove());
+
+        // Gather Inputs
+        const d = parseFloat(inputs['c-diam'].value);
+        const l = parseFloat(inputs['c-len'].value);
+        const S = parseInt(inputs['s-count'].value);
+        const P = parseInt(inputs['p-count'].value);
+        const spacing = parseFloat(inputs['c-spacing'].value);
+        const nomV = parseFloat(inputs['c-volts'].value);
+        const isHex = inputs['hex-mode'].checked;
+        const busMode = inputs['bus-mode'].value;
+        const showGeo = busMode !== 'none';
+
+        const effectiveD = d + spacing;
+
+        const cellMat = new THREE.MeshStandardMaterial({ 
+            color: inputs['col-cell'].value, roughness: 0.35, metalness: parseFloat(inputs['met-cell'].value) 
+        });
+        const capMat = new THREE.MeshStandardMaterial({ 
+            color: inputs['col-cap'].value, roughness: 0.3, metalness: parseFloat(inputs['met-cap'].value)
+        });
+        const busMat = new THREE.MeshStandardMaterial({ 
+            color: inputs['col-bus'].value, roughness: 0.5, metalness: parseFloat(inputs['met-bus'].value)
+        });
+        const spacerMat = new THREE.MeshStandardMaterial({
+            color: inputs['col-spacer'].value, roughness: 0.9, metalness: parseFloat(inputs['met-spacer'].value)
+        });
+
+        const cellGeo = new THREE.CylinderGeometry(d/2, d/2, l, 32);
+        const capGeo = new THREE.CylinderGeometry(d/2 * 0.7, d/2 * 0.7, 0.5, 32);
+        const edgesGeo = new THREE.EdgesGeometry(cellGeo, 20);
+        const spacerGeo = new THREE.CylinderGeometry(effectiveD/2, effectiveD/2, 2.0, 32);
+
+        let minX=Infinity, maxX=-Infinity, minZ=Infinity, maxZ=-Infinity;
+        let columnCenters = []; 
+
+        // 1. CELLS
+        for (let s = 0; s < S; s++) {
+            let colData = [];
+            for (let p = 0; p < P; p++) {
+                let x = s * effectiveD;
+                let z = p * effectiveD;
+                if (isHex) {
+                    z = p * (effectiveD * 0.866);
+                    if (p % 2 !== 0) x += effectiveD * 0.5;
+                }
+                minX = Math.min(minX, x - d/2); maxX = Math.max(maxX, x + d/2);
+                minZ = Math.min(minZ, z - d/2); maxZ = Math.max(maxZ, z + d/2);
+                colData.push({x, z});
+
+                const cell = new THREE.Mesh(cellGeo, cellMat);
+                cell.castShadow = true; cell.receiveShadow = true;
+                
+                const isFlipped = (s % 2 === 0);
+                cell.position.set(x, l/2, z);
+                
+                if(isFlipped) { cell.rotation.x = Math.PI; cell.position.y = l/2; }
+                
+                const cap = new THREE.Mesh(capGeo, capMat);
+                cap.position.set(0, l/2 + 0.26, 0);
+                cell.add(cap);
+
+                // Add Spacers (Plastic Holders) - ONLY IF SPACING > 0.05
+                // This prevents z-fighting and flashing when spacing is near zero
+                if (spacing > 0.05) {
+                    const botSpacer = new THREE.Mesh(spacerGeo, spacerMat);
+                    botSpacer.position.set(0, -(l/2) + 1.0 + 0.05, 0); 
+                    cell.add(botSpacer);
+
+                    const topSpacer = new THREE.Mesh(spacerGeo, spacerMat);
+                    topSpacer.position.set(0, (l/2) - 1.0 - 0.05, 0); 
+                    cell.add(topSpacer);
+                }
+
+                cell.add(new THREE.LineSegments(edgesGeo, new THREE.LineBasicMaterial({ color: 0x000000, opacity: 0.1, transparent: true })));
+                packGroup.add(cell);
+                
+                occluders.push(cell);
+            }
+            columnCenters.push(colData);
+        }
+        
+        // Correct bounds for spacers
+        minX -= spacing/2; maxX += spacing/2;
+        minZ -= spacing/2; maxZ += spacing/2;
+
+        // 2. BUSBARS
+        if (showGeo) {
+            const stripWidth = d * 0.4;
+            const stripThick = 0.3;
+            const cylGeo = new THREE.CylinderGeometry(stripWidth/2, stripWidth/2, stripThick, 32);
+            
+            const addStrip = (p1, p2, y) => {
+                const vec1 = new THREE.Vector3(p1.x, y, p1.z);
+                const vec2 = new THREE.Vector3(p2.x, y, p2.z);
+                const dist = vec1.distanceTo(vec2);
+                
+                // Add to Nickel Total Length (assume single strip length is distance between centers)
+                currentNickelLen += dist;
+
+                const stripGroup = new THREE.Group();
+                const boxGeo = new THREE.BoxGeometry(stripWidth, stripThick, dist);
+                const box = new THREE.Mesh(boxGeo, busMat);
+                stripGroup.add(box);
+                const c1 = new THREE.Mesh(cylGeo, busMat); c1.position.z = -dist/2; stripGroup.add(c1);
+                const c2 = new THREE.Mesh(cylGeo, busMat); c2.position.z = dist/2; stripGroup.add(c2);
+
+                const mid = vec1.clone().add(vec2).multiplyScalar(0.5);
+                stripGroup.position.copy(mid);
+                stripGroup.lookAt(vec2);
+                packGroup.add(stripGroup);
+                
+                occluders.push(box);
+                
+                return mid; 
+            };
+
+            const yTop = l + 0.4;
+            const yBot = -0.4;
+
+            // Parallel
+            for(let s=0; s<S; s++) {
+                for(let p=0; p<P-1; p++) {
+                    addStrip(columnCenters[s][p], columnCenters[s][p+1], yTop);
+                    addStrip(columnCenters[s][p], columnCenters[s][p+1], yBot);
+                }
+            }
+            // Series
+            for(let s=0; s<S-1; s++) {
+                const isTopConn = (s % 2 !== 0);
+                const yPos = isTopConn ? yTop : yBot;
+                let labelPos = null;
+                for(let p=0; p<P; p++) {
+                    const center = addStrip(columnCenters[s][p], columnCenters[s+1][p], yPos);
+                    if(p === Math.floor(P/2)) labelPos = center;
+                }
+                if((busMode === 'bn' || busMode === 'both') && labelPos) {
+                    const volt = ((s+1)*nomV).toFixed(1) + "V";
+                    let txt = (busMode === 'bn') ? `B${s+1}` : `B${s+1} ${volt}`;
+                    addLabel(txt, labelPos.x, labelPos.y + (isTopConn?3:-3), labelPos.z);
+                }
+            }
+
+            // Terminals
+            const getTerminalPos = (sIndex, yLevel) => {
+                const pCenters = columnCenters[sIndex];
+                if (P % 2 !== 0) {
+                    const idx = Math.floor(P / 2);
+                    const centerCell = pCenters[idx];
+                    return new THREE.Vector3(centerCell.x, yLevel, centerCell.z);
+                } else {
+                    const idx1 = (P / 2) - 1; const idx2 = P / 2;
+                    const p1 = pCenters[idx1]; const p2 = pCenters[idx2];
+                    return new THREE.Vector3((p1.x + p2.x) / 2, yLevel, (p1.z + p2.z) / 2);
+                }
+            };
+            const negY = l + 0.4; 
+            const nStart = getTerminalPos(0, negY);
+            addWire(nStart, negY, false);
+            
+            const lastIdx = S - 1;
+            const isLastOdd = (lastIdx % 2 !== 0);
+            const posY = isLastOdd ? (l + 0.4) : -0.4;
+            const pStart = getTerminalPos(lastIdx, posY);
+            addWire(pStart, posY, true);
+
+            if(busMode !== 'geo' && busMode !== 'none'){
+                addLabel("0V", nStart.x, negY + 5, nStart.z, '#333');
+                const totV = (S*nomV).toFixed(1) + "V";
+                addLabel(`+${totV}`, pStart.x, posY + (isLastOdd?5:-5), pStart.z, '#d32f2f');
+            }
+        }
+
+        // Dims
+        const bW = (maxX - minX);
+        const bD = (maxZ - minZ);
+        const cX = (minX + maxX)/2;
+        const cZ = (minZ + maxZ)/2;
+        packGroup.position.set(-cX, 0, -cZ);
+        addDimensions(bW, l, bD, cX, cZ);
+        calculateStats(bW, bD, l, S, P);
+    }
+
+    function addWire(startPos, y, isPos) {
+        const isTop = (y > 10);
+        const vertOffset = isTop ? 15 : -15;
+        const curve = new THREE.CatmullRomCurve3([
+            startPos, 
+            new THREE.Vector3(startPos.x + (isPos?5:-5), startPos.y + vertOffset, startPos.z), 
+            new THREE.Vector3(startPos.x + (isPos?50:-50), startPos.y + vertOffset, startPos.z)
+        ]);
+        const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 12, 2.5, 8, false), isPos ? wireRedMat : wireBlackMat);
+        packGroup.add(tube);
+    }
+
+    function addLabel(text, x, y, z, color) {
+        const div = document.createElement('div');
+        div.className = 'label-tag';
+        if(color) { div.style.color = color; div.style.borderColor = color; }
+        div.innerHTML = text;
+        const obj = new CSS2DObject(div);
+        obj.position.set(x, y, z);
+        packGroup.add(obj);
+        labels.push(obj);
+    }
+
+    function addDimensions(w, h, d, cx, cz) {
+        const createDim = (start, end, label) => {
+            const lineGeo = new THREE.BufferGeometry().setFromPoints([start, end]);
+            const line = new THREE.Line(lineGeo, lineMat); dimGroup.add(line);
+            const coneGeo = new THREE.ConeGeometry(1.5, 4, 8);
+            coneGeo.translate(0, -2, 0); coneGeo.rotateX(-Math.PI/2); 
+            const coneMat = new THREE.MeshBasicMaterial({color: 0x333333});
+            const c1 = new THREE.Mesh(coneGeo, coneMat); c1.position.copy(start); c1.lookAt(end); dimGroup.add(c1);
+            const c2 = new THREE.Mesh(coneGeo, coneMat); c2.position.copy(end); c2.lookAt(start); dimGroup.add(c2);
+            const div = document.createElement('div'); div.className = 'dim-tag'; div.innerText = label;
+            const obj = new CSS2DObject(div); obj.position.copy(start).lerp(end, 0.5); dimGroup.add(obj);
+            labels.push(obj);
+            return [start, end];
+        };
+        const createWitness = (from, to) => {
+            const mat = new THREE.LineBasicMaterial({ color: 0x999999, transparent:true, opacity:0.5 });
+            const geo = new THREE.BufferGeometry().setFromPoints([from, to]); dimGroup.add(new THREE.Line(geo, mat));
+        }
+        const offset = 35;
+        const zFront = (d/2) + offset;
+        const ptsW = createDim(new THREE.Vector3(-w/2, 0, zFront), new THREE.Vector3(w/2, 0, zFront), w.toFixed(1) + "mm");
+        createWitness(new THREE.Vector3(-w/2, 0, d/2), ptsW[0]); createWitness(new THREE.Vector3(w/2, 0, d/2), ptsW[1]);
+        const xRight = (w/2) + offset;
+        const ptsD = createDim(new THREE.Vector3(xRight, 0, -d/2), new THREE.Vector3(xRight, 0, d/2), d.toFixed(1) + "mm");
+        createWitness(new THREE.Vector3(w/2, 0, -d/2), ptsD[0]); createWitness(new THREE.Vector3(w/2, 0, d/2), ptsD[1]);
+        const xLeft = (-w/2) - offset;
+        const zCorner = (d/2); 
+        const ptsH = createDim(new THREE.Vector3(xLeft, 0, zCorner), new THREE.Vector3(xLeft, h, zCorner), h.toFixed(1) + "mm");
+        createWitness(new THREE.Vector3(-w/2, 0, d/2), ptsH[0]); createWitness(new THREE.Vector3(-w/2, h, d/2), ptsH[1]);
+    }
+
+    // --- CALCS ---
+    function calculateStats(w, dep, h, S, P) {
+        const v = parseFloat(inputs['c-volts'].value);
+        const vMin = parseFloat(inputs['c-min-v'].value);
+        const vMax = parseFloat(inputs['c-max-v'].value);
+        const ah = parseFloat(inputs['c-mah'].value);
+        const amp = parseFloat(inputs['c-amp'].value);
+        const weight = parseFloat(inputs['c-weight'].value);
+        const costStr = inputs['c-cost'].value;
+        const costVal = parseFloat(costStr.replace(/[^0-9.]/g, '')) || 0;
+        let costSym = costStr.replace(/[0-9.]/g, '').trim(); if(!costSym) costSym = '€';
+        
+        const packV = S * v;
+        const packVMin = S * vMin;
+        const packVMax = S * vMax;
+        const packAh = (P * ah)/1000;
+        const packWh = packV * packAh;
+        const packKg = (S * P * weight)/1000;
+        const packCost = S * P * costVal;
+        const packVol = (w*dep*h)/1000000; 
+        const maxKw = (packV * (P*amp)) / 1000;
+        const maxAmps = P * amp;
+
+        // NICKEL OUTPUT
+        const nickelMeters = currentNickelLen / 1000; // mm to m
+        document.getElementById('out-nickel').innerText = `${nickelMeters.toFixed(2)} m`;
+
+        document.getElementById('out-config').innerHTML = `${S}S&nbsp;${P}P <span style="font-weight:400; font-size:0.9em">(${S*P} cells)</span>`;
+        document.getElementById('out-nom-label').innerHTML = `${packV.toFixed(1)}V&nbsp;${packAh.toFixed(1)}Ah`;
+        document.getElementById('out-v-range').innerText = `${packVMin.toFixed(1)} - ${packVMax.toFixed(1)} V`;
+        document.getElementById('out-wh').innerText = `${Math.round(packWh)} Wh`;
+        
+        document.getElementById('dim-l').innerText = `${w.toFixed(1)} mm`;
+        document.getElementById('dim-w').innerText = `${dep.toFixed(1)} mm`;
+        document.getElementById('dim-h').innerText = `${h.toFixed(0)} mm`;
+        
+        document.getElementById('out-vol').innerText = `${Math.round(packVol*1000)} mL`;
+        document.getElementById('out-weight').innerText = `${packKg.toFixed(2)} kg`;
+        
+        document.getElementById('out-output').innerHTML = `${maxAmps.toFixed(0)}A&nbsp;<span style="font-weight:400">|</span>&nbsp;${Math.round(maxKw*1000)}W`;
+        document.getElementById('out-cost').innerText = `${costSym}${packCost.toFixed(2)}`;
+
+        currentStats = { 
+            name: inputs['pack-name'].value,
+            s: S, p: P, cells: S*P,
+            v: packV, ah: packAh, wh: packWh,
+            w: w, d: dep, h: h, vol: packVol,
+            kg: packKg, cost: packCost, kw: maxKw,
+            amp: maxAmps, vmin: packVMin, vmax: packVMax,
+            nickel: nickelMeters
+        };
+    }
+
+    // --- SNAPSHOT & COMPARE SYSTEM ---
+    const snapshots = [];
+    const snapListEl = document.getElementById('snap-list');
+
+    document.getElementById('btn-snap').addEventListener('click', () => {
+        const state = {};
+        inputIds.forEach(id => {
+            const el = document.getElementById(id);
+            state[id] = (el.type==='checkbox') ? el.checked : el.value;
+        });
+        const snap = { id: Date.now(), inputs: state, data: {...currentStats} };
+        snapshots.push(snap);
+        renderSnapList();
+    });
+
+    function renderSnapList() {
+        snapListEl.innerHTML = '';
+        document.getElementById('snap-count').innerText = snapshots.length;
+        
+        snapshots.forEach((snap, idx) => {
+            const el = document.createElement('div');
+            el.className = 'snap-item';
+            el.innerHTML = `
+                <div class="snap-info">
+                    <div class="snap-name">${snap.data.name}</div>
+                    <div class="snap-detail">${snap.data.s}S${snap.data.p}P | ${Math.round(snap.data.wh)}Wh | €${Math.round(snap.data.cost)}</div>
+                </div>
+                <div class="snap-tools">
+                    <button class="tool-btn tool-load" title="Load these settings">📂</button>
+                    <button class="tool-btn tool-del" title="Delete">✕</button>
+                </div>
+            `;
+            el.querySelector('.tool-load').addEventListener('click', () => loadSnapshot(snap));
+            el.querySelector('.tool-del').addEventListener('click', () => {
+                snapshots.splice(idx,1); renderSnapList();
+            });
+            snapListEl.appendChild(el);
+        });
+    }
+
+    function loadSnapshot(snap) {
+        const state = snap.inputs;
+        inputIds.forEach(id => {
+            const el = document.getElementById(id);
+            if(state[id] !== undefined) {
+                if(el.type === 'checkbox') el.checked = state[id];
+                else el.value = state[id];
+            }
+        });
+        updatePack();
+    }
+
+    // --- COMPARISON MATRIX ---
+    document.getElementById('btn-compare').addEventListener('click', () => {
+        if(snapshots.length === 0) { alert("Add configurations to compare first."); return; }
+        
+        const modal = document.getElementById('modal-overlay');
+        const head = document.getElementById('comp-head-row');
+        const body = document.getElementById('comp-body');
+        
+        modal.style.display = 'flex';
+        
+        head.innerHTML = '<th>Parameter</th>';
+        snapshots.forEach(s => {
+            const th = document.createElement('th');
+            th.innerHTML = `<div>${s.data.name}</div><div class="comp-header-sub">${s.data.s}S ${s.data.p}P</div>`;
+            head.appendChild(th);
+        });
+
+        const rows = [
+            { label: 'Physical Specs', isHeader: true },
+            { label: 'Weight', key: 'kg', unit: ' kg', good: 'min' },
+            { label: 'Volume', key: 'vol', unit: ' L', good: 'min' },
+            { label: 'Dimensions', complex: d => `L:${d.w.toFixed(0)} W:${d.d.toFixed(0)} H:${d.h.toFixed(0)}` },
+            { label: 'Cell Count', key: 'cells', unit: '', good: 'neutral' },
+            { label: 'Nickel Needed', key: 'nickel', unit: ' m', good: 'min' },
+            
+            { label: 'Electrical Specs', isHeader: true },
+            { label: 'Capacity', key: 'ah', unit: ' Ah', good: 'max' },
+            { label: 'Nominal V', key: 'v', unit: ' V', good: 'neutral' },
+            { label: 'V Range', complex: d => `${d.vmin.toFixed(1)} - ${d.vmax.toFixed(1)} V` },
+            { label: 'Max Current', key: 'amp', unit: ' A', good: 'max' },
+            { label: 'Max Power', key: 'kw', unit: ' kW', good: 'max' },
+            { label: 'Total Energy', key: 'wh', unit: ' Wh', good: 'max' },
+            
+            { label: 'Value & Density', isHeader: true },
+            { label: 'Total Cost', key: 'cost', unit: ' €', good: 'min' },
+            { label: 'Energy Density', complex: d => `${(d.wh/d.kg).toFixed(0)} Wh/kg`, good:'max', val: d=>d.wh/d.kg },
+            { label: 'Volumetric Efficiency', complex: d => `${(d.wh/d.vol).toFixed(0)} Wh/L`, good:'max', val: d=>d.wh/d.vol },
+            { label: 'Cost Efficiency', complex: d => `${(d.wh/d.cost).toFixed(1)} Wh/€`, good:'max', val: d=>d.wh/d.cost }
+        ];
+
+        body.innerHTML = '';
+        rows.forEach(r => {
+            const tr = document.createElement('tr');
+            if(r.isHeader) {
+                tr.innerHTML = `<td colspan="${snapshots.length+1}" class="row-group">${r.label}</td>`;
+                body.appendChild(tr);
+                return;
+            }
+
+            tr.innerHTML = `<td>${r.label}</td>`;
+            
+            let vals = [];
+            if(r.key) vals = snapshots.map(s => s.data[r.key]);
+            if(r.val) vals = snapshots.map(s => r.val(s.data));
+            
+            let best = null;
+            if(r.good === 'max') best = Math.max(...vals);
+            if(r.good === 'min') best = Math.min(...vals);
+
+            snapshots.forEach(s => {
+                const td = document.createElement('td');
+                let displayTxt = '';
+                let numericVal = 0;
+
+                if(r.complex) {
+                    displayTxt = r.complex(s.data);
+                    numericVal = r.val ? r.val(s.data) : null;
+                } else {
+                    const val = s.data[r.key];
+                    numericVal = val;
+                    let txt = (val % 1 !== 0) ? val.toFixed(1) : val;
+                    if(r.unit === ' €') txt = '€' + val.toFixed(2);
+                    else txt += r.unit;
+                    displayTxt = txt;
+                }
+
+                if(r.good && r.good !== 'neutral' && snapshots.length > 1) {
+                    const checkVal = (r.val) ? numericVal : s.data[r.key];
+                    if(Math.abs(checkVal - best) < 0.001) td.innerHTML = `<span class="best-val">${displayTxt}</span>`;
+                    else td.innerText = displayTxt;
+                } else {
+                    td.innerText = displayTxt;
+                }
+                tr.appendChild(td);
+            });
+            body.appendChild(tr);
+        });
+    });
+
+    inputIds.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) {
+            el.addEventListener('input', updatePack);
+            el.addEventListener('change', updatePack);
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        labelRenderer.setSize(container.clientWidth, container.clientHeight);
+    });
+
+    // --- ANIMATION LOOP ---
+    function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+
+        // OCCLUSION LOGIC
+        for(const label of labels) {
+            label.getWorldPosition(v3);
+            const dir = v3.clone().sub(camera.position);
+            const dist = dir.length();
+            dir.normalize();
+            
+            raycaster.set(camera.position, dir);
+            const intersects = raycaster.intersectObjects(occluders, false);
+            
+            if(intersects.length > 0) {
+                if(intersects[0].distance < dist - 2) {
+                    label.element.classList.add('occluded');
+                } else {
+                    label.element.classList.remove('occluded');
+                }
+            } else {
+                label.element.classList.remove('occluded');
+            }
+        }
+
+        labelRenderer.render(scene, camera);
+    }
+    
+    updatePack();
+    animate();
+</script>
+</body>
+</html>
