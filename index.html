@@ -1878,15 +1878,22 @@
                         }
                     });
 
-                    // 2b. Match loaded inputs to presets
+					// 2b. Match loaded inputs to presets
                     const selSize = document.getElementById('preset-selector');
+                    
+                    // FIX: Default to 'custom' before trying to find a match
+                    // If no match is found in the loop below, it will correctly stay as "Custom Cell"
+                    selSize.value = 'custom'; 
+
                     const targetD = parseFloat(state.inputs['c-diam']);
                     const targetL = parseFloat(state.inputs['c-len']);
                     const targetW = parseFloat(state.inputs['c-weight']);
+                    
                     for(let i=0; i<selSize.options.length; i++) {
                         if(selSize.options[i].value === 'custom') continue;
                         try {
                             const d = JSON.parse(selSize.options[i].value);
+                            // We use a small epsilon for float comparison
                             if(Math.abs(d.d - targetD) < 0.01 && 
                                Math.abs(d.l - targetL) < 0.01 && 
                                Math.abs(d.w - targetW) < 0.01) {
@@ -1895,6 +1902,7 @@
                         } catch(err){}
                     }
 
+                    // Do the same for Chemistry to be safe
                     const selChem = document.getElementById('chem-selector');
                     const targetNom = parseFloat(state.inputs['c-volts']);
                     const targetMin = parseFloat(state.inputs['c-min-v']);
