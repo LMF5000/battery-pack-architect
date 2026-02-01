@@ -11,7 +11,7 @@
 
 ## 📖 About
 
-I created **Battery Pack Architect** because I needed a better way to visualize custom battery configurations before committing to spot welding. As a mechanical engineer with a passion for sustainable tech, I often find myself with a pile of 18650 cells recovered from old devices, trying to figure out the most efficient way to repack them.
+I created **Battery Pack Architect** because I needed a better way to visualize custom battery configurations before committing to spot welding. As someone with a passion for sustainable tech, I often find myself with a pile of 18650 cells recovered from old devices, trying to figure out the most efficient way to repack them.
 
 This tool allows DIYers and engineers to:
 * Visualize packs in **3D** with realistic components (spacers, caps, busbars).
