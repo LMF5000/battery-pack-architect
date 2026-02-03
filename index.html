@@ -16,7 +16,9 @@
     <meta property="og:url" content="https://lmf5000.github.io/battery-pack-architect/">
     <meta property="og:title" content="Battery Pack Architect - 3D Design & Configurator">
     <meta property="og:description" content="Design and visualize custom battery packs with real-time electrical and physical stat updates.">
-    <meta property="og:image" content="https://lmf5000.github.io/battery-pack-architect/preview.jpg"> <meta property="twitter:card" content="summary_large_image">
+    <meta property="og:image" content="https://lmf5000.github.io/battery-pack-architect/preview.jpg"> 
+    
+    <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="Battery Pack Architect">
     <meta property="twitter:description" content="The ultimate tool for designing lithium-ion battery packs in 3D.">
 
@@ -68,7 +70,7 @@
             display: flex; align-items: center; justify-content: space-between; 
             flex-wrap: nowrap; position: sticky; top: 0; z-index: 30; height: 50px; box-sizing: border-box;
         }
-        h2 { margin: 0; font-size: 1rem; color: #1e293b; display: flex; align-items: center; gap: 6px; font-weight: 700; flex-shrink: 0; white-space: nowrap; }
+        h1 { margin: 0; font-size: 1rem; color: #1e293b; display: flex; align-items: center; gap: 6px; font-weight: 700; flex-shrink: 0; white-space: nowrap; }
         .header-actions { display: flex; gap: 5px; align-items: center; flex-shrink: 0; margin-left: auto; }
 
         .btn-header {
@@ -435,7 +437,7 @@
     <div id="controls-container">
         
         <div class="header">
-            <h2><span style="font-size:1.2em">🔋</span> Pack <span class="title-architect">Architect</span> <span class="version-span" style="font-size:0.8em; color:#94a3b8; font-weight:400; margin-left: 5px;">v65</span></h2>
+            <h1><span style="font-size:1.2em">🔋</span> Pack <span class="title-architect">Architect</span> <span class="version-span" style="font-size:0.8em; color:#94a3b8; font-weight:400; margin-left: 5px;">v70</span></h1>
             
             <div class="header-actions">
                 <div class="dropdown">
@@ -443,6 +445,10 @@
                     <div id="file-menu" class="dropdown-content">
                         <a href="#" id="menu-import">📂 Import Settings</a>
                         <a href="#" id="menu-export">💾 Export Settings</a>
+                        
+                        <a href="#" id="menu-feedback" style="border-top:1px solid #e2e8f0;">💬 Send Feedback</a>
+						<a href="#" id="menu-commercial">💼 Commercial Enquiries</a>
+
                         <a href="#" id="menu-license" style="border-top:1px solid #e2e8f0; color:#b91c1c;">📜 View License (GPLv3)</a>
                         <a href="#" id="menu-disclaimer">⚠️ Safety & Legal</a>
                     </div>
@@ -653,6 +659,28 @@
                 </div>
             </div>
         </details>
+
+        <div class="group-box" style="margin-top: 15px; border: 1px dashed #cbd5e1; background: #f1f5f9;">
+            <div class="section-title">Support & Contact</div>
+            <div style="font-size: 0.75rem; color: #64748b; line-height: 1.4;">
+                <p style="margin: 0 0 8px 0;">Found a bug or need a custom integration?</p>
+                <div style="display: flex; gap: 8px;">
+					<a href="#" id="sidebar-feedback" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Feedback Form</a>
+					<span style="color: #cbd5e1;">|</span>
+					<a href="#" id="sidebar-commercial" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Commercial</a>
+				</div>
+            </div>
+        </div>
+
+        <div style="padding: 10px 15px; color: #94a3b8; font-size: 0.65rem; line-height: 1.5;">
+            <p style="margin-bottom: 5px;"><strong>About Battery Pack Architect</strong></p>
+            <p>
+                This <strong>3D battery pack calculator</strong> helps DIY enthusiasts and engineers design custom lithium-ion battery packs.
+                Visualize <strong>18650</strong>, <strong>21700</strong>, and <strong>LiFePO4</strong> cells in series (S) and parallel (P) configurations.
+                Calculate voltage, <strong>energy density</strong>, dimensions, and spot-welding nickel strip requirements instantly.
+                Ideal for e-bike batteries, powerwalls, and custom EV projects.
+            </p>
+        </div>
     </div>
 
     <div id="snapshot-area">
@@ -774,6 +802,32 @@
     </div>
 </div>
 
+<div id="feedback-overlay" class="modal-base-overlay">
+    <div id="feedback-box" style="background:#fff; width:95%; max-width:680px; height:90vh; border-radius:8px; display:flex; flex-direction:column; overflow:hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+        <div class="modal-header">
+            <h3 style="margin:0;">💬 Send Feedback</h3>
+            <button onclick="document.getElementById('feedback-overlay').style.display='none'" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:0; flex:1; overflow:hidden;">
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLScuvfCD_0sT5DStfZDcY9APwgVrCBqT-htn_F9dNEbg99aKeQ/viewform?embedded=true" 
+                    width="100%" height="100%" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        </div>
+    </div>
+</div>
+
+<div id="commercial-overlay" class="modal-base-overlay">
+    <div id="commercial-box" style="background:#fff; width:95%; max-width:680px; height:90vh; border-radius:8px; display:flex; flex-direction:column; overflow:hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+        <div class="modal-header">
+            <h3 style="margin:0;">💼 Commercial Enquiry</h3>
+            <button onclick="document.getElementById('commercial-overlay').style.display='none'" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:0; flex:1; overflow:hidden;">
+            <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfv3JQ16uyn0WJdmYm4P0709pcOB0JgBwDtLyN4yrFWh87NHg/viewform?embedded=true" 
+                    width="100%" height="100%" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe>
+        </div>
+    </div>
+</div>
+
 <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -796,6 +850,38 @@
         });
     }
     initDisclaimer();
+	
+	// --- MODAL HANDLERS ---
+    function setupModal(triggerId, overlayId) {
+        const trigger = document.getElementById(triggerId);
+        const overlay = document.getElementById(overlayId);
+        if(trigger && overlay) {
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                overlay.style.display = 'flex';
+                // Close menu if open
+                if(fileMenuDropdown) fileMenuDropdown.classList.remove('show');
+            });
+        }
+    }
+
+    // Connect Menu Links
+    setupModal('menu-feedback', 'feedback-overlay');
+    setupModal('menu-commercial', 'commercial-overlay');
+    
+    // Connect Sidebar Links
+    setupModal('sidebar-feedback', 'feedback-overlay');
+    setupModal('sidebar-commercial', 'commercial-overlay');
+
+    // Close modals on outside click
+    ['feedback-overlay', 'commercial-overlay'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) {
+            el.addEventListener('click', (e) => {
+                if(e.target === el) el.style.display = 'none';
+            });
+        }
+    });
 
     // --- EMBEDDED CELL DATABASE (Expanded) ---
     const CELL_DB = [
