@@ -54,6 +54,15 @@
         #watermark { bottom: 10px; right: 15px; font-weight: 600; opacity: 0.6; }
         #controls-hint { bottom: 10px; left: 15px; display: flex; flex-direction: column; gap: 2px; }
 
+        /* PERFORMANCE TOAST */
+        #perf-toast {
+            position: absolute; top: 60px; left: 50%; transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95); border: 1px solid #eab308; border-left: 4px solid #eab308;
+            padding: 8px 16px; border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            font-size: 0.75rem; color: #854d0e; font-weight: 600;
+            display: none; align-items: center; gap: 8px; z-index: 50; pointer-events: none;
+        }
+
         /* RESPONSIVE */
         @media (max-width: 800px) {
             body { flex-direction: column; }
@@ -81,21 +90,21 @@
         .btn-header:hover { border-color: #3b82f6; color: #3b82f6; }
         #btn-reset.btn-header:hover { border-color: #d32f2f; color: #d32f2f; }
 
-        /* HAMBURGER MENU STYLE - FIXED COMPACT SIZE */
-		.btn-hamburger {
-			background: transparent; 
-			border: 1px solid #cbd5e1; 
-			color: #475569;
-			font-size: 1.0rem; /* Icon size */
-			width: 28px;       /* Fixed width */
-			height: 24px;      /* Fixed height to match other buttons */
-			padding: 0;        /* Remove padding to prevent bloating */
-			border-radius: 4px;
-			cursor: pointer; 
-			display: flex; 
-			align-items: center; 
-			justify-content: center;
-		}
+        /* HAMBURGER MENU STYLE */
+        .btn-hamburger {
+            background: transparent; 
+            border: 1px solid #cbd5e1; 
+            color: #475569;
+            font-size: 1.0rem; 
+            width: 28px;       
+            height: 24px;      
+            padding: 0;        
+            border-radius: 4px;
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+        }
         .btn-hamburger:hover { border-color: #3b82f6; color: #3b82f6; }
 
         #btn-donate {
@@ -389,21 +398,21 @@
         
         /* DROPDOWN - FIXED WIDTH & WRAPPING */
         .dropdown { position: relative; display: inline-block; }
-		/* DROPDOWN - CENTERED UNDER BUTTON */
-		.dropdown-content {
-			display: none; 
-			position: absolute; 
-			left: 50%;                   /* Move to horizontal middle of parent */
-			transform: translateX(-50%); /* Shift back by half its width to center */
-			background-color: #ffffff; 
-			min-width: 200px; 
-			box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
-			z-index: 100; 
-			border-radius: 6px; 
-			border: 1px solid #e2e8f0; 
-			padding: 4px 0;
-			margin-top: 2px;
-		}
+        /* DROPDOWN - CENTERED UNDER BUTTON */
+        .dropdown-content {
+            display: none; 
+            position: absolute; 
+            left: 50%;                    /* Move to horizontal middle of parent */
+            transform: translateX(-50%); /* Shift back by half its width to center */
+            background-color: #ffffff; 
+            min-width: 200px; 
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+            z-index: 100; 
+            border-radius: 6px; 
+            border: 1px solid #e2e8f0; 
+            padding: 4px 0;
+            margin-top: 2px;
+        }
         .dropdown-content a { 
             color: #334155; padding: 6px 15px; 
             text-decoration: none; display: block; 
@@ -437,7 +446,7 @@
     <div id="controls-container">
         
         <div class="header">
-            <h1><span style="font-size:1.2em">🔋</span> Pack <span class="title-architect">Architect</span> <span class="version-span" style="font-size:0.8em; color:#94a3b8; font-weight:400; margin-left: 5px;">v70</span></h1>
+            <h1><span style="font-size:1.2em">🔋</span> Pack <span class="title-architect">Architect</span> <span class="version-span" style="font-size:0.8em; color:#94a3b8; font-weight:400; margin-left: 5px;">v73</span></h1>
             
             <div class="header-actions">
                 <div class="dropdown">
@@ -447,7 +456,7 @@
                         <a href="#" id="menu-export">💾 Export Settings</a>
                         
                         <a href="#" id="menu-feedback" style="border-top:1px solid #e2e8f0;">💬 Send Feedback</a>
-						<a href="#" id="menu-commercial">💼 Commercial Enquiries</a>
+                        <a href="#" id="menu-commercial">💼 Commercial Enquiries</a>
 
                         <a href="#" id="menu-license" style="border-top:1px solid #e2e8f0; color:#b91c1c;">📜 View License (GPLv3)</a>
                         <a href="#" id="menu-disclaimer">⚠️ Safety & Legal</a>
@@ -553,30 +562,30 @@
             
             <div class="controls-grid" style="margin-bottom:8px;">
                 <div class="control-item">
-					 <label>Layers
-						<span class="help-icon warn" style="margin-left:4px;">!
-							<div class="tip-content tip-right" style="width: 250px; text-align: left; padding: 12px;">
-								<div style="margin-bottom: 8px; font-weight: 500; color: #fff;">
-									Total series count is divided across this many layers.
-								</div>
-								
-								<div style="background: rgba(0,0,0,0.25); border-left: 3px solid #fca5a5; padding: 8px; border-radius: 4px; font-size: 0.65rem; line-height: 1.4;">
-									<strong style="color: #fca5a5; display:block; margin-bottom:4px; text-transform: uppercase;">⚠️ Experimental</strong>
-									Multi-layer busbar logic is complex. The visualization will output incorrect strip positions for certain configurations. 
-									<div style="margin-top:4px; color:#fff; font-weight:600;">Always verify connections manually.</div>
-								</div>
-							</div>
-						</span>
-					</label>
-                     <div class="layer-control-wrap">
-                         <div class="layer-input-group">
-                             <input type="number" id="pack-layers" value="1" min="1">
-                         </div>
-                         <div class="layer-check-group" id="row-exploded">
-                             <input type="checkbox" id="exploded-view" disabled>
-                             <label for="exploded-view" class="layer-check-label" id="lbl-exploded">Exploded<br>View</label>
-                         </div>
-                     </div>
+                     <label>Layers
+                        <span class="help-icon warn" style="margin-left:4px;">!
+                            <div class="tip-content tip-right" style="width: 250px; text-align: left; padding: 12px;">
+                                <div style="margin-bottom: 8px; font-weight: 500; color: #fff;">
+                                    Total series count is divided across this many layers.
+                                </div>
+                                
+                                <div style="background: rgba(0,0,0,0.25); border-left: 3px solid #fca5a5; padding: 8px; border-radius: 4px; font-size: 0.65rem; line-height: 1.4;">
+                                    <strong style="color: #fca5a5; display:block; margin-bottom:4px; text-transform: uppercase;">⚠️ Experimental</strong>
+                                    Multi-layer busbar logic is complex. The visualization will output incorrect strip positions for certain configurations. 
+                                    <div style="margin-top:4px; color:#fff; font-weight:600;">Always verify connections manually.</div>
+                                </div>
+                            </div>
+                        </span>
+                    </label>
+                      <div class="layer-control-wrap">
+                          <div class="layer-input-group">
+                              <input type="number" id="pack-layers" value="1" min="1">
+                          </div>
+                          <div class="layer-check-group" id="row-exploded">
+                              <input type="checkbox" id="exploded-view" disabled>
+                              <label for="exploded-view" class="layer-check-label" id="lbl-exploded">Exploded<br>View</label>
+                          </div>
+                      </div>
                 </div>
                 <div class="control-item">
                     <label>Layer Spacing (mm)</label>
@@ -665,10 +674,10 @@
             <div style="font-size: 0.75rem; color: #64748b; line-height: 1.4;">
                 <p style="margin: 0 0 8px 0;">Found a bug or need a custom integration?</p>
                 <div style="display: flex; gap: 8px;">
-					<a href="#" id="sidebar-feedback" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Feedback Form</a>
-					<span style="color: #cbd5e1;">|</span>
-					<a href="#" id="sidebar-commercial" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Commercial</a>
-				</div>
+                    <a href="#" id="sidebar-feedback" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Feedback Form</a>
+                    <span style="color: #cbd5e1;">|</span>
+                    <a href="#" id="sidebar-commercial" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Commercial</a>
+                </div>
             </div>
         </div>
 
@@ -730,6 +739,10 @@
         <span>🖱️ Left: Rotate</span>
         <span>🖱️ Right: Pan</span>
         <span>🖱️ Scroll: Zoom</span>
+    </div>
+    <div id="perf-toast">
+        <span>⚡ High Performance Mode Active</span>
+        <span style="font-weight:400;">(Labels hidden to save FPS)</span>
     </div>
 </div>
 
@@ -832,6 +845,7 @@
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+    import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
     // --- DISCLAIMER LOGIC ---
     function initDisclaimer() {
@@ -850,8 +864,8 @@
         });
     }
     initDisclaimer();
-	
-	// --- MODAL HANDLERS ---
+    
+    // --- MODAL HANDLERS ---
     function setupModal(triggerId, overlayId) {
         const trigger = document.getElementById(triggerId);
         const overlay = document.getElementById(overlayId);
@@ -966,9 +980,6 @@
         
         searchResults.innerHTML = '';
         if(matches.length > 0) {
-            matches.slice(10, 20).forEach(cell => { // Shows only some results if needed or slice(0,10)
-                // Original code was slice(0,10). I'll keep 0-10.
-            });
             matches.slice(0, 10).forEach(cell => {
                 const div = document.createElement('div');
                 div.className = 'db-item';
@@ -996,49 +1007,48 @@
         }
     });
 
-	function applyCellData(data) {
-			inputs['c-diam'].value = data.d;
-			inputs['c-len'].value = data.l;
-			inputs['c-weight'].value = data.w;
-			inputs['c-mah'].value = data.cap;
-			inputs['c-amp'].value = data.amp;
-			
-			// --- UI UPDATE START ---
-			// Handle the Preset Selector for Database entries
-			const sel = document.getElementById('preset-selector');
-			
-			// Check if we already created a temporary DB option, if not, create it
-			let dbOption = Array.from(sel.options).find(opt => opt.value === 'db_selected');
-			if (!dbOption) {
-				dbOption = document.createElement('option');
-				dbOption.value = 'db_selected';
-				// Insert it after "Custom Cell" so it's visible at the top
-				sel.add(dbOption, 1);
-			}
-			
-			// Update the text and select it
-			dbOption.text = `[DB] ${data.name}`; 
-			sel.value = 'db_selected';
-			// --- UI UPDATE END ---
+    function applyCellData(data) {
+            inputs['c-diam'].value = data.d;
+            inputs['c-len'].value = data.l;
+            inputs['c-weight'].value = data.w;
+            inputs['c-mah'].value = data.cap;
+            inputs['c-amp'].value = data.amp;
+            
+            // --- UI UPDATE START ---
+            // Handle the Preset Selector for Database entries
+            const sel = document.getElementById('preset-selector');
+            
+            // Check if we already created a temporary DB option, if not, create it
+            let dbOption = Array.from(sel.options).find(opt => opt.value === 'db_selected');
+            if (!dbOption) {
+                dbOption = document.createElement('option');
+                dbOption.value = 'db_selected';
+                // Insert it after "Custom Cell" so it's visible at the top
+                sel.add(dbOption, 1);
+            }
+            
+            // Update the text and select it
+            dbOption.text = `[DB] ${data.name}`; 
+            sel.value = 'db_selected';
+            // --- UI UPDATE END ---
 
-			// Auto Set Chemistry
-			const chemSel = document.getElementById('chem-selector');
-			if(data.type === 'lfp' || data.v < 3.4) {
-				for(let i=0; i<chemSel.options.length; i++) {
-					if(chemSel.options[i].text.includes('LiFePO4')) {
-						chemSel.selectedIndex = i; chemSel.dispatchEvent(new Event('change')); break;
-					}
-				}
-			} else {
-				for(let i=0; i<chemSel.options.length; i++) {
-					if(chemSel.options[i].text.includes('Li-ion') && chemSel.options[i].text.includes('3.6')) {
-						chemSel.selectedIndex = i; chemSel.dispatchEvent(new Event('change')); break;
-					}
-				}
-			}
-			// NOTE: We removed the line that forced 'preset-selector' to 'custom' here
-			updatePack();
-		}
+            // Auto Set Chemistry
+            const chemSel = document.getElementById('chem-selector');
+            if(data.type === 'lfp' || data.v < 3.4) {
+                for(let i=0; i<chemSel.options.length; i++) {
+                    if(chemSel.options[i].text.includes('LiFePO4')) {
+                        chemSel.selectedIndex = i; chemSel.dispatchEvent(new Event('change')); break;
+                    }
+                }
+            } else {
+                for(let i=0; i<chemSel.options.length; i++) {
+                    if(chemSel.options[i].text.includes('Li-ion') && chemSel.options[i].text.includes('3.6')) {
+                        chemSel.selectedIndex = i; chemSel.dispatchEvent(new Event('change')); break;
+                    }
+                }
+            }
+            updatePack();
+        }
 
 
     // --- FILE DROPDOWN MENU ---
@@ -1063,7 +1073,7 @@
         fileMenuDropdown.classList.remove('show');
     });
 
-	// --- MENU HANDLERS ---
+    // --- MENU HANDLERS ---
     document.getElementById('menu-disclaimer').addEventListener('click', (e) => {
         e.preventDefault();
         document.getElementById('disclaimer-overlay').style.display = 'flex';
@@ -1365,7 +1375,7 @@
         }
     });
 
-	// --- AUTO SWITCH TO CUSTOM ---
+    // --- AUTO SWITCH TO CUSTOM ---
     ['c-diam', 'c-len', 'c-weight', 'c-cost', 'c-mah', 'c-amp'].forEach(id => {
         document.getElementById(id).addEventListener('input', () => {
             const sel = document.getElementById('preset-selector');
@@ -1377,7 +1387,6 @@
             }
 
             // 2. Clear Database Search input if it has text
-            // This visually indicates the specs no longer match the DB name
             if (dbInput.value.trim() !== "") {
                 dbInput.value = "";
                 dbInput.placeholder = "Custom specs (modified)";
@@ -1421,6 +1430,19 @@
     let currentStats = {}; 
     let currentNickelLen = 0; // Accumulator for nickel strip length
 
+    // --- STATE MANAGEMENT FOR PERFORMANCE MODE ---
+    let userHasTouchedBusMode = false;
+    let lastUserBusMode = 'both'; // Default preferred state
+
+    // Track user intention specifically for the bus mode dropdown
+    // This runs BEFORE the general updatePack input listener because we attach it here.
+    const busSelect = document.getElementById('bus-mode');
+    busSelect.addEventListener('change', (e) => {
+        userHasTouchedBusMode = true;
+        lastUserBusMode = e.target.value;
+        updatePack();
+    });
+
     function updatePack() {
         scene.background.set(inputs['col-bg'].value);
         currentNickelLen = 0; // Reset
@@ -1451,6 +1473,43 @@
         let Layers = parseInt(inputs['pack-layers'].value) || 1;
         if(Layers < 1) Layers = 1;
         if(Layers > S_Total) Layers = S_Total; 
+        
+        const totalInstances = S_Total * P;
+
+        // --- PERFORMANCE MODE LOGIC ---
+        // Threshold: 500 cells
+        const highPerf = totalInstances > 500;
+        const toast = document.getElementById('perf-toast');
+        
+        if(highPerf) {
+            // High cell count territory
+            if (!userHasTouchedBusMode) {
+                // User hasn't overridden logic, force safe mode
+                if (busSelect.value !== 'geo' && busSelect.value !== 'none') {
+                     busSelect.value = 'geo';
+                     inputs['bus-mode'].value = 'geo'; // Ensure consistency
+                }
+                toast.style.display = 'flex';
+            } else {
+                // User has touched the control.
+                // If they selected a "heavy" mode, hide the banner (User Opt-in)
+                if (busSelect.value === 'bn' || busSelect.value === 'both') {
+                    toast.style.display = 'none';
+                } else {
+                    // They selected geo/none, so show banner to indicate why other stuff might be missing/optimized
+                    toast.style.display = 'flex';
+                }
+            }
+        } else {
+            // Low cell count - Restore user state if needed
+            toast.style.display = 'none';
+            
+            // If the script forced it to 'geo' previously, and now we are safe again, restore user preference
+            if (!userHasTouchedBusMode && busSelect.value === 'geo' && lastUserBusMode !== 'geo') {
+                busSelect.value = lastUserBusMode;
+                inputs['bus-mode'].value = lastUserBusMode;
+            }
+        }
 
         // UI Logic for Exploded View & Interconnect Settings
         const explCheck = document.getElementById('exploded-view');
@@ -1493,23 +1552,74 @@
 
         const effectiveD = d + spacing;
 
-        const cellMat = new THREE.MeshStandardMaterial({ 
-            color: inputs['col-cell'].value, roughness: 0.35, metalness: parseFloat(inputs['met-cell'].value) 
-        });
-        const capMat = new THREE.MeshStandardMaterial({ 
-            color: inputs['col-cap'].value, roughness: 0.3, metalness: parseFloat(inputs['met-cap'].value)
-        });
-        const busMat = new THREE.MeshStandardMaterial({ 
-            color: inputs['col-bus'].value, roughness: 0.5, metalness: parseFloat(inputs['met-bus'].value)
-        });
-        const spacerMat = new THREE.MeshStandardMaterial({
-            color: inputs['col-spacer'].value, roughness: 0.9, metalness: parseFloat(inputs['met-spacer'].value)
-        });
+        const cellMat = new THREE.MeshLambertMaterial({ color: inputs['col-cell'].value });
+        const capMat = new THREE.MeshLambertMaterial({ color: inputs['col-cap'].value });
+        const busMat = new THREE.MeshLambertMaterial({ color: inputs['col-bus'].value });
+        const spacerMat = new THREE.MeshLambertMaterial({ color: inputs['col-spacer'].value });
 
-        const cellGeo = new THREE.CylinderGeometry(d/2, d/2, l, 32);
-        const capGeo = new THREE.CylinderGeometry(d/2 * 0.7, d/2 * 0.7, 0.5, 32);
-        const edgesGeo = new THREE.EdgesGeometry(cellGeo, 20);
-        const spacerGeo = new THREE.CylinderGeometry(effectiveD/2, effectiveD/2, 2.0, 32);
+        // --- OPTIMIZATION: Adaptive Geometry Resolution (LOD) ---
+        let segs = 32;
+        if (totalInstances > 500) segs = 16;
+        if (totalInstances > 1000) segs = 10;
+
+        const cellGeo = new THREE.CylinderGeometry(d/2, d/2, l, segs);
+        const capGeo = new THREE.CylinderGeometry(d/2 * 0.7, d/2 * 0.7, 0.5, Math.max(8, segs/2));
+        // Only generate edge geometry if we are NOT in high perf mode. Saves massive CPU.
+        const edgesGeo = !highPerf ? new THREE.EdgesGeometry(cellGeo, 20) : null;
+        const spacerGeo = new THREE.CylinderGeometry(effectiveD/2, effectiveD/2, 2.0, segs);
+        
+        // INSTANCED MESH SETUP
+        const meshCells = new THREE.InstancedMesh(cellGeo, cellMat, totalInstances);
+        const meshCaps = new THREE.InstancedMesh(capGeo, capMat, totalInstances);
+        // Spacers: Max possible is 2 per cell (top/bottom)
+        const hasSpacers = spacing > 0.05;
+        const meshSpacers = new THREE.InstancedMesh(spacerGeo, spacerMat, hasSpacers ? totalInstances * 2 : 0);
+        
+        // Disable Shadows on high cell count to save GPU
+        const applyShadows = (mesh) => {
+            mesh.castShadow = !highPerf;
+            mesh.receiveShadow = !highPerf;
+        };
+        applyShadows(meshCells);
+        applyShadows(meshCaps);
+        applyShadows(meshSpacers);
+        
+        // --- BUSBAR OPTIMIZATION (Split Meshes) ---
+        const stripWidth = d * 0.4;
+        const stripThick = 0.3;
+        
+        // 1. Box for the straight section (Bridge)
+        const boxGeo = new THREE.BoxGeometry(stripWidth, stripThick, 1.0); 
+        // 2. Cylinder for the caps (Weld Points)
+        const cylGeo = new THREE.CylinderGeometry(stripWidth/2, stripWidth/2, stripThick, segs);
+        
+        // Create InstancedMeshes
+        const maxConns = totalInstances * 4;
+        const meshStrips = new THREE.InstancedMesh(boxGeo, busMat, maxConns);
+        const meshBusCaps = new THREE.InstancedMesh(cylGeo, busMat, maxConns * 2);
+        
+        applyShadows(meshStrips);
+        applyShadows(meshBusCaps);
+        
+        let stripIdx = 0;
+        let busCapIdx = 0;
+        
+        const dummy = new THREE.Object3D();
+        const dummyCap = new THREE.Object3D();
+        const dummySpacer = new THREE.Object3D();
+        const dummyStrip = new THREE.Object3D();
+        const dummyBusCap = new THREE.Object3D();
+
+        // Edge Merging Arrays
+        let mergedEdgePos;
+        let edgePos;
+        let edgeVOffset = 0;
+        
+        if (!highPerf && edgesGeo) {
+            edgePos = edgesGeo.attributes.position;
+            const totalEdgePoints = edgePos.count * totalInstances;
+            mergedEdgePos = new Float32Array(totalEdgePoints * 3);
+        }
 
         // SPLIT LOGIC
         const baseS = Math.floor(S_Total / Layers);
@@ -1525,6 +1635,9 @@
         // Track for inter-layer
         let lastLayerEndCells = []; 
         let prevLayerOutputIsTop = true; 
+        
+        let instanceIdx = 0;
+        let spacerIdx = 0;
 
         // Loop Layers
         for(let ly = 0; ly < Layers; ly++) {
@@ -1571,28 +1684,52 @@
                     
                     const cellY = layerYBase + l/2;
                     colData.push({x, y: cellY, z}); 
-
-                    const cell = new THREE.Mesh(cellGeo, cellMat);
-                    cell.castShadow = true; cell.receiveShadow = true;
-                    cell.position.set(x, cellY, z);
+                    
+                    // -- INSTANCE LOGIC --
+                    dummy.position.set(x, cellY, z);
                     
                     let isUpright = (s % 2 === 0);
                     if (!inputIsBottom) isUpright = !isUpright;
-                    if(!isUpright) cell.rotation.x = Math.PI;
                     
-                    const cap = new THREE.Mesh(capGeo, capMat);
-                    cap.position.set(0, l/2 + 0.26, 0); 
-                    cell.add(cap);
+                    if(!isUpright) dummy.rotation.x = Math.PI;
+                    else dummy.rotation.x = 0;
 
-                    if (spacing > 0.05) {
-                        const botSpacer = new THREE.Mesh(spacerGeo, spacerMat);
-                        botSpacer.position.set(0, -(l/2) + 1.0 + 0.05, 0); cell.add(botSpacer);
-                        const topSpacer = new THREE.Mesh(spacerGeo, spacerMat);
-                        topSpacer.position.set(0, (l/2) - 1.0 - 0.05, 0); cell.add(topSpacer);
+                    dummy.updateMatrix();
+                    meshCells.setMatrixAt(instanceIdx, dummy.matrix);
+                    
+                    // Cap Logic (relative to cell rotation)
+                    dummyCap.copy(dummy);
+                    dummyCap.translateY(l/2 + 0.26);
+                    dummyCap.updateMatrix();
+                    meshCaps.setMatrixAt(instanceIdx, dummyCap.matrix);
+
+                    if (hasSpacers) {
+                        // Bottom Spacer
+                        dummySpacer.copy(dummy);
+                        dummySpacer.translateY(-(l/2) + 1.0 + 0.05);
+                        dummySpacer.updateMatrix();
+                        meshSpacers.setMatrixAt(spacerIdx++, dummySpacer.matrix);
+                        
+                        // Top Spacer
+                        dummySpacer.copy(dummy);
+                        dummySpacer.translateY((l/2) - 1.0 - 0.05);
+                        dummySpacer.updateMatrix();
+                        meshSpacers.setMatrixAt(spacerIdx++, dummySpacer.matrix);
                     }
-                    cell.add(new THREE.LineSegments(edgesGeo, new THREE.LineBasicMaterial({ color: 0x000000, opacity: 0.1, transparent: true })));
-                    packGroup.add(cell);
-                    occluders.push(cell);
+                    
+                    // --- OPTIMIZATION: Skip edge calculation for high cell counts ---
+                    if (!highPerf && edgePos) {
+                        const mat = dummy.matrix;
+                        for (let i = 0; i < edgePos.count; i++) {
+                            v3.set(edgePos.getX(i), edgePos.getY(i), edgePos.getZ(i));
+                            v3.applyMatrix4(mat);
+                            mergedEdgePos[edgeVOffset++] = v3.x;
+                            mergedEdgePos[edgeVOffset++] = v3.y;
+                            mergedEdgePos[edgeVOffset++] = v3.z;
+                        }
+                    }
+
+                    instanceIdx++;
                 }
                 layerColCenters.push(colData);
                 currentXSlot += xDirection;
@@ -1600,25 +1737,34 @@
             
             // --- BUSBARS ---
             if (showGeo) {
-                const stripWidth = d * 0.4;
-                const stripThick = 0.3;
-                const cylGeo = new THREE.CylinderGeometry(stripWidth/2, stripWidth/2, stripThick, 32);
                 
-                const addStrip = (p1, p2, yWorld, isActualNickel) => {
+                const addStripInstanced = (p1, p2, yWorld, isActualNickel) => {
                     const vec1 = new THREE.Vector3(p1.x, yWorld, p1.z);
                     const vec2 = new THREE.Vector3(p2.x, yWorld, p2.z);
                     const dist = vec1.distanceTo(vec2);
-                    if(isActualNickel) currentNickelLen += dist;
-                    const stripGroup = new THREE.Group();
-                    const boxGeo = new THREE.BoxGeometry(stripWidth, stripThick, dist);
-                    const box = new THREE.Mesh(boxGeo, busMat);
-                    stripGroup.add(box);
-                    const c1 = new THREE.Mesh(cylGeo, busMat); c1.position.z = -dist/2; stripGroup.add(c1);
-                    const c2 = new THREE.Mesh(cylGeo, busMat); c2.position.z = dist/2; stripGroup.add(c2);
                     const mid = vec1.clone().add(vec2).multiplyScalar(0.5);
-                    stripGroup.position.copy(mid); stripGroup.lookAt(vec2);
-                    packGroup.add(stripGroup);
-                    occluders.push(box);
+                    
+                    if(isActualNickel) currentNickelLen += dist;
+                    
+                    // 1. Strip (Scaled Box)
+                    dummyStrip.position.copy(mid);
+                    dummyStrip.lookAt(vec2);
+                    dummyStrip.scale.set(1, 1, dist);
+                    dummyStrip.updateMatrix();
+                    meshStrips.setMatrixAt(stripIdx++, dummyStrip.matrix);
+                    
+                    // 2. Cap 1 (Fixed Cylinder)
+                    dummyBusCap.position.copy(vec1);
+                    dummyBusCap.rotation.set(0, 0, 0); 
+                    dummyBusCap.scale.set(1, 1, 1);
+                    dummyBusCap.updateMatrix();
+                    meshBusCaps.setMatrixAt(busCapIdx++, dummyBusCap.matrix);
+
+                    // 3. Cap 2 (Fixed Cylinder)
+                    dummyBusCap.position.copy(vec2);
+                    dummyBusCap.updateMatrix();
+                    meshBusCaps.setMatrixAt(busCapIdx++, dummyBusCap.matrix);
+
                     return mid; 
                 };
 
@@ -1628,8 +1774,8 @@
                 // Parallel
                 for(let s=0; s<currentLayerS; s++) {
                     for(let p=0; p<P-1; p++) {
-                        addStrip(layerColCenters[s][p], layerColCenters[s][p+1], yTop, true);
-                        addStrip(layerColCenters[s][p], layerColCenters[s][p+1], yBot, true);
+                        addStripInstanced(layerColCenters[s][p], layerColCenters[s][p+1], yTop, true);
+                        addStripInstanced(layerColCenters[s][p], layerColCenters[s][p+1], yBot, true);
                     }
                 }
                 
@@ -1644,7 +1790,7 @@
                     
                     let labelPos = null;
                     for(let p=0; p<P; p++) {
-                        const center = addStrip(layerColCenters[s][p], layerColCenters[s+1][p], yPos, true);
+                        const center = addStripInstanced(layerColCenters[s][p], layerColCenters[s+1][p], yPos, true);
                         if(p === Math.floor(P/2)) labelPos = center;
                     }
                     
@@ -1663,42 +1809,36 @@
                     const prevOutTop = !inputIsBottom; 
                     const yStart = prevOutTop ? (prevBaseY + l + 0.4) : (prevBaseY - 0.4);
                     const yEnd = inputIsBottom ? (layerYBase - 0.4) : (layerYBase + l + 0.4);
-                                     
-				// 1. CAPTURE THE CENTER POSITION
-				let labelPos = null;
+                                            
+                    // 1. CAPTURE THE CENTER POSITION
+                    let labelPos = null;
 
-				for(let p=0; p<P; p++) {
-					const startNode = new THREE.Vector3(lastLayerEndCells[p].x, yStart, lastLayerEndCells[p].z);
-					const endNode = new THREE.Vector3(layerColCenters[0][p].x, yEnd, layerColCenters[0][p].z);
+                    for(let p=0; p<P; p++) {
+                        const startNode = new THREE.Vector3(lastLayerEndCells[p].x, yStart, lastLayerEndCells[p].z);
+                        const endNode = new THREE.Vector3(layerColCenters[0][p].x, yEnd, layerColCenters[0][p].z);
 
-					// Draw the tube (existing code)
-					const curve = new THREE.CatmullRomCurve3([
-						startNode,
-						new THREE.Vector3(startNode.x, (startNode.y+endNode.y)/2, startNode.z),
-						endNode
-					]);
-					const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 4, 0.8, 8, false), interConnMat);
-					packGroup.add(tube);
+                        // Draw the tube (existing code)
+                        const curve = new THREE.CatmullRomCurve3([
+                            startNode,
+                            new THREE.Vector3(startNode.x, (startNode.y+endNode.y)/2, startNode.z),
+                            endNode
+                        ]);
+                        const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 4, 0.8, 8, false), interConnMat);
+                        packGroup.add(tube);
 
-					// Capture position if this is the middle wire
-					if (p === Math.floor(P/2)) {
-						labelPos = curve.getPointAt(0.5);
-					}
-				}
+                        // Capture position if this is the middle wire
+                        if (p === Math.floor(P/2)) {
+                            labelPos = curve.getPointAt(0.5);
+                        }
+                    }
 
-                // 2. ATTACH TO BUSBAR (EDGE)
-				if((busMode === 'bn' || busMode === 'both') && labelPos) {
-					const vNum = globalSIndex;
-					const volt = (vNum*nomV).toFixed(1) + "V";
-                    
-                    // TARGET: The outermost cell of the current layer group
-                    // Index P-1 is typically the outer edge (highest Z)
-                    const targetCell = layerColCenters[0][P-1]; 
-                    
-                    // Place label directly on that cell terminal at yEnd (busbar level)
-                    // Add slight Z offset to push it "in front" of the cell for visibility
-					addLabel(`I${vNum} ${volt}`, targetCell.x, yEnd, targetCell.z + d/2 + 2, '#eab308', 'inter');
-                }
+                    // 2. ATTACH TO BUSBAR (EDGE)
+                    if((busMode === 'bn' || busMode === 'both') && labelPos) {
+                        const vNum = globalSIndex;
+                        const volt = (vNum*nomV).toFixed(1) + "V";
+                        const targetCell = layerColCenters[0][P-1]; 
+                        addLabel(`I${vNum} ${volt}`, targetCell.x, yEnd, targetCell.z + d/2 + 2, '#eab308', 'inter');
+                    }
                 }
 
                 lastLayerEndCells = layerColCenters[currentLayerS - 1];
@@ -1721,12 +1861,9 @@
                 if(ly === 0) {
                     const yStart = inputIsBottom ? yBot : yTop;
                     const nStart = getTerminalPos(0, yStart);
-                    
                     let wMode = 'standard';
                     if (!inputIsBottom && Layers > 1) wMode = 'straight-out';
-                    
                     addWire(nStart, yStart, false, 1, wMode); 
-                    
                     if(busMode !== 'geo' && busMode !== 'none') {
                         addLabel("0V", nStart.x, yStart + (inputIsBottom?-5:5), nStart.z, '#333');
                     }
@@ -1738,13 +1875,8 @@
                     const posY = outputIsTop ? yTop : yBot;
                     const pStart = getTerminalPos(lastLocalS, posY);
                     const exitDir = xDirection; 
-                    
                     let wMode = 'standard'; 
-                    // Sandwiched condition: It's at Bottom AND it's a Top layer
-                    if(!outputIsTop && Layers > 1) {
-                        wMode = 'straight-out';
-                    }
-                    
+                    if(!outputIsTop && Layers > 1) wMode = 'straight-out';
                     addWire(pStart, posY, true, exitDir, wMode);
                     
                     if(busMode !== 'geo' && busMode !== 'none') {
@@ -1754,11 +1886,35 @@
                     }
                 }
             }
-            
             // Advance Global Index for next layer
             globalSIndex += currentLayerS;
         }
         
+        packGroup.add(meshCells);
+        // Important: Add cells to occluders for the label check ONLY if not high perf
+        if (!highPerf) occluders.push(meshCells); 
+        
+        packGroup.add(meshCaps);
+        if(hasSpacers) packGroup.add(meshSpacers);
+        
+        // Add Instanced Busbars
+        if (showGeo && stripIdx > 0) {
+            meshStrips.count = stripIdx;
+            meshBusCaps.count = busCapIdx;
+            packGroup.add(meshStrips); 
+            packGroup.add(meshBusCaps);
+        }
+
+        // Add Merged Edges (Only if not high perf)
+        if (!highPerf && mergedEdgePos) {
+            const mergedEdgeGeo = new THREE.BufferGeometry();
+            // Trim the array to the actual used length to avoid empty lines at 0,0,0
+            const actualEdgePos = mergedEdgePos.subarray(0, edgeVOffset); 
+            mergedEdgeGeo.setAttribute('position', new THREE.BufferAttribute(actualEdgePos, 3));
+            const finalEdges = new THREE.LineSegments(mergedEdgeGeo, new THREE.LineBasicMaterial({ color: 0x000000, opacity: 0.1, transparent: true }));
+            packGroup.add(finalEdges);
+        }
+
         // Correct bounds
         minX -= spacing/2; maxX += spacing/2;
         minZ -= spacing/2; maxZ += spacing/2;
@@ -1980,7 +2136,7 @@
                         }
                     });
 
-					// 2b. Match loaded inputs to presets
+                    // 2b. Match loaded inputs to presets
                     const selSize = document.getElementById('preset-selector');
                     
                     // FIX: Default to 'custom' before trying to find a match
@@ -2211,25 +2367,50 @@
         labelRenderer.setSize(container.clientWidth, container.clientHeight);
     });
 
-    function animate() {
+    let lastOccTime = 0;
+
+    function animate(time) {
         requestAnimationFrame(animate);
         controls.update();
         renderer.render(scene, camera);
-        for(const label of labels) {
-            label.getWorldPosition(v3);
-            const dir = v3.clone().sub(camera.position);
-            const dist = dir.length();
-            dir.normalize();
-            raycaster.set(camera.position, dir);
-            // Slightly push ray origin forward to avoid self-occlusion artifacts
-            raycaster.ray.origin.add(dir.multiplyScalar(0.5));
-            const intersects = raycaster.intersectObjects(occluders, false);
-            if(intersects.length > 0) {
-                // Increased tolerance distance for occlusion check
-                if(intersects[0].distance < dist - 3.5) { label.element.classList.add('occluded'); } 
-                else { label.element.classList.remove('occluded'); }
-            } else { label.element.classList.remove('occluded'); }
+        
+        // Throttled Occlusion Check
+        // OPTIMIZATION: Disable entirely if cell count is high (>500)
+        // If the user forced labels on (by manually selecting a bus mode), they will render without occlusion (floating on top)
+        if (time - lastOccTime > 200 && currentStats.cells <= 500) { 
+            lastOccTime = time;
+            
+            for(const label of labels) {
+                label.getWorldPosition(v3);
+                const dir = v3.clone().sub(camera.position);
+                const dist = dir.length();
+                dir.normalize();
+                
+                raycaster.set(camera.position, dir);
+                // Slightly push ray origin forward to avoid self-intersection artifacts
+                raycaster.ray.origin.add(dir.multiplyScalar(0.5));
+                
+                // Raycast against the instanced mesh (fast enough when throttled)
+                const intersects = raycaster.intersectObjects(occluders, false);
+                
+                if(intersects.length > 0) {
+                    // If something is closer than the label, occlude it
+                    if(intersects[0].distance < dist - 2.0) { 
+                        label.element.classList.add('occluded'); 
+                    } else { 
+                        label.element.classList.remove('occluded'); 
+                    }
+                } else { 
+                    label.element.classList.remove('occluded'); 
+                }
+            }
+        } else if (currentStats.cells > 500) {
+            // Ensure labels aren't stuck in occluded state if user switched back to low count or forced visibility
+            if(labels.length > 0 && labels[0].element.classList.contains('occluded')) {
+                labels.forEach(l => l.element.classList.remove('occluded'));
+            }
         }
+        
         labelRenderer.render(scene, camera);
     }
     updatePack();
