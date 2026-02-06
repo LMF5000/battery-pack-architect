@@ -18,6 +18,7 @@ This tool allows DIYers and engineers to:
 * Toggle between **Hexagonal** (honeycomb) and Rectangular nesting.
 * Calculate **Nickel Strip requirements** instantly.
 * Estimate **Cost, Weight, Volume, and Electrical Specs** (Voltage/Ah/Wh).
+* Calculate **dynamic battery parameters** (voltage drop, heat generation) based on internal resistance and load
 * **Compare** multiple configurations side-by-side to find the best fit.
 
 ## ✨ Features
