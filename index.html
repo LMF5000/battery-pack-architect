@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>Battery Pack Architect | 3D Design & Calculation Tool</title>
-    <meta name="description" content="A powerful 3D battery pack designer. Calculate series/parallel configurations, dimensions, weight, and electrical specs for 18650, 21700, and custom cells.">
+    <meta name="description" content="Free 3D Battery Pack Simulator and Designer. Calculate voltage sag, heat, and efficiency for 18650/21700 packs. Export to STL for 3D printing.">
     <meta name="keywords" content="battery pack designer, 18650 calculator, 21700 designer, battery visualization, DIY battery pack, battery series parallel, battery pack architect">
     <meta name="author" content="Luke Formosa">
     <link rel="canonical" href="https://lmf5000.github.io/battery-pack-architect/">
@@ -21,7 +21,24 @@
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:title" content="Battery Pack Architect">
     <meta property="twitter:description" content="The ultimate tool for designing lithium-ion battery packs in 3D.">
-
+	
+	<script type="application/ld+json">
+	{
+	  "@context": "https://schema.org",
+	  "@type": "SoftwareApplication",
+	  "name": "Battery Pack Architect",
+	  "operatingSystem": "Web",
+	  "applicationCategory": "DesignApplication",
+	  "offers": {
+		"@type": "Offer",
+		"price": "0",
+		"priceCurrency": "USD"
+	  },
+	  "description": "3D design and simulation tool for custom lithium-ion battery packs. Features STL export, voltage sag calculation, and heat simulation.",
+	  "featureList": "3D Visualization, Voltage Sag Simulation, STL Export, 18650 Calculator, Mobile Support"
+	}
+	</script>
+	
     <style>
         /* --- LAYOUT & THEME --- */
         body { 
@@ -90,16 +107,66 @@
             display: flex; align-items: center; justify-content: space-between; 
             flex-wrap: nowrap; position: sticky; top: 0; z-index: 30; height: 50px; box-sizing: border-box;
         }
-        h1 { margin: 0; font-size: 1rem; color: #1e293b; display: flex; align-items: center; gap: 6px; font-weight: 700; flex-shrink: 0; white-space: nowrap; }
-        .header-actions { display: flex; gap: 5px; align-items: center; flex-shrink: 0; margin-left: auto; }
+		
+		/* --- HEADER & TITLE --- */
+		.header {
+			padding: 10px 12px; border-bottom: 1px solid #f0f0f0; background: #fff;
+			display: flex; align-items: center; justify-content: space-between; 
+			flex-wrap: nowrap; position: sticky; top: 0; z-index: 30; height: 50px; box-sizing: border-box;
+		}
 
-        .btn-header {
-            background: transparent; border: 1px solid #cbd5e1; color: #475569;
-            font-size: 0.7rem; font-weight: 600; padding: 4px 8px; border-radius: 4px;
-            cursor: pointer; line-height: 1.2; font-family: inherit; white-space: nowrap;
-        }
-        .btn-header:hover { border-color: #3b82f6; color: #3b82f6; }
-        #btn-reset.btn-header:hover { border-color: #d32f2f; color: #d32f2f; }
+		h1 { 
+			margin: 0; 
+			font-size: 1.0rem; /* Standard size for desktop */
+			color: #1e293b; 
+			display: flex; 
+			align-items: center; 
+			gap: 4px; /* Tight gap to save space */
+			font-weight: 700; 
+			flex-shrink: 1; 
+			white-space: nowrap;
+			overflow: hidden;
+		}
+
+		.title-text {
+			color: #1e293b;
+			letter-spacing: -0.3px; /* Subtle tightening */
+		}
+
+		.version-span {
+			font-size: 0.75em; 
+			color: #94a3b8; 
+			font-weight: 400; 
+			margin-left: 2px;
+			background: #f1f5f9; 
+			padding: 1px 5px;
+			border-radius: 4px;
+			display: inline-block; /* Ensures it respects padding/margins */
+		}
+
+		/* --- BUTTONS --- */
+		.header-actions { display: flex; gap: 5px; align-items: center; flex-shrink: 0; margin-left: auto; }
+
+		.btn-header {
+			background: transparent; border: 1px solid #cbd5e1; color: #475569;
+			font-size: 0.7rem; font-weight: 600; padding: 4px 8px; border-radius: 4px;
+			cursor: pointer; line-height: 1.2; font-family: inherit; white-space: nowrap;
+		}
+		.btn-header:hover { border-color: #3b82f6; color: #3b82f6; }
+		#btn-reset.btn-header:hover { border-color: #d32f2f; color: #d32f2f; }
+
+		/* --- MOBILE TWEAKS --- */
+		@media (max-width: 400px) {
+			/* Slightly reduce text size on very narrow screens to ensure "Architect" fits */
+			h1 { font-size: 0.9rem; } 
+			
+			/* Reduce padding on the container to give more width to content */
+			.header { padding: 10px 8px; } 
+			
+			/* Tighten button padding slightly */
+			.btn-header { padding: 4px 6px; } 
+			#btn-donate { padding: 3px 6px; }
+		}
 
         .btn-hamburger {
             background: transparent; border: 1px solid #cbd5e1; color: #475569;
@@ -281,7 +348,11 @@
         .stat-divider { border-top: 1px dashed #e2e8f0; margin: 3px 0; }
         .val { font-weight: 700; text-align: right; font-family: 'SF Mono', monospace; letter-spacing: -0.3px; margin-left: 8px; }
         .stats-v-sep { width: 1px; background: #f1f5f9; margin: 5px 0; }
-
+		.cell-count-wrap {
+			white-space: nowrap;
+			font-size: 0.95em; /* Optional: keeps it slightly smaller like the surrounding text */
+			color: #64748b;   /* Optional: matches your existing secondary text color */
+		}
         /* COLORS */
         .c-dark { color: #334155; } .c-blue { color: #008cc9; } .c-teal { color: #008796; }
         .c-red { color: #d32f2f; } .c-purp { color: #7c3aed; } .c-orange { color: #d97706; }
@@ -378,11 +449,12 @@
         /* SIMULATION RESULTS STYLE */
         #sim-results {
             margin-top: 8px; background: #f1f5f9; border-radius: 4px; padding: 8px; border: 1px solid #e2e8f0;
-            display: grid; grid-template-columns: 1fr 1px 1fr; gap: 8px;
+            /* 55% Left, 1px Line, 45% Right */
+            display: grid; grid-template-columns: 1.1fr 1px 0.9fr; gap: 8px;
         }
         .sim-col { display: flex; flex-direction: column; gap: 4px; }
         .sim-v-sep { width: 1px; background: #e2e8f0; }
-        .sim-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; }
+        .sim-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; }
         .sim-val { font-weight: 700; font-family: 'SF Mono', monospace; }
         
         /* MODE TOGGLE */
@@ -399,7 +471,8 @@
         {
             "imports": {
                 "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/",
+				"three/addons/exporters/STLExporter.js": "https://unpkg.com/three@0.160.0/examples/jsm/exporters/STLExporter.js"
             }
         }
     </script>
@@ -410,27 +483,32 @@
     <div id="controls-container">
         
         <div class="header">
-            <h1><span style="font-size:1.2em">🔋</span> Pack <span class="title-architect">Architect</span> <span class="version-span" style="font-size:0.8em; color:#94a3b8; font-weight:400; margin-left: 5px;">v77</span></h1>
-            
-            <div class="header-actions">
-                <div class="dropdown">
-                    <button id="btn-file-menu" class="btn-hamburger">☰</button>
-                    <div id="file-menu" class="dropdown-content">
-                        <a href="#" id="menu-import">📂 Import Settings</a>
-                        <a href="#" id="menu-export">💾 Export Settings</a>
-                        <a href="#" id="menu-feedback" style="border-top:1px solid #e2e8f0;">💬 Send Feedback</a>
-                        <a href="#" id="menu-commercial">💼 Commercial Enquiries</a>
-                        <a href="#" id="menu-license" style="border-top:1px solid #e2e8f0; color:#b91c1c;">📜 View License (GPLv3)</a>
-                        <a href="#" id="menu-disclaimer">⚠️ Safety & Legal</a>
-                    </div>
-                </div>
-                <input type="file" id="import-file-input" style="display: none;" accept=".json">
-                <a href="https://buymeacoffee.com/lmf5000" target="_blank" style="text-decoration:none; flex-shrink: 0;">
-                    <button id="btn-donate">☕ Donate</button>
-                </a>
-                <button id="btn-reset" class="btn-header">Reset</button>
-            </div>
-        </div>
+			<h1>
+				<span style="font-size:1.2em; margin-right:4px;">🔋</span>
+				<span class="title-text">Pack Architect</span>
+				<span class="version-span">v78</span>
+			</h1>
+			
+			<div class="header-actions">
+				<div class="dropdown">
+					<button id="btn-file-menu" class="btn-hamburger">☰</button>
+					<div id="file-menu" class="dropdown-content">
+						<a href="#" id="menu-import">📂 Import Settings</a>
+						<a href="#" id="menu-export">💾 Export Settings</a>
+						<a href="#" id="menu-export-stl">🧊 Export 3D Model (STL) <span style="font-size:0.7em; color:#94a3b8; font-weight:600; vertical-align:middle; margin-left:4px;">BETA</span></a>
+						<a href="#" id="menu-feedback" style="border-top:1px solid #e2e8f0;">💬 Send Feedback</a>
+						<a href="#" id="menu-commercial">💼 Commercial Enquiries</a>
+						<a href="#" id="menu-license" style="border-top:1px solid #e2e8f0; color:#b91c1c;">📜 View License (GPLv3)</a>
+						<a href="#" id="menu-disclaimer">⚠️ Safety & Legal</a>
+					</div>
+				</div>
+				<input type="file" id="import-file-input" style="display: none;" accept=".json">
+				<a href="https://buymeacoffee.com/lmf5000" target="_blank" style="text-decoration:none; flex-shrink: 0;">
+					<button id="btn-donate">☕ Donate</button>
+				</a>
+				<button id="btn-reset" class="btn-header">Reset</button>
+			</div>
+		</div>
 
         <div style="padding: 10px 15px 0 15px;">
             <label>Configuration Name</label>
@@ -700,12 +778,47 @@
 </div><div class="disc-footer"><button id="btn-agree" style="width:100%">I Understand and Agree</button></div></div></div>
 <div id="feedback-overlay" class="modal-base-overlay"><div id="feedback-box" style="background:#fff; width:95%; max-width:680px; height:90vh; border-radius:8px; display:flex; flex-direction:column; overflow:hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);"><div class="modal-header"><h3 style="margin:0;">💬 Send Feedback</h3><button onclick="document.getElementById('feedback-overlay').style.display='none'" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button></div><div class="modal-body" style="padding:0; flex:1; overflow:hidden;"><iframe src="https://docs.google.com/forms/d/e/1FAIpQLScuvfCD_0sT5DStfZDcY9APwgVrCBqT-htn_F9dNEbg99aKeQ/viewform?embedded=true" width="100%" height="100%" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe></div></div></div>
 <div id="commercial-overlay" class="modal-base-overlay"><div id="commercial-box" style="background:#fff; width:95%; max-width:680px; height:90vh; border-radius:8px; display:flex; flex-direction:column; overflow:hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);"><div class="modal-header"><h3 style="margin:0;">💼 Commercial Enquiry</h3><button onclick="document.getElementById('commercial-overlay').style.display='none'" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button></div><div class="modal-body" style="padding:0; flex:1; overflow:hidden;"><iframe src="https://docs.google.com/forms/d/e/1FAIpQLSfv3JQ16uyn0WJdmYm4P0709pcOB0JgBwDtLyN4yrFWh87NHg/viewform?embedded=true" width="100%" height="100%" frameborder="0" marginheight="0" marginwidth="0">Loading…</iframe></div></div></div>
+<div id="export-overlay" class="modal-base-overlay">
+    <div id="export-box" style="background:#fff; width:90%; max-width:400px; border-radius:8px; padding:20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0; color:#1e293b;">Export 3D Model (STL)</h3>
+            <button onclick="document.getElementById('export-overlay').style.display='none'" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+        </div>
+        <p style="font-size:0.8rem; color:#64748b; margin-top:0;">Select parts to include in the STL file:</p>
+        
+        <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                <input type="checkbox" id="ex-cells" checked> 
+                <span style="font-size:0.9rem; font-weight:600;">Cells & Caps</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                <input type="checkbox" id="ex-spacers" checked> 
+                <span style="font-size:0.9rem; font-weight:600;">Spacers (Holders)</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                <input type="checkbox" id="ex-bus" checked> 
+                <span style="font-size:0.9rem; font-weight:600;">Busbars & Wires</span>
+            </label>
+        </div>
+
+        <button id="btn-do-export" style="width:100%; background:#3b82f6; color:white; border:none; padding:10px; border-radius:6px; font-weight:700; cursor:pointer;">Download .STL File</button>
+    </div>
+</div>
 
 <script type="module">
     import * as THREE from 'three';
-    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { STLExporter } from 'three/addons/exporters/STLExporter.js';
+	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
     import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
+
+	const debounce = (fn, delay) => {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => fn(...args), delay);
+        };
+    };
 
     function initDisclaimer() {
         const agreed = localStorage.getItem('bpa_disclaimer_agreed_v4'); 
@@ -765,64 +878,109 @@
     });
 
     const CELL_DB = [
+        { name: "A123 ANR26650M1B", d:26.25, l:65.0, w:76, cap:2500, amp:50, v:3.3, type:'lfp', ir: 6 },
+        { name: "A123 APR18650M1A", d:18.3, l:65.0, w:40, cap:1100, amp:30, v:3.3, type:'lfp', ir: 6 },
+        { name: "BAK N18650CL", d:18.4, l:65.0, w:46, cap:2900, amp:8, v:3.6, type:'li-ion', ir: 35 },
+        { name: "BAK N18650CP", d:18.4, l:65.0, w:46, cap:3350, amp:6, v:3.6, type:'li-ion', ir: 40 },
+        { name: "BAK N21700CD", d:21.2, l:70.5, w:68, cap:4800, amp:10, v:3.6, type:'li-ion', ir: 28 },
+        { name: "BAK N21700CG", d:21.2, l:70.5, w:68, cap:5000, amp:10, v:3.6, type:'li-ion', ir: 30 },
+        { name: "CATL 32140 Na-Ion", d:32.0, l:140.0, w:270, cap:10000, amp:20, v:3.0, type:'na-ion', ir: 8 },
+        { name: "DMEGC INR18650-26E", d:18.4, l:65.0, w:46, cap:2600, amp:5, v:3.6, type:'li-ion', ir: 35 },
+        { name: "Efest 10440 (AAA)", d:10.4, l:44.0, w:10, cap:350, amp:3, v:3.7, type:'li-ion', ir: 45 },
+        { name: "Epoch 14500", d:14.3, l:49.5, w:20, cap:1100, amp:10, v:3.6, type:'li-ion', ir: 20 },
+        { name: "EVE 25P (18650)", d:18.35, l:65.0, w:47, cap:2500, amp:30, v:3.6, type:'li-ion', ir: 14 },
+        { name: "EVE 26V (18650)", d:18.4, l:65.0, w:46, cap:2550, amp:7, v:3.6, type:'li-ion', ir: 30 },
+        { name: "EVE 33V (18650)", d:18.35, l:65.0, w:46, cap:3300, amp:10, v:3.6, type:'li-ion', ir: 26 },
+        { name: "EVE 40P (21700)", d:21.25, l:70.5, w:68, cap:4000, amp:50, v:3.6, type:'li-ion', ir: 9 },
+        { name: "EVE 50E (21700)", d:21.25, l:70.5, w:69, cap:5000, amp:15, v:3.6, type:'li-ion', ir: 20 },
+        { name: "EVE INR18650-33V", d:18.35, l:65.0, w:46, cap:3300, amp:10, v:3.6, type:'li-ion', ir: 26 },
+        { name: "Farasis 21700", d:21.2, l:70.5, w:68, cap:4000, amp:35, v:3.6, type:'li-ion', ir: 12 },
+        { name: "Generic 32650 LFP", d:32.2, l:65.5, w:140, cap:5000, amp:20, v:3.2, type:'lfp', ir: 10 },
+        { name: "Hakadi 18650 Na-Ion", d:18.5, l:65.2, w:40, cap:1500, amp:5, v:3.1, type:'na-ion', ir: 25 },
+        { name: "Headway 38120", d:38.0, l:122.0, w:330, cap:10000, amp:100, v:3.2, type:'lfp', ir: 4 },
+        { name: "Headway 40152", d:40.0, l:152.0, w:480, cap:15000, amp:150, v:3.2, type:'lfp', ir: 3 },
+        { name: "Hohm Grown 26650", d:26.6, l:65.4, w:98, cap:4244, amp:30, v:3.7, type:'li-ion', ir: 12 },
+        { name: "iJoy 26650", d:26.5, l:65.3, w:95, cap:4200, amp:40, v:3.7, type:'li-ion', ir: 10 },
+        { name: "K2 Energy LFP18650", d:18.3, l:65.0, w:40, cap:1500, amp:12, v:3.2, type:'lfp', ir: 20 },
+        { name: "K2 Energy LFP26650", d:26.5, l:65.5, w:86, cap:3800, amp:12, v:3.2, type:'lfp', ir: 15 },
+        { name: "KeepPower 18350", d:18.4, l:35.0, w:25, cap:1200, amp:10, v:3.7, type:'li-ion', ir: 28 },
+        { name: "LG F1L (18650)", d:18.4, l:65.0, w:46, cap:3350, amp:5, v:3.6, type:'li-ion', ir: 35 },
+        { name: "LG H40 (21700)", d:21.25, l:70.6, w:68, cap:4000, amp:35, v:3.6, type:'li-ion', ir: 12 },
+        { name: "LG HE2 (18650)", d:18.4, l:65.0, w:47, cap:2500, amp:20, v:3.6, type:'li-ion', ir: 22 },
+        { name: "LG HE4 (18650)", d:18.4, l:65.0, w:47, cap:2500, amp:20, v:3.6, type:'li-ion', ir: 22 },
+        { name: "LG HG2 (18650)", d:18.5, l:65.2, w:45, cap:3000, amp:20, v:3.6, type:'li-ion', ir: 20 },
+        { name: "LG M29 (18650)", d:18.4, l:65.0, w:46, cap:2850, amp:6, v:3.6, type:'li-ion', ir: 30 },
+        { name: "LG M36 (18650)", d:18.5, l:65.2, w:49, cap:3600, amp:10, v:3.6, type:'li-ion', ir: 30 },
+        { name: "LG M50 (21700)", d:21.25, l:70.6, w:68, cap:5000, amp:7, v:3.6, type:'li-ion', ir: 30 },
+        { name: "LG M50LT (21700)", d:21.25, l:70.6, w:69, cap:5000, amp:14, v:3.6, type:'li-ion', ir: 25 },
+        { name: "LG M58T (21700)", d:21.25, l:70.6, w:70, cap:5800, amp:12, v:3.6, type:'li-ion', ir: 28 },
+        { name: "LG MH1 (18650)", d:18.4, l:65.0, w:49, cap:3200, amp:10, v:3.6, type:'li-ion', ir: 30 },
+        { name: "LG MJ1 (18650)", d:18.6, l:65.2, w:49, cap:3500, amp:10, v:3.6, type:'li-ion', ir: 30 },
+        { name: "Lishen LR1865LA", d:18.3, l:65.0, w:45, cap:2000, amp:20, v:3.6, type:'li-ion', ir: 20 },
+        { name: "Lishen LR21700SA", d:21.2, l:70.5, w:69, cap:4000, amp:12, v:3.6, type:'li-ion', ir: 25 },
+        { name: "Lishen LR2170LA", d:21.2, l:70.5, w:69, cap:4000, amp:30, v:3.6, type:'li-ion', ir: 12 },
+        { name: "Lishen LR2170SD", d:21.2, l:70.5, w:69, cap:5000, amp:10, v:3.6, type:'li-ion', ir: 30 },
+        { name: "Molicel M35A (18650)", d:18.6, l:65.2, w:48, cap:3500, amp:10, v:3.6, type:'li-ion', ir: 25 },
+        { name: "Molicel M50A (21700)", d:21.55, l:70.15, w:67, cap:5000, amp:15, v:3.6, type:'li-ion', ir: 25 },
+        { name: "Molicel P26A (18650)", d:18.6, l:65.0, w:46, cap:2600, amp:35, v:3.6, type:'li-ion', ir: 12 },
+        { name: "Molicel P26B (18650)", d:18.6, l:65.0, w:46, cap:2600, amp:35, v:3.6, type:'li-ion', ir: 11 },
+        { name: "Molicel P28A (18650)", d:18.6, l:65.0, w:46, cap:2800, amp:35, v:3.6, type:'li-ion', ir: 12 },
+        { name: "Molicel P28B (18650)", d:18.6, l:65.0, w:46, cap:2800, amp:40, v:3.6, type:'li-ion', ir: 10 },
+        { name: "Molicel P30B (18650)", d:18.6, l:65.0, w:46, cap:3000, amp:36, v:3.6, type:'li-ion', ir: 10 },
+        { name: "Molicel P42A (21700)", d:21.55, l:70.15, w:67, cap:4200, amp:45, v:3.6, type:'li-ion', ir: 10 },
+        { name: "Molicel P45B (21700)", d:21.55, l:70.15, w:68, cap:4500, amp:45, v:3.6, type:'li-ion', ir: 9 },
+        { name: "Molicel P50B (21700)", d:21.55, l:70.15, w:68, cap:5000, amp:50, v:3.6, type:'li-ion', ir: 8 },
+        { name: "P42A (21700) Re-wrap", d:21.5, l:70.2, w:66, cap:4200, amp:45, v:3.6, type:'li-ion', ir: 11 },
+        { name: "Panasonic Eneloop AA", d:14.35, l:50.4, w:27, cap:1900, amp:5, v:1.2, type:'nimh', ir: 25 },
+        { name: "Panasonic Eneloop Pro", d:14.5, l:50.5, w:30, cap:2500, amp:5, v:1.2, type:'nimh', ir: 30 },
+        { name: "Panasonic NCR18650A", d:18.5, l:65.3, w:47, cap:3100, amp:6, v:3.6, type:'li-ion', ir: 40 },
+        { name: "Panasonic NCR18650B", d:18.5, l:65.3, w:47.5, cap:3400, amp:6, v:3.6, type:'li-ion', ir: 38 },
+        { name: "Panasonic NCR18650BD", d:18.5, l:65.3, w:48, cap:3200, amp:10, v:3.6, type:'li-ion', ir: 30 },
+        { name: "Panasonic NCR18650PF", d:18.5, l:65.3, w:48, cap:2900, amp:10, v:3.6, type:'li-ion', ir: 30 },
+        { name: "Panasonic NCR20700A", d:20.35, l:70.3, w:60, cap:3100, amp:30, v:3.6, type:'li-ion', ir: 12 },
+        { name: "QB 26800", d:26.25, l:80.0, w:120, cap:6800, amp:30, v:3.6, type:'li-ion', ir: 10 },
+        { name: "Samsung 20S (18650)", d:18.4, l:65.0, w:45, cap:2000, amp:30, v:3.6, type:'li-ion', ir: 11 },
+        { name: "Samsung 25R (18650)", d:18.4, l:65.0, w:45, cap:2500, amp:20, v:3.6, type:'li-ion', ir: 13 },
+        { name: "Samsung 25S (18650)", d:18.4, l:65.0, w:45, cap:2500, amp:25, v:3.6, type:'li-ion', ir: 12 },
         { name: "Samsung 26J (18650)", d:18.4, l:65.0, w:45, cap:2600, amp:5.2, v:3.6, type:'li-ion', ir: 35 },
         { name: "Samsung 29E (18650)", d:18.4, l:65.0, w:45, cap:2850, amp:2.75, v:3.6, type:'li-ion', ir: 45 },
         { name: "Samsung 30Q (18650)", d:18.4, l:65.0, w:46, cap:3000, amp:15, v:3.6, type:'li-ion', ir: 15 },
-        { name: "Samsung 25R (18650)", d:18.4, l:65.0, w:45, cap:2500, amp:20, v:3.6, type:'li-ion', ir: 13 },
-        { name: "Samsung 35E (18650)", d:18.55, l:65.25, w:50, cap:3500, amp:8, v:3.6, type:'li-ion', ir: 35 },
-        { name: "Samsung 20S (18650)", d:18.4, l:65.0, w:45, cap:2000, amp:30, v:3.6, type:'li-ion', ir: 11 },
-        { name: "Samsung 25S (18650)", d:18.4, l:65.0, w:45, cap:2500, amp:25, v:3.6, type:'li-ion', ir: 12 },
-        { name: "Samsung 40T (21700)", d:21.25, l:70.3, w:67, cap:4000, amp:35, v:3.6, type:'li-ion', ir: 12 },
         { name: "Samsung 30T (21700)", d:21.25, l:70.3, w:67, cap:3000, amp:35, v:3.6, type:'li-ion', ir: 10 },
-        { name: "Samsung 50E (21700)", d:21.25, l:70.8, w:69, cap:5000, amp:10, v:3.6, type:'li-ion', ir: 25 },
-        { name: "Samsung 50S (21700)", d:21.25, l:70.6, w:72, cap:5000, amp:25, v:3.6, type:'li-ion', ir: 14 },
+        { name: "Samsung 33J (18650)", d:18.4, l:65.0, w:46, cap:3270, amp:6, v:3.6, type:'li-ion', ir: 32 },
+        { name: "Samsung 35E (18650)", d:18.55, l:65.25, w:50, cap:3500, amp:8, v:3.6, type:'li-ion', ir: 35 },
+        { name: "Samsung 40T (21700)", d:21.25, l:70.3, w:67, cap:4000, amp:35, v:3.6, type:'li-ion', ir: 12 },
+        { name: "Samsung 40T3 (21700)", d:21.15, l:70.3, w:68, cap:4000, amp:40, v:3.6, type:'li-ion', ir: 10 },
         { name: "Samsung 48G (21700)", d:21.25, l:70.3, w:69, cap:4800, amp:10, v:3.6, type:'li-ion', ir: 30 },
+        { name: "Samsung 50E (21700)", d:21.25, l:70.8, w:69, cap:5000, amp:10, v:3.6, type:'li-ion', ir: 25 },
         { name: "Samsung 50G (21700)", d:21.25, l:70.3, w:69, cap:5000, amp:10, v:3.6, type:'li-ion', ir: 28 },
+        { name: "Samsung 50S (21700)", d:21.25, l:70.6, w:72, cap:5000, amp:25, v:3.6, type:'li-ion', ir: 14 },
+        { name: "Samsung 53S (21700)", d:21.25, l:70.8, w:70, cap:5300, amp:10, v:3.6, type:'li-ion', ir: 14 },
+        { name: "Sanyo NCR18650GA", d:18.5, l:65.3, w:48, cap:3500, amp:10, v:3.6, type:'li-ion', ir: 38 },
+        { name: "Sanyo NCR20700B", d:20.35, l:70.3, w:62, cap:4250, amp:15, v:3.6, type:'li-ion', ir: 25 },
+        { name: "Sanyo NCR2070C", d:20.35, l:70.3, w:62, cap:3500, amp:30, v:3.6, type:'li-ion', ir: 12 },
+        { name: "Sanyo UR18650NSX", d:18.5, l:65.1, w:47, cap:2500, amp:20, v:3.6, type:'li-ion', ir: 20 },
+        { name: "Sanyo UR18650ZY", d:18.4, l:65.0, w:46, cap:2600, amp:5, v:3.6, type:'li-ion', ir: 40 },
+        { name: "Shockli 26650", d:26.4, l:65.5, w:94, cap:5500, amp:20, v:3.6, type:'li-ion', ir: 18 },
+        { name: "Sony VTC3 (18650)", d:18.3, l:65.0, w:45, cap:1600, amp:30, v:3.6, type:'li-ion', ir: 14 },
         { name: "Sony VTC4 (18650)", d:18.35, l:65.0, w:45, cap:2100, amp:30, v:3.6, type:'li-ion', ir: 12 },
         { name: "Sony VTC5 (18650)", d:18.35, l:65.0, w:44, cap:2600, amp:20, v:3.6, type:'li-ion', ir: 13 },
         { name: "Sony VTC5A (18650)", d:18.35, l:65.2, w:48, cap:2600, amp:25, v:3.6, type:'li-ion', ir: 10 },
         { name: "Sony VTC5D (18650)", d:18.35, l:65.2, w:48, cap:2800, amp:25, v:3.6, type:'li-ion', ir: 11 },
         { name: "Sony VTC6 (18650)", d:18.35, l:65.2, w:46.6, cap:3000, amp:15, v:3.6, type:'li-ion', ir: 15 },
         { name: "Sony VTC6A (21700)", d:21.2, l:70.2, w:68, cap:4000, amp:40, v:3.6, type:'li-ion', ir: 10 },
-        { name: "LG HG2 (18650)", d:18.5, l:65.2, w:45, cap:3000, amp:20, v:3.6, type:'li-ion', ir: 20 },
-        { name: "LG HE2 (18650)", d:18.4, l:65.0, w:47, cap:2500, amp:20, v:3.6, type:'li-ion', ir: 22 },
-        { name: "LG HE4 (18650)", d:18.4, l:65.0, w:47, cap:2500, amp:20, v:3.6, type:'li-ion', ir: 22 },
-        { name: "LG MJ1 (18650)", d:18.6, l:65.2, w:49, cap:3500, amp:10, v:3.6, type:'li-ion', ir: 30 },
-        { name: "LG MH1 (18650)", d:18.4, l:65.0, w:49, cap:3200, amp:10, v:3.6, type:'li-ion', ir: 30 },
-        { name: "LG M50 (21700)", d:21.25, l:70.6, w:68, cap:5000, amp:7, v:3.6, type:'li-ion', ir: 30 },
-        { name: "LG M50LT (21700)", d:21.25, l:70.6, w:69, cap:5000, amp:14, v:3.6, type:'li-ion', ir: 25 },
-        { name: "LG M58T (21700)", d:21.25, l:70.6, w:70, cap:5800, amp:12, v:3.6, type:'li-ion', ir: 28 },
-        { name: "LG H40 (21700)", d:21.25, l:70.6, w:68, cap:4000, amp:35, v:3.6, type:'li-ion', ir: 12 },
-        { name: "Panasonic NCR18650B", d:18.5, l:65.3, w:47.5, cap:3400, amp:6, v:3.6, type:'li-ion', ir: 38 },
-        { name: "Panasonic NCR18650PF", d:18.5, l:65.3, w:48, cap:2900, amp:10, v:3.6, type:'li-ion', ir: 30 },
-        { name: "Panasonic NCR18650BD", d:18.5, l:65.3, w:48, cap:3200, amp:10, v:3.6, type:'li-ion', ir: 30 },
-        { name: "Sanyo NCR18650GA", d:18.5, l:65.3, w:48, cap:3500, amp:10, v:3.6, type:'li-ion', ir: 38 },
-        { name: "Sanyo NCR20700B", d:20.35, l:70.3, w:62, cap:4250, amp:15, v:3.6, type:'li-ion', ir: 25 },
-        { name: "Sanyo NCR2070C", d:20.35, l:70.3, w:62, cap:3500, amp:30, v:3.6, type:'li-ion', ir: 12 },
-        { name: "Molicel P26A (18650)", d:18.6, l:65.0, w:46, cap:2600, amp:35, v:3.6, type:'li-ion', ir: 12 },
-        { name: "Molicel P28A (18650)", d:18.6, l:65.0, w:46, cap:2800, amp:35, v:3.6, type:'li-ion', ir: 12 },
-        { name: "Molicel P28B (18650)", d:18.6, l:65.0, w:46, cap:2800, amp:40, v:3.6, type:'li-ion', ir: 10 },
-        { name: "Molicel P30B (18650)", d:18.6, l:65.0, w:46, cap:3000, amp:36, v:3.6, type:'li-ion', ir: 10 },
-        { name: "Molicel M35A (18650)", d:18.6, l:65.2, w:48, cap:3500, amp:10, v:3.6, type:'li-ion', ir: 25 },
-        { name: "Molicel P42A (21700)", d:21.55, l:70.15, w:67, cap:4200, amp:45, v:3.6, type:'li-ion', ir: 10 },
-        { name: "Molicel P45B (21700)", d:21.55, l:70.15, w:68, cap:4500, amp:45, v:3.6, type:'li-ion', ir: 9 },
-        { name: "Molicel P50B (21700)", d:21.55, l:70.15, w:68, cap:5000, amp:50, v:3.6, type:'li-ion', ir: 8 },
-        { name: "Molicel M50A (21700)", d:21.55, l:70.15, w:67, cap:5000, amp:15, v:3.6, type:'li-ion', ir: 25 },
-        { name: "BAK N18650CL", d:18.4, l:65.0, w:46, cap:2900, amp:8, v:3.6, type:'li-ion', ir: 35 },
-        { name: "BAK N18650CP", d:18.4, l:65.0, w:46, cap:3350, amp:6, v:3.6, type:'li-ion', ir: 40 },
-        { name: "BAK N21700CG", d:21.2, l:70.5, w:68, cap:5000, amp:10, v:3.6, type:'li-ion', ir: 30 },
-        { name: "Lishen LR1865LA", d:18.3, l:65.0, w:45, cap:2000, amp:20, v:3.6, type:'li-ion', ir: 20 },
-        { name: "Lishen LR2170SD", d:21.2, l:70.5, w:69, cap:5000, amp:10, v:3.6, type:'li-ion', ir: 30 },
-        { name: "DMEGC INR18650-26E", d:18.4, l:65.0, w:46, cap:2600, amp:5, v:3.6, type:'li-ion', ir: 35 },
+        { name: "Tenpower 20SG (18650)", d:18.4, l:65.0, w:45, cap:2000, amp:30, v:3.6, type:'li-ion', ir: 13 },
+        { name: "Tenpower INR18650-25SG", d:18.4, l:65.0, w:46, cap:2500, amp:30, v:3.6, type:'li-ion', ir: 13 },
+        { name: "Tesla/Generic 4680", d:46.0, l:80.0, w:355, cap:9000, amp:50, v:3.7, type:'li-ion', ir: 8 },
+        { name: "Toshiba SCiB 23660", d:23.0, l:66.0, w:65, cap:2900, amp:40, v:2.4, type:'lto', ir: 2 },
         { name: "Vapcell F52 (21700)", d:21.3, l:70.6, w:70, cap:5200, amp:15, v:3.6, type:'li-ion', ir: 20 },
         { name: "Vapcell F60 (21700)", d:21.6, l:70.8, w:72, cap:6000, amp:12.5, v:3.6, type:'li-ion', ir: 25 },
         { name: "Vapcell G53 (26650)", d:26.6, l:65.4, w:96, cap:5300, amp:20, v:3.6, type:'li-ion', ir: 15 },
+        { name: "Vapcell H10 (14500)", d:14.4, l:49.0, w:19, cap:1000, amp:10, v:3.6, type:'li-ion', ir: 18 },
+        { name: "Vapcell K64 (26650)", d:26.6, l:65.2, w:94, cap:6400, amp:15, v:3.6, type:'li-ion', ir: 22 },
+        { name: "Vapcell S40 (18650)", d:18.5, l:65.2, w:49, cap:4000, amp:10, v:3.6, type:'li-ion', ir: 28 },
+        { name: "Vapcell T8 (16340)", d:16.4, l:34.0, w:18, cap:850, amp:3, v:3.6, type:'li-ion', ir: 40 },
+        { name: "Wotech 32700 LFP", d:32.2, l:70.5, w:145, cap:6000, amp:30, v:3.2, type:'lfp', ir: 8 },
         { name: "iJoy 26650", d:26.5, l:65.3, w:95, cap:4200, amp:40, v:3.7, type:'li-ion', ir: 10 },
-        { name: "Hohm Grown 26650", d:26.6, l:65.4, w:98, cap:4244, amp:30, v:3.7, type:'li-ion', ir: 12 },
-        { name: "A123 ANR26650M1B", d:26.25, l:65.0, w:76, cap:2500, amp:50, v:3.3, type:'lfp', ir: 6 },
-        { name: "Headway 38120", d:38.0, l:122.0, w:330, cap:10000, amp:100, v:3.2, type:'lfp', ir: 4 },
-        { name: "Headway 40152", d:40.0, l:152.0, w:480, cap:15000, amp:150, v:3.2, type:'lfp', ir: 3 },
-        { name: "Tesla/Generic 4680", d:46.0, l:80.0, w:355, cap:9000, amp:50, v:3.7, type:'li-ion', ir: 8 }
     ];
 
     const searchInput = document.getElementById('db-search-input');
@@ -855,9 +1013,26 @@
         inputs['c-diam'].value = data.d;
         inputs['c-len'].value = data.l;
         inputs['c-weight'].value = data.w;
+        
+        // --- NEW: SMART PRICE LOGIC ---
+        if (data.cost) {
+            inputs['c-cost'].value = data.cost;
+        } else {
+            // Find closest size preset to guess the price
+            const match = DEFAULT_SIZE_PRESETS.find(p => 
+                Math.abs(p.data.d - data.d) < 1.0 && 
+                Math.abs(p.data.l - data.l) < 3.0
+            );
+            if (match && match.data.cost) {
+                inputs['c-cost'].value = match.data.cost;
+            }
+        }
+        // ------------------------------
+
         inputs['c-mah'].value = data.cap;
         inputs['c-amp'].value = data.amp;
         document.getElementById('sim-cell-ir').value = data.ir || 25;
+        
         const sel = document.getElementById('preset-selector');
         let dbOption = Array.from(sel.options).find(opt => opt.value === 'db_selected');
         if (!dbOption) {
@@ -867,11 +1042,17 @@
         }
         dbOption.text = `[DB] ${data.name}`; 
         sel.value = 'db_selected';
+
         const chemSel = document.getElementById('chem-selector');
-        if(data.type === 'lfp' || data.v < 3.4) {
-            chemSel.value = JSON.stringify(DEFAULT_CHEM_PRESETS.find(p=>p.id==='lfp').data);
+        const targetChem = DEFAULT_CHEM_PRESETS.find(p => p.id === data.type);
+        
+        if(targetChem) {
+             chemSel.value = JSON.stringify(targetChem.data);
         } else {
-            chemSel.value = JSON.stringify(DEFAULT_CHEM_PRESETS.find(p=>p.id==='li-ion').data);
+             if(data.v < 1.6) chemSel.value = JSON.stringify(DEFAULT_CHEM_PRESETS.find(p=>p.id==='nimh').data);
+             else if(data.v < 2.8) chemSel.value = JSON.stringify(DEFAULT_CHEM_PRESETS.find(p=>p.id==='lto').data);
+             else if(data.v < 3.4) chemSel.value = JSON.stringify(DEFAULT_CHEM_PRESETS.find(p=>p.id==='lfp').data);
+             else chemSel.value = JSON.stringify(DEFAULT_CHEM_PRESETS.find(p=>p.id==='li-ion').data);
         }
         chemSel.dispatchEvent(new Event('change'));
         updatePack();
@@ -961,9 +1142,11 @@
     const DEFAULT_CHEM_PRESETS = [
         { name: "Li-ion", group: "Standard", id:'li-ion', data: { nom:3.6, min:2.5, max:4.2 } },
         { name: "LiFePO4", group: "Standard", id:'lfp', data: { nom:3.2, min:2.5, max:3.65 } },
+        { name: "Sodium-Ion", group: "Standard", id:'na-ion', data: { nom:3.1, min:1.5, max:4.0 } }, // NEW
         { name: "LTO", group: "Standard", id:'lto', data: { nom:2.4, min:1.5, max:2.8 } },
         { name: "NiMH/NiCd", group: "Standard", id:'nimh', data: { nom:1.2, min:1.0, max:1.4 } },
-        { name: "Alkaline", group: "Standard", id:'alk', data: { nom:1.5, min:0.9, max:1.6 } }
+        { name: "Alkaline", group: "Standard", id:'alk', data: { nom:1.5, min:0.9, max:1.6 } },
+        { name: "LiPo (HV)", group: "Hobby", id:'lipo', data: { nom:3.8, min:3.0, max:4.35 } } // NEW
     ];
     let userSizePresets = JSON.parse(localStorage.getItem('batt_vis_presets_size_v40') || '[]');
     let userChemPresets = JSON.parse(localStorage.getItem('batt_vis_presets_chem_v40') || '[]');
@@ -1128,23 +1311,123 @@
         }
     });
 
-    ['c-diam', 'c-len', 'c-weight', 'c-cost', 'c-mah', 'c-amp'].forEach(id => {
-        document.getElementById(id).addEventListener('input', () => {
-            const sel = document.getElementById('preset-selector');
-            const dbInput = document.getElementById('db-search-input');
-            if (sel.value !== 'custom') sel.value = 'custom';
-            if (dbInput.value.trim() !== "") {
-                dbInput.value = "";
-                dbInput.placeholder = "Custom specs (modified)";
+// --- SMART POKA-YOKE & AUTO-DETECT LOGIC ---
+
+    // Define the list of fields that define a cell's identity
+    const identityFields = ['c-diam', 'c-len', 'c-mah', 'c-amp', 'c-volts', 'c-weight', 'c-cost'];
+
+    function attemptReverseLookup() {
+        // Gather current values
+        const current = {
+            d: parseFloat(inputs['c-diam'].value),
+            l: parseFloat(inputs['c-len'].value),
+            cap: parseFloat(inputs['c-mah'].value),
+            amp: parseFloat(inputs['c-amp'].value),
+            v: parseFloat(inputs['c-volts'].value),
+            w: parseFloat(inputs['c-weight'].value),
+            cost: inputs['c-cost'].value,
+            ir: parseFloat(document.getElementById('sim-cell-ir').value) || 25
+        };
+
+        const sel = document.getElementById('preset-selector');
+        const dbInput = document.getElementById('db-search-input');
+        
+        // ---------------------------------------------------------
+        // PRIORITY 1: Check User Presets
+        // ---------------------------------------------------------
+        for(let i=0; i<sel.options.length; i++) {
+            const opt = sel.options[i];
+            if(opt.dataset.user === "true") {
+                try {
+                    const p = JSON.parse(opt.value);
+                    if (Math.abs(p.d - current.d) < 0.05 &&
+                        Math.abs(p.l - current.l) < 0.5 &&
+                        Math.abs(p.cap - current.cap) < 1 &&
+                        Math.abs(p.amp - current.amp) < 0.1 &&
+                        Math.abs(p.w - current.w) < 0.1 &&
+                        p.cost === current.cost) {
+                        
+                        // Stop immediately if we find a user custom match
+                        if(sel.selectedIndex !== i) sel.selectedIndex = i;
+                        dbInput.value = ""; 
+                        dbInput.placeholder = "Search DB...";
+                        return; 
+                    }
+                } catch(e) {}
             }
-            const dbOption = Array.from(sel.options).find(opt => opt.value === 'db_selected');
-            if (dbOption) dbOption.remove();
-            updateDeleteButtons();
-        });
+        }
+
+        // ---------------------------------------------------------
+        // PRIORITY 2: Check Database (Find ALL matches)
+        // ---------------------------------------------------------
+        const matches = CELL_DB.filter(c => 
+            Math.abs(c.d - current.d) < 0.05 &&
+            Math.abs(c.l - current.l) < 0.5 &&
+            Math.abs(c.cap - current.cap) < 1 &&
+            Math.abs(c.amp - current.amp) < 0.1 &&
+            Math.abs(c.v - current.v) < 0.1 &&
+            (c.w ? Math.abs(c.w - current.w) < 0.5 : true)
+        );
+
+        // Helper to set the [DB] option text
+        const setDBOption = (text) => {
+            let dbOption = Array.from(sel.options).find(opt => opt.value === 'db_selected');
+            if (!dbOption) {
+                dbOption = document.createElement('option');
+                dbOption.value = 'db_selected';
+                sel.add(dbOption, 1);
+            }
+            dbOption.text = text;
+            sel.value = 'db_selected';
+        };
+
+        if (matches.length === 1) {
+            // SINGLE MATCH: Identify it precisely
+            setDBOption(`[DB] ${matches[0].name}`);
+            dbInput.value = ""; 
+            dbInput.placeholder = "Search DB...";
+            return;
+        } 
+        else if (matches.length > 1) {
+            // MULTIPLE MATCHES: Be ambiguous but helpful
+            setDBOption(`[DB] Multiple Matches Found`);
+            
+            // List the candidates in the placeholder so the user knows what they are
+            const names = matches.map(m => m.name).join(', ');
+            dbInput.value = ""; 
+            dbInput.placeholder = `Matches: ${names}`;
+            return;
+        }
+
+        // ---------------------------------------------------------
+        // PRIORITY 3: No Match -> Custom
+        // ---------------------------------------------------------
+        if (sel.value !== 'custom') sel.value = 'custom';
+        
+        const dbOption = Array.from(sel.options).find(opt => opt.value === 'db_selected');
+        if (dbOption) dbOption.remove();
+
+        if (dbInput.value.trim() === "") {
+             dbInput.placeholder = "Custom specs (modified)";
+        }
+    }
+
+    // Attach listeners to all identity fields
+    identityFields.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) {
+            el.addEventListener('input', () => {
+                attemptReverseLookup();
+                updateDeleteButtons();
+                // updatePack() is handled by other listeners already
+            });
+        }
     });
-    ['c-volts', 'c-min-v', 'c-max-v'].forEach(id => {
+    // Also attach to IR since that's part of the identity
+    document.getElementById('sim-cell-ir').addEventListener('input', attemptReverseLookup);
+
+    ['c-weight', 'c-cost'].forEach(id => {
         document.getElementById(id).addEventListener('input', () => {
-            document.getElementById('chem-selector').value = 'custom';
             updateDeleteButtons();
         });
     });
@@ -1260,14 +1543,24 @@
         document.getElementById('lbl-sim-load').innerText = `${loadA} A`;
         document.getElementById('lbl-sim-c').innerText = `${cRate.toFixed(2)} C (${Math.round(loadPerc)}%)`;
         document.getElementById('out-sim-netv').innerText = `${netV.toFixed(2)} V`;
-        let pwrStr = "";
-        if(outputPower > 1000) pwrStr = `${(outputPower/1000).toFixed(2)} kW`;
-        else pwrStr = `${Math.round(outputPower)} W`;
+		let pwrStr = "";
+        if(outputPower >= 1000) {
+            // 4 Significant Figures for kW (e.g., "1.234 kW" or "1050 kW")
+            pwrStr = `${(outputPower/1000).toPrecision(4)} kW`;
+        } else {
+            // Keep Watts simple
+            pwrStr = `${Math.round(outputPower)} W`;
+        }
+
         document.getElementById('out-sim-power').innerText = pwrStr;
         document.getElementById('out-sim-eff').innerText = `${eff.toFixed(1)}%`;
         
-        // Helper to switch W -> kW
-        const fmtPwr = (v) => v >= 1000 ? `${(v/1000).toFixed(2)} kW` : `${v.toFixed(1)} W`;
+        // Helper to switch W -> kW (Updated to match 4 sig fig style)
+        const fmtPwr = (v) => {
+            if(v >= 1000) return `${(v/1000).toPrecision(4)} kW`;
+            if(v < 10) return `${v.toFixed(1)} W`; // Show 1 decimal for tiny heat values (e.g. 0.5 W)
+            return `${Math.round(v)} W`;
+        };
 
         document.getElementById('out-sim-heat-cell').innerText = fmtPwr(heatCells);
         document.getElementById('out-sim-heat-strip').innerText = fmtPwr(heatStrips);
@@ -1284,11 +1577,18 @@
         });
         labels.length = 0;
 
-        while(packGroup.children.length > 0) {
-            const c = packGroup.children[0];
-            if(c.geometry) c.geometry.dispose();
-            packGroup.remove(c);
-        }
+    while(packGroup.children.length > 0) {
+		const c = packGroup.children[0];
+		if(c.geometry) c.geometry.dispose();
+		
+		// FIX: Dispose materials to prevent memory leak
+		if(c.material) {
+			if(Array.isArray(c.material)) c.material.forEach(m => m.dispose());
+			else c.material.dispose();
+    }
+    
+    packGroup.remove(c);
+}
         while(dimGroup.children.length > 0) dimGroup.remove(dimGroup.children[0]);
         const domLabels = document.querySelectorAll('.label-tag, .dim-tag');
         domLabels.forEach(el => el.remove());
@@ -1390,10 +1690,12 @@
         const spacerGeo = new THREE.CylinderGeometry(effectiveD/2, effectiveD/2, 2.0, segs);
         
         const meshCells = new THREE.InstancedMesh(cellGeo, cellMat, totalInstances);
-        const meshCaps = new THREE.InstancedMesh(capGeo, capMat, totalInstances);
-        const hasSpacers = spacing > 0.05;
+        meshCells.name = 'cells';
+		const meshCaps = new THREE.InstancedMesh(capGeo, capMat, totalInstances);
+        meshCaps.name = 'caps';
+		const hasSpacers = spacing > 0.05;
         const meshSpacers = new THREE.InstancedMesh(spacerGeo, spacerMat, hasSpacers ? totalInstances * 2 : 0);
-        
+        meshSpacers.name = 'spacers';
         const applyShadows = (mesh) => { mesh.castShadow = !highPerf; mesh.receiveShadow = !highPerf; };
         applyShadows(meshCells); applyShadows(meshCaps); applyShadows(meshSpacers);
         
@@ -1405,8 +1707,10 @@
         
         const maxConns = totalInstances * 4;
         const meshStrips = new THREE.InstancedMesh(boxGeo, busMat, maxConns);
-        const meshBusCaps = new THREE.InstancedMesh(cylGeo, busMat, maxConns * 2);
-        
+        meshStrips.name = 'busbars';
+		const meshBusCaps = new THREE.InstancedMesh(cylGeo, busMat, maxConns * 2);
+        meshBusCaps.name = 'busbars';
+				
         applyShadows(meshStrips); applyShadows(meshBusCaps);
         
         let stripIdx = 0;
@@ -1761,7 +2065,15 @@
         if(maxKw >= 1.0) { powerStr = `${maxKw.toFixed(2)}kW`; } 
         else { powerStr = `${Math.round(maxKw*1000)}W`; }
         document.getElementById('out-output').innerHTML = `${maxAmps.toFixed(0)}A&nbsp;<span style="font-weight:400">|</span>&nbsp;${powerStr}`;
-        document.getElementById('out-cost').innerText = `${costSym}${packCost.toFixed(2)}`;
+        let costDisplay = "";
+		if (packCost >= 1000) {
+            // Above 1k: Add commas, remove decimals (e.g. "1,250")
+            costDisplay = packCost.toLocaleString('en-US', { maximumFractionDigits: 0 });
+        } else {
+            // Below 1k: Keep standard 2 decimals (e.g. "450.50")
+            costDisplay = packCost.toFixed(2);
+        }
+        document.getElementById('out-cost').innerText = `${costSym}${costDisplay}`;
         currentStats = { 
             name: inputs['pack-name'].value,
             s: S_Total, p: P, l: L, cells: totalCells,
@@ -1773,8 +2085,22 @@
         };
     }
     document.getElementById('import-file-input').addEventListener('change', importStateFromFile);
-    function exportState() {
+	function exportState() {
         const state = { version: 'bpa-v1', inputs: {}, userSizePresets: userSizePresets, userChemPresets: userChemPresets, snapshots: snapshots.map(s => ({ inputs: s.inputs, data: s.data })) };
+        
+        const sel = document.getElementById('preset-selector');
+        // Scenario 1: Using a DB Cell
+        if(sel.value === 'db_selected') {
+            state.inputs['saved_db_name'] = sel.options[sel.selectedIndex].text.replace('[DB] ', '');
+        } 
+        // Scenario 2: Using a User Custom Preset (New Logic)
+        else {
+            const selectedOpt = sel.options[sel.selectedIndex];
+            if (selectedOpt && selectedOpt.dataset.user === "true") {
+                state.inputs['saved_custom_preset_name'] = selectedOpt.text;
+            }
+        }
+
         inputIds.forEach(id => { const el = document.getElementById(id); if(el) state.inputs[id] = (el.type==='checkbox') ? el.checked : el.value; });
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
         const downloadAnchorNode = document.createElement('a');
@@ -1793,9 +2119,38 @@
             try {
                 const state = JSON.parse(event.target.result);
                 if (state.version !== 'bpa-v1') { alert('This file appears to be an incompatible or invalid configuration file.'); return; }
+                
+                // 1. Restore User Preset Lists
                 if (state.userSizePresets) { userSizePresets = state.userSizePresets; localStorage.setItem('batt_vis_presets_size_v40', JSON.stringify(userSizePresets)); }
                 if (state.userChemPresets) { userChemPresets = state.userChemPresets; localStorage.setItem('batt_vis_presets_chem_v40', JSON.stringify(userChemPresets)); }
                 populatePresets();
+
+                let restoredSelection = false;
+
+                // 2. Try to restore DB Selection
+                if (state.inputs && state.inputs['saved_db_name']) {
+                    const savedName = state.inputs['saved_db_name'];
+                    const match = CELL_DB.find(c => c.name === savedName);
+                    if (match) {
+                        applyCellData(match); 
+                        restoredSelection = true;
+                    }
+                }
+
+                // 3. Try to restore Custom Preset Selection
+                if (!restoredSelection && state.inputs && state.inputs['saved_custom_preset_name']) {
+                    const savedPresetName = state.inputs['saved_custom_preset_name'];
+                    const selSize = document.getElementById('preset-selector');
+                    for(let i=0; i<selSize.options.length; i++) {
+                        if(selSize.options[i].text === savedPresetName) {
+                            selSize.selectedIndex = i;
+                            restoredSelection = true;
+                            break;
+                        }
+                    }
+                }
+
+                // 4. Restore Numerical Inputs
                 if (state.inputs) {
                     inputIds.forEach(id => {
                         const el = document.getElementById(id);
@@ -1804,17 +2159,46 @@
                             if (el.type === 'range') { const valEl = document.getElementById('val-' + id); if (valEl) valEl.innerText = Math.round(el.value * 100) + "%"; }
                         }
                     });
-                    const selSize = document.getElementById('preset-selector');
-                    selSize.value = 'custom'; 
-                    const targetD = parseFloat(state.inputs['c-diam']);
-                    for(let i=0; i<selSize.options.length; i++) {
-                        if(selSize.options[i].value === 'custom') continue;
-                        try {
-                            const d = JSON.parse(selSize.options[i].value);
-                            if(Math.abs(d.d - targetD) < 0.01) { selSize.selectedIndex = i; break; }
-                        } catch(err){}
+
+                    // 5. Fallback: STRICT MATCHING
+                    // Only select a preset if EVERY parameter matches. 
+                    // If the user changed Cost, Weight, or IR even slightly, it remains "Custom".
+                    if (!restoredSelection) {
+                        const selSize = document.getElementById('preset-selector');
+                        selSize.value = 'custom'; // Default to "Custom" immediately
+                        
+                        // Gather imported values for comparison
+                        const i_d = parseFloat(state.inputs['c-diam']);
+                        const i_l = parseFloat(state.inputs['c-len']);
+                        const i_w = parseFloat(state.inputs['c-weight']);
+                        const i_cost = state.inputs['c-cost']; // String comparison for cost
+                        const i_cap = parseFloat(state.inputs['c-mah']);
+                        const i_amp = parseFloat(state.inputs['c-amp']);
+                        const i_ir = parseFloat(state.inputs['sim-cell-ir']);
+
+                        for(let i=0; i<selSize.options.length; i++) {
+                            if(selSize.options[i].value === 'custom') continue;
+                            try {
+                                const p = JSON.parse(selSize.options[i].value);
+                                
+                                // STRICT CHECK: All fields must match within a tiny tolerance
+                                const matchD = Math.abs(p.d - i_d) < 0.05;
+                                const matchL = Math.abs(p.l - i_l) < 0.5;
+                                const matchW = Math.abs(p.w - i_w) < 0.1;
+                                const matchCap = Math.abs(p.cap - i_cap) < 1;
+                                const matchAmp = Math.abs(p.amp - i_amp) < 0.1;
+                                const matchIR = Math.abs((p.ir || 25) - i_ir) < 1; // Default IR is 25 if missing
+                                const matchCost = p.cost === i_cost; // Exact string match (e.g. "€4.50" vs "€4.50")
+
+                                if(matchD && matchL && matchW && matchCap && matchAmp && matchIR && matchCost) { 
+                                    selSize.selectedIndex = i; 
+                                    break; 
+                                }
+                            } catch(err){}
+                        }
                     }
                 }
+                
                 if (state.snapshots) {
                     snapshots.length = 0; 
                     state.snapshots.forEach(snapData => { snapshots.push({ id: Date.now(), inputs: snapData.inputs, data: snapData.data }); });
@@ -1822,7 +2206,7 @@
                 }
                 updateDeleteButtons();
                 updatePack();
-            } catch (error) { alert('Error parsing file.'); } finally { e.target.value = ''; }
+            } catch (error) { console.error(error); alert('Error parsing file.'); } finally { e.target.value = ''; }
         };
         reader.readAsText(file);
     }
@@ -1934,14 +2318,146 @@
         fileMenuDropdown.classList.remove('show');
     });
 
-    inputIds.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) {
-            el.addEventListener('input', updatePack);
-            el.addEventListener('change', updatePack);
+	// 1. Open the modal when clicking the menu item
+    document.getElementById('menu-export-stl').addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('export-overlay').style.display = 'flex';
+        fileMenuDropdown.classList.remove('show');
+    });
+
+    // 2. Handle the actual export when clicking "Download" inside the modal
+    document.getElementById('btn-do-export').addEventListener('click', () => {
+        const incCells = document.getElementById('ex-cells').checked;
+        const incSpacers = document.getElementById('ex-spacers').checked;
+        const incBus = document.getElementById('ex-bus').checked;
+        
+        // Call the new robust function
+        exportSTL(incCells, incSpacers, incBus);
+        
+        // Close modal
+        document.getElementById('export-overlay').style.display = 'none';
+    });
+
+    // 3. Close modal when clicking outside (standard behavior)
+    document.getElementById('export-overlay').addEventListener('click', (e) => {
+        if(e.target === document.getElementById('export-overlay')) {
+            document.getElementById('export-overlay').style.display = 'none';
         }
     });
 
+    // Create the debounced version of the main render function
+    const debouncedUpdate = debounce(updatePack, 50);
+
+    inputIds.forEach(id => {
+        const el = document.getElementById(id);
+        if(el) {
+            el.addEventListener('input', () => {
+                // If it's the "Load" slider or IR, we only need to update the math (fast), not the 3D model (slow)
+                if(id === 'sim-load-slider' || id === 'sim-cell-ir') {
+                    updateSimulation();
+                } 
+                // For other sliders/text, use the delayed (debounced) update to prevent lag
+                else if(el.type === 'range' || el.type === 'number' || el.type === 'text') {
+                    debouncedUpdate();
+                } 
+                // Checkboxes and color pickers are instant
+                else {
+                    updatePack();
+                }
+            });
+            // When the user releases the slider or clicks out of a box, update immediately
+            el.addEventListener('change', updatePack);
+        }
+    });
+	
+// --- FINAL STL EXPORT FUNCTION (Orientation Fixed) ---
+    function exportSTL(includeCells, includeSpacers, includeBusbars) {
+        // 1. Setup
+        const exportGroup = new THREE.Group();
+        const tempMatrix = new THREE.Matrix4();
+        const finalMatrix = new THREE.Matrix4();
+        
+        // CORRECTION: Rotate 90 degrees around X to convert Y-Up (Three.js) to Z-Up (3D Printing)
+        const correctionMatrix = new THREE.Matrix4().makeRotationX(Math.PI / 2);
+
+        // Notify user if it might freeze for a second
+        const totalObjs = packGroup.children.length; 
+        if(totalObjs > 0) document.body.style.cursor = 'wait';
+
+        // 2. Helper: Bake position/rotation into the geometry
+        function addBakedInstance(instancedMesh) {
+            const count = instancedMesh.count;
+            const originalGeom = instancedMesh.geometry;
+            const meshWorldMatrix = instancedMesh.matrixWorld;
+
+            for (let i = 0; i < count; i++) {
+                // A. Get instance local transform
+                instancedMesh.getMatrixAt(i, tempMatrix);
+                
+                // B. Calculate absolute world position
+                finalMatrix.multiplyMatrices(meshWorldMatrix, tempMatrix);
+                
+                // C. APPLY THE ROTATION FIX HERE
+                // We rotate the entire world frame 90 degrees so 'Up' becomes 'Up' in the STL
+                finalMatrix.premultiply(correctionMatrix);
+
+                // D. Bake into geometry
+                const bakedGeom = originalGeom.clone();
+                bakedGeom.applyMatrix4(finalMatrix);
+
+                // E. Create export mesh
+                const mesh = new THREE.Mesh(bakedGeom, new THREE.MeshBasicMaterial());
+                exportGroup.add(mesh);
+            }
+        }
+
+        // 3. Iterate and Select
+        scene.updateMatrixWorld(true);
+
+        packGroup.children.forEach(child => {
+            if (child.isInstancedMesh) {
+                let keep = false;
+                if ((child.name === 'cells' || child.name === 'caps') && includeCells) keep = true;
+                if (child.name === 'spacers' && includeSpacers) keep = true;
+                if (child.name === 'busbars' && includeBusbars) keep = true;
+
+                if (keep) {
+                    addBakedInstance(child);
+                }
+            }
+        });
+
+        document.body.style.cursor = 'default';
+
+        if(exportGroup.children.length === 0) {
+            alert("Nothing selected to export!");
+            return;
+        }
+
+        // 4. Export
+        try {
+            const exporter = new STLExporter();
+            const result = exporter.parse(exportGroup, { binary: true });
+            
+            const blob = new Blob([result], { type: 'application/octet-stream' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            const packName = (inputs['pack-name'].value || 'battery_pack').replace(/[^a-z0-9]/gi, '_');
+            link.download = `${packName}_${Date.now()}.stl`;
+            link.click();
+        } catch (e) {
+            console.error(e);
+            alert("Export failed. See console for details.");
+        } finally {
+            // 5. Cleanup
+            exportGroup.traverse(o => {
+                if (o.geometry) o.geometry.dispose();
+                if (o.material) o.material.dispose();
+            });
+            exportGroup.clear();
+        }
+    }
+	
     window.addEventListener('resize', () => {
         camera.aspect = container.clientWidth / container.clientHeight;
         camera.updateProjectionMatrix();
