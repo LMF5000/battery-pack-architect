@@ -107,13 +107,6 @@
             display: flex; align-items: center; justify-content: space-between; 
             flex-wrap: nowrap; position: sticky; top: 0; z-index: 30; height: 50px; box-sizing: border-box;
         }
-		
-		/* --- HEADER & TITLE --- */
-		.header {
-			padding: 10px 12px; border-bottom: 1px solid #f0f0f0; background: #fff;
-			display: flex; align-items: center; justify-content: space-between; 
-			flex-wrap: nowrap; position: sticky; top: 0; z-index: 30; height: 50px; box-sizing: border-box;
-		}
 
 		h1 { 
 			margin: 0; 
@@ -270,10 +263,21 @@
         .btn-icon:disabled { opacity: 0.3; cursor: not-allowed; }
 
         /* Visual Settings */
-        details { margin-top: 8px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; margin: 0 15px 10px 15px; }
+        /* Changed margin from '0 15px 10px 15px' to '0 0 10px 0' */
+		details { margin-top: 8px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; margin: 0 0 10px 0; }
         summary { cursor: pointer; font-weight: 600; color: #64748b; font-size: 0.75rem; padding: 6px 10px; background: #f1f5f9; list-style: none; }
-        summary:after { content: "+"; float: right; font-weight: bold; }
-        details[open] summary:after { content: "-"; }
+        /* Tweaked for visibility */
+		summary:after { 
+			content: "+"; 
+			float: right; 
+			font-weight: 900; 
+			font-size: 1.2rem; /* Larger */
+			color: #3b82f6;    /* Bright Blue */
+		}
+		details[open] summary:after { 
+			content: "-"; 
+			color: #64748b; /* Grey when open */
+		}
         .details-content { padding: 10px; }
 
         .mat-header-row {
@@ -306,8 +310,19 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.25); transition: opacity 0.2s;
             font-size: 0.7rem; font-weight: 400; line-height: 1.4; white-space: normal;
         }
-		.help-icon .tip-content.tip-right { left: 0; right: auto; text-align: left; transform: none; }
-		.help-icon .tip-content.tip-right::after { right: auto; left: 5px; }
+		/* Tooltip: Centered bubble on the RIGHT with arrow on LEFT */
+        .help-icon .tip-content.tip-right { 
+            left: 18px; /* Move to right of icon */
+            top: 50%; transform: translateY(-50%); /* Vertically Center */
+            bottom: auto; right: auto; 
+            text-align: left; width: 200px;
+        }
+        .help-icon .tip-content.tip-right::after { 
+            right: 100%; /* Arrow attaches to left side of bubble */
+            top: 50%; margin-top: -6px; 
+            left: auto; 
+            border-color: transparent #334155 transparent transparent; /* Point left */
+        }
 		.help-icon .tip-content::after {
             content: ""; position: absolute; top: 100%; right: 10px;
             border-width: 6px; border-style: solid; border-color: #334155 transparent transparent transparent;
@@ -456,15 +471,87 @@
         .sim-v-sep { width: 1px; background: #e2e8f0; }
         .sim-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; }
         .sim-val { font-weight: 700; font-family: 'SF Mono', monospace; }
-        
-        /* MODE TOGGLE */
-        .mode-toggle-wrap { display: flex; background: #e2e8f0; border-radius: 4px; padding: 2px; margin-bottom: 8px; }
-        .mode-opt {
-            flex: 1; text-align: center; font-size: 0.7rem; font-weight: 600; padding: 4px; cursor: pointer;
-            color: #64748b; border-radius: 3px; transition: all 0.2s;
-        }
+            
         .mode-opt.active { background: #fff; color: #3b82f6; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
         .mode-opt.active.charge { color: #059669; }
+		/* SLIMMER TOGGLES */
+		.mode-toggle-wrap { padding: 1px; margin-bottom: 6px; min-height: 22px; }
+		.mode-opt { padding: 2px; font-size: 0.65rem; line-height: 1.3; }
+
+		/* CUSTOM TOOLTIP */
+		.tooltip-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: #e2e8f0; border-radius: 50%; color: #64748b; font-size: 10px; font-weight: bold; cursor: help; margin-left: 4px; }
+		.tooltip-wrap:hover { background: #3b82f6; color: #fff; }
+		.tooltip-wrap:hover::after {
+			content: attr(data-tip);
+			position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+			background: #1e293b; color: #fff; padding: 6px 10px; border-radius: 4px;
+			font-size: 0.7rem; white-space: pre-wrap; width: 160px; text-align: center;
+			z-index: 100; pointer-events: none; margin-bottom: 6px;
+			box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-weight: 500;
+		}
+		.tooltip-wrap:hover::before { /* Little arrow */
+			content: ''; position: absolute; bottom: 100%; left: 50%; margin-left: -4px;
+			border-width: 4px; border-style: solid; border-color: #1e293b transparent transparent transparent;
+			margin-bottom: -2px;
+		}
+		
+		/* --- COMPACT SIMULATION UI --- */
+		/* Inline Toggles (Text-based) */
+		.inline-toggle { 
+			font-size: 0.65rem; background: #e2e8f0; border-radius: 4px; 
+			padding: 2px; display: inline-flex; cursor: pointer; vertical-align: middle; margin-left: 6px;
+		}
+		.it-opt { 
+			padding: 1px 6px; border-radius: 3px; color: #64748b; font-weight: 600; transition: all 0.2s;
+		}
+		.it-opt.active { background: #fff; color: #3b82f6; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+		.it-opt.active.warn { color: #ef4444; } /* For Discharge */
+		.it-opt.active.good { color: #059669; } /* For Charge */
+
+		/* Smart Input (Units inside) */
+		.smart-input-wrap { position: relative; display: flex; align-items: center; }
+		/* Fix Input Text Cutoff by Arrows */
+        .smart-input-wrap input {
+            padding-right: 14px; /* Reduced slightly to give text more room */
+            text-align: right; font-family: 'SF Mono', monospace; 
+            font-weight: 700; color: #334155; border: 1px solid #cbd5e1; 
+            height: 22px; font-size: 0.75rem; border-radius: 4px; width: 100%;
+        }
+		.smart-input-wrap .unit {
+			position: absolute; right: 4px; font-size: 0.65rem; color: #94a3b8; 
+			font-weight: 600; pointer-events: none;
+		}
+
+		/* Results Grid - Compact & Overflow Visible for Tooltips */
+		/* 1. Adjust Grid: Give left side more space (1.25fr vs 0.75fr) */
+        #sim-results {
+            display: grid; grid-template-columns: 1.1fr 1px 0.9fr; gap: 0; 
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; 
+            padding: 0; margin-top: 8px; 
+            overflow: visible; 
+        }
+
+        /* 2. New Colors */
+        .c-indigo { color: #6366f1; }
+        .c-violet { color: #8b5cf6; }
+
+        /* 3. Fix Efficiency Bouncing: Status row gets fixed height */
+        #row-status {
+            min-height: 14px; /* Reserve space */
+            display: flex; justify-content: flex-end; align-items: center;
+        }
+		.res-col { padding: 6px 10px; display: flex; flex-direction: column; gap: 3px; }
+		.res-v-sep { width: 1px; background: #f1f5f9; margin: 4px 0; }
+
+		.res-row { display: flex; justify-content: space-between; align-items: baseline; min-height: 16px; }
+		.res-lbl { color: #64748b; font-weight: 600; font-size: 0.68rem; display: flex; align-items: center; }
+		.res-val { font-family: 'SF Mono', monospace; font-weight: 700; font-size: 0.75rem; letter-spacing: -0.3px; }
+
+		/* Sub-inputs in grid (LVC) */
+		.grid-input-row { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+		.mini-input { width: 75px !important; }
+		
+		.disabled { opacity: 0.4; pointer-events: none; filter: grayscale(100%); transition: opacity 0.2s; }
     </style>
     
     <script type="importmap">
@@ -486,7 +573,7 @@
 			<h1>
 				<span style="font-size:1.2em; margin-right:4px;">🔋</span>
 				<span class="title-text">Pack Architect</span>
-				<span class="version-span">v78</span>
+				<span class="version-span">v82</span>
 			</h1>
 			
 			<div class="header-actions">
@@ -549,6 +636,7 @@
             <div class="controls-grid">
                 <div class="control-item"><label>Capacity (mAh)</label><input type="number" id="c-mah" value="2500" step="100"></div>
                 <div class="control-item"><label>Max Current (A)</label><input type="number" id="c-amp" value="20"></div>
+				<div class="control-item"><label>Cell IR (mΩ)</label><input type="number" id="sim-cell-ir" value="25"></div>
             </div>
         </div>
 
@@ -632,74 +720,196 @@
         </div>
 
         <div class="group-box">
-            <div class="section-title">4. Simulation & Efficiency</div>
-            <div class="controls-grid" style="margin-bottom: 8px;">
-                <div class="control-item"><label>Cell IR (mΩ)</label><input type="number" id="sim-cell-ir" value="25"></div>
-                <div class="control-item"><label>Strip Material</label>
-                    <select id="sim-strip-mat">
-                        <option value="7.0">Nickel (7.0×10⁻⁸ Ωm)</option>
-                        <option value="14.0">Steel (1.4×10⁻⁷ Ωm)</option>
-                        <option value="1.7">Copper (1.7×10⁻⁸ Ωm)</option>
-                    </select>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <div class="section-title" style="margin:0;">4. Simulation & Efficiency</div>
+            </div>
+
+            <details open>
+                <summary style="font-size:0.7rem; padding:6px 10px; background:#f8fafc; color:#64748b; font-weight:600; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center;">
+                    <span>⚙️ Advanced Strip Parameters</span>
+                    </summary>
+                <div style="padding:10px; border-top:1px solid #e2e8f0;">
+                    <div class="control-item"><label>Strip Material</label>
+                        <select id="sim-strip-mat">
+                            <option value="7.0">Nickel (7.0×10⁻⁸ Ωm)</option>
+                            <option value="14.0">Steel (1.4×10⁻⁷ Ωm)</option>
+                            <option value="1.7">Copper (1.7×10⁻⁸ Ωm)</option>
+                        </select>
+                    </div>
+                    <div class="controls-grid" style="margin-top:6px;">
+                        <div class="control-item"><label>Width (mm)</label><input type="number" id="sim-strip-w" value="7.0"></div>
+                        <div class="control-item"><label>Thick (mm)</label><input type="number" id="sim-strip-t" value="0.15" step="0.05"></div>
+                    </div>
                 </div>
-            </div>
-            <div class="controls-grid" style="margin-bottom: 8px;">
-                <div class="control-item"><label>Strip Width (mm)</label><input type="number" id="sim-strip-w" value="7.0"></div>
-                <div class="control-item"><label>Thickness (mm)</label><input type="number" id="sim-strip-t" value="0.15" step="0.05" min="0.05"></div>
-            </div>
-
-            <div class="mode-toggle-wrap">
-                <div class="mode-opt active" id="mode-disch">Discharge</div>
-                <div class="mode-opt" id="mode-chg">Charge</div>
-            </div>
+            </details>
+            
             <input type="hidden" id="sim-mode-val" value="discharge">
+            <input type="hidden" id="sim-load-type" value="cc">
 
-            <div class="control-item full-width">
-                <label style="display:flex; justify-content:space-between;">
-                    <span>Load: <span id="lbl-sim-load" style="color:#2563eb;">0 A</span></span>
-                    <span id="lbl-sim-c" style="color:#64748b; font-weight:400;">0.00 C</span>
-                </label>
-                <input type="range" id="sim-load-slider" min="0" max="100" value="0" step="1" style="width:100%;">
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:8px; border-radius:6px; margin-bottom: 8px;">
+                
+                <div class="control-item full-width" style="margin-bottom: 8px;">
+                    <label style="display:flex; justify-content:space-between; margin-bottom:2px;">
+                        <span>Current SoC (Starting Point)</span>
+                        <span id="val-soc" style="font-weight:700; color:#059669; font-family:'SF Mono', monospace; font-size:0.75rem;">100%</span>
+                    </label>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="range" id="sim-soc" min="0" max="100" value="100" step="1" 
+                               style="flex:1; height:5px; background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #22c55e 100%); border-radius:3px; -webkit-appearance:none;">
+                        
+                        <div class="smart-input-wrap" style="width:85px;">
+                            <input type="number" id="sim-cell-volt-input" step="0.01">
+                            <span class="unit">V</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:end; margin-bottom:4px;">
+                    <div style="display:flex; flex-direction:column;">
+                        <span style="font-size:0.7rem; font-weight:700; color:#475569; margin-bottom:2px; display:flex; align-items:center;">
+                            Load
+                            <span class="help-icon" style="margin-left:4px;">?
+                                <div class="tip-content tip-right" style="width:240px;">
+                                    <strong>Slider Limits</strong><br>
+                                    <ul style="padding-left:12px; margin:4px 0; text-align:left;">
+                                        <li style="margin-bottom:6px;"><strong>Discharge (Stress Test Simulation):</strong>
+                                            <div style="padding-left:8px; margin-top:2px; color:#cbd5e1; font-weight:400;">
+                                                • <strong>Amps:</strong> Up to 150% of rated current.<br>
+                                                • <strong>Watts:</strong> Includes 150% Overpower capability. Scaled to Max Voltage (4.2V/cell) for peak burst simulation.
+                                            </div>
+                                        </li>
+                                        <li><strong>Charge:</strong> Up to 5C (Ultra Fast Charge).</li>
+                                    </ul>
+                                </div>
+                            </span>
+                        </span>
+                        <div class="inline-toggle" id="toggle-load-type">
+                            <span class="it-opt active" data-val="cc">Amps</span>
+                            <span class="it-opt" data-val="cp">Watts</span>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align:right;">
+                         <div id="lbl-sim-c" style="font-size:0.7rem; color:#64748b; font-weight:700;">0.00 C</div>
+                         <div id="lbl-load-perc" style="font-size:0.65rem; color:#94a3b8; font-weight:600;">0% of max current</div>
+                    </div>
+                </div>
+                
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="range" id="sim-load-slider" min="0" max="1000" value="0" step="1" style="flex:1; height:5px;">
+                    <div class="smart-input-wrap" style="width:85px;"> 
+                        <input type="number" id="sim-load-input" value="0" step="0.1">
+                        <span class="unit" id="sim-input-unit">A</span>
+                    </div>
+                </div>
             </div>
             
             <div id="sim-results">
-                <div class="sim-col">
-                    <div class="sim-row"><span id="lbl-sim-sag">Voltage Sag</span><span class="sim-val c-red" id="out-sim-sag">0.0 V</span></div>
-                    <div class="sim-row"><span id="lbl-sim-net">Net Output</span><span class="sim-val c-blue" id="out-sim-netv">0.0 V</span></div>
-                    <div class="sim-row"><span id="lbl-sim-power">Output Power</span><span class="sim-val c-purp" id="out-sim-power">0 W</span></div>
-                </div>
-                <div class="sim-v-sep"></div>
-                <div class="sim-col">
-                    <div class="sim-row"><span>Heat (Cells)</span><span class="sim-val c-orange" id="out-sim-heat-cell">0 W</span></div>
-                    <div class="sim-row"><span>Heat (Strip)</span><span class="sim-val c-orange" id="out-sim-heat-strip">0 W</span></div>
-                    <div class="sim-row"><span>Total Waste</span><span class="sim-val c-red" id="out-sim-total-waste">0 W</span></div>
-                    <div class="sim-row"><span>Efficiency</span><span class="sim-val c-green" id="out-sim-eff">100%</span></div>
-                </div>
-            </div>
-        </div>
+                <div class="res-col">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; padding-bottom:4px; border-bottom:1px solid #f1f5f9;">
+                        <span class="res-lbl" style="color:#334155;">Mode:</span>
+                        <div class="inline-toggle" id="toggle-sim-mode">
+                            <span class="it-opt active warn" data-val="discharge">Disch</span>
+                            <span class="it-opt" data-val="charge">Chg</span>
+                        </div>
+                    </div>
 
-        <details open>
+                    <div class="res-row">
+                        <span class="res-lbl" id="lbl-sim-sag">Sag 
+                            <span class="help-icon">?
+                                <div class="tip-content tip-right">
+                                    <strong>Voltage Sag (Ohmic)</strong><br>
+                                    Immediate voltage drop due to internal resistance (DCIR) and busbar resistance.
+                                </div>
+                            </span>
+                        </span>
+                        <span class="res-val c-red" id="out-sim-sag">0.00 V</span>
+                    </div>
+                    
+                    <div class="res-row">
+                        <span class="res-lbl" id="lbl-sim-net">Net Output</span>
+                        <span class="res-val c-blue" id="out-sim-netv">0.0 V</span>
+                    </div>
+                    
+                    <div id="row-lvc-inputs" style="margin-top:4px; padding-top:4px; border-top:1px dashed #f1f5f9;">
+                        <div class="grid-input-row">
+                            <span class="res-lbl">LVC (Cell)
+                                <span class="help-icon">?
+                                    <div class="tip-content tip-right">
+                                        <strong>Low Voltage Cutoff</strong><br>
+                                        The safe minimum voltage limit. Simulation stops if the cell dips below this.
+                                    </div>
+                                </span>
+                            </span>
+                            <div class="smart-input-wrap mini-input"><input type="number" id="sys-cutoff" value="3.00" step="0.05"><span class="unit">V</span></div>
+                        </div>
+                        <div class="grid-input-row">
+                            <span class="res-lbl">LVC (Pack)</span>
+                            <div class="smart-input-wrap mini-input"><input type="number" id="sys-cutoff-pack" value="30.0" step="0.5"><span class="unit">V</span></div>
+                        </div>
+                    </div>
+
+                    <div id="row-usable-cap" class="res-row" style="margin-top:4px;"><span class="res-lbl">Usable Cap</span><span class="res-val c-teal" id="out-sim-usable">100%</span></div>
+                    <div class="res-row" id="row-runtime">
+                        <span class="res-lbl" id="lbl-runtime">Runtime
+                             <span class="help-icon">?
+                                <div class="tip-content tip-right">
+                                    Estimated time until battery hits LVC or 0% SoC.
+                                </div>
+                            </span>
+                        </span>
+                        <span class="res-val c-dark" id="out-sim-runtime">--</span>
+                    </div>
+                </div>
+                
+                <div class="res-v-sep"></div>
+                
+                <div class="res-col">
+                    <div class="res-row"><span class="res-lbl">Current</span><span class="res-val c-indigo" id="out-sim-amps">0.0 A</span></div>
+                    <div class="res-row"><span class="res-lbl">Total Pwr</span><span class="res-val c-violet" id="out-sim-power-total">0 W</span></div>
+                    <div class="res-row"><span class="res-lbl">Useful Pwr</span><span class="res-val c-blue" id="out-sim-power-useful">0 W</span></div>
+
+                    <div class="res-row" style="margin-top:4px;"><span class="res-lbl">Heat (cells)</span><span class="res-val c-orange" id="out-sim-heat-cell">0 W</span></div>
+                    <div class="res-row"><span class="res-lbl">Heat (strips)</span><span class="res-val c-red" id="out-sim-heat-strip">0 W</span></div>
+                    <div class="res-row"><span class="res-lbl" style="font-weight:700; color:#b91c1c;">Total Waste</span><span class="res-val c-red" style="font-weight:800;" id="out-sim-heat-total">0 W</span></div>
+                    
+                    <div class="res-row" style="margin-top:auto; padding-top:4px; border-top:1px dashed #e2e8f0;">
+                        <span class="res-lbl">Efficiency</span><span class="res-val c-green" id="out-sim-eff">100%</span>
+                    </div>
+                    
+                    <div class="res-row" id="row-status">
+                        <span id="status-text" style="color:#d32f2f; font-weight:800; font-size:0.7rem; display:none;">⚠️ CUTOFF</span>
+                    </div>
+                </div>
+            </div>      
+        </div>
+		
+		<details open>
             <summary>Visual Settings</summary>
             <div class="details-content">
                 <div class="mat-header-row"><div>Element</div><div>Color</div><div style="text-align:center; letter-spacing: -0.5px;">Metallic</div></div>
                 <div class="mat-row"><div class="mat-label">Cell</div><div class="color-wrap"><input type="color" id="col-cell" value="#f0a3ff"><input type="range" id="met-cell" min="0" max="1" step="0.1" value="0.15"></div><div class="perc-label" id="val-met-cell">15%</div></div>
-                <div class="mat-row"><div class="mat-label">Cap</div><div class="color-wrap"><input type="color" id="col-cap" value="#e2e8f0"><input type="range" id="met-cap" min="0" max="1" step="0.1" value="0.5"></div><div class="perc-label" id="val-met-cap">50%</div></div>
+                <div class="mat-row"><div class="mat-label">Cap</div><div class="color-wrap"><input type="color" id="col-cap" value="#ffffff"><input type="range" id="met-cap" min="0" max="1" step="0.1" value="0.20"></div><div class="perc-label" id="val-met-cap">20%</div></div>
                 <div class="mat-row"><div class="mat-label">Busbar</div><div class="color-wrap"><input type="color" id="col-bus" value="#ff8f00"><input type="range" id="met-bus" min="0" max="1" step="0.1" value="0.3"></div><div class="perc-label" id="val-met-bus">30%</div></div>
                 <div class="mat-row" id="row-inter"><div class="mat-label" style="font-size:0.7rem">Inter-Layer</div><div class="color-wrap"><input type="color" id="col-inter" value="#b87333"><input type="range" id="met-inter" min="0" max="1" step="0.1" value="0.8"></div><div class="perc-label" id="val-met-inter">80%</div></div>
                 <div class="mat-row"><div class="mat-label">Spacer</div><div class="color-wrap"><input type="color" id="col-spacer" value="#111111"><input type="range" id="met-spacer" min="0" max="1" step="0.1" value="0.0"></div><div class="perc-label" id="val-met-spacer">0%</div></div>
                 <div class="mat-row"><div class="mat-label" style="width: auto;">Background</div><div class="color-wrap"><input type="color" id="col-bg" value="#f4f6f9"></div><div></div></div>
             </div>
         </details>
-
-        <div class="group-box" style="margin-top: 15px; border: 1px dashed #cbd5e1; background: #f1f5f9;">
-            <div class="section-title">Support & Contact</div>
-            <div style="font-size: 0.75rem; color: #64748b; line-height: 1.4;">
-                <p style="margin: 0 0 8px 0;">Found a bug or need a custom integration?</p>
-                <div style="display: flex; gap: 8px;">
-                    <a href="#" id="sidebar-feedback" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Feedback Form</a>
-                    <span style="color: #cbd5e1;">|</span>
-                    <a href="#" id="sidebar-commercial" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Commercial</a>
-                </div>
+			<div style="padding: 15px 15px 30px 15px; border-top: 1px solid #e2e8f0; margin-top: 15px;">
+            <h3 style="font-size:0.8rem; color:#334155; margin:0 0 8px 0; font-weight:700;">About Battery Pack Architect</h3>
+            <p style="font-size:0.7rem; color:#64748b; line-height:1.5; margin-bottom:10px;">
+                Battery Pack Architect is a free, open-source 3D tool for designing custom lithium battery packs. 
+                Visualize Series/Parallel configurations (18650, 21700, LFP, Na-ion) in real-time.
+            </p>
+            <ul style="font-size:0.7rem; color:#64748b; padding-left:16px; margin:0 0 10px 0; line-height:1.4;">
+                <li><strong>3D Visualization:</strong> Auto-generates spot-welding strips & hex layouts.</li>
+                <li><strong>Physics Engine:</strong> Simulates Voltage Sag, Joule Heating, and Efficiency losses.</li>
+                <li><strong>Dynamic Runtime:</strong> Estimates runtime based on Constant Power/Current loads and SoC.</li>
+                <li><strong>Chemistry Aware:</strong> Accurate curves for Li-ion, LiFePO4 (LFP), and LTO.</li>
+            </ul>
+            <div style="font-size:0.65rem; color:#cbd5e1; margin-top:8px;">
+                Licensed under GPL v3
             </div>
         </div>
     </div>
@@ -711,8 +921,8 @@
         </div>
         <div id="snap-list"></div>
     </div>
-
-    <div id="stats-panel">
+	
+	<div id="stats-panel">
         <div class="stats-col">
             <div class="stat-header">Electrical</div>
             <div class="stat-row"><span>Config</span><span class="val c-dark" id="out-config">--</span></div>
@@ -819,7 +1029,9 @@
             timeoutId = setTimeout(() => fn(...args), delay);
         };
     };
-
+	
+	const debouncedUpdate = debounce(updatePack, 50);
+	
     function initDisclaimer() {
         const agreed = localStorage.getItem('bpa_disclaimer_agreed_v4'); 
         const overlay = document.getElementById('disclaimer-overlay');
@@ -1096,7 +1308,8 @@
     const occluders = [];
     const labels = [];
     const v3 = new THREE.Vector3();
-    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const vDir = new THREE.Vector3();
+	scene.add(new THREE.AmbientLight(0xffffff, 0.6));
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
     dirLight.position.set(100, 300, 150);
     dirLight.castShadow = true;
@@ -1109,18 +1322,22 @@
     scene.add(packGroup);
     const dimGroup = new THREE.Group();
     scene.add(dimGroup);
-
-    const inputIds = [
+ 
+	// --- INPUTS MANAGEMENT (FIXED) ---
+	const inputIds = [
         'c-diam','c-len','c-volts','c-mah','c-amp','c-min-v','c-max-v','c-weight', 'c-cost',
         's-count','p-count','c-spacing','hex-mode','pack-layers', 'layer-spacing', 
-        'exploded-view',
-        'col-cell', 'col-cap', 'col-bus', 'col-bg', 'col-spacer', 'col-inter',
-        'met-cell', 'met-cap', 'met-bus', 'met-spacer', 'met-inter', 'pack-name',
-        'sim-cell-ir', 'sim-strip-mat', 'sim-strip-w', 'sim-strip-t', 'sim-load-slider'
+        'exploded-view', 'pack-name',
+        'sim-cell-ir', 'sim-strip-mat', 'sim-strip-w', 'sim-strip-t', 'sim-load-slider',
+        'col-cell', 'col-bg', 'met-cell', 'col-cap', 'col-spacer', 'col-bus', 'col-inter', 'met-inter', 'met-cap', 'met-bus', 'met-spacer'
     ];
-    const inputs = {};
-    inputIds.forEach(id => inputs[id] = document.getElementById(id));
-    inputs['bus-mode'] = document.getElementById('bus-mode');
+
+    // Lazy-Load Proxy: Always gets the fresh element from the DOM
+    const inputs = new Proxy({}, {
+        get: function(target, name) {
+            return document.getElementById(name);
+        }
+    });
     
     // --- PRESETS ---
     const DEFAULT_SIZE_PRESETS = [
@@ -1444,39 +1661,29 @@
     });
 
     document.getElementById('btn-reset').addEventListener('click', () => location.reload());
-    
-    ['sim-cell-ir', 'sim-strip-mat', 'sim-strip-w', 'sim-strip-t', 'sim-load-slider'].forEach(id => {
-        const el = document.getElementById(id);
-        if(el) {
-            el.addEventListener('input', updateSimulation);
-            if(id === 'sim-strip-w' || id === 'sim-strip-t' || id === 'sim-strip-mat') {
-                el.addEventListener('change', updatePack);
-            }
-        }
-    });
-    
-    const modeDisch = document.getElementById('mode-disch');
-    const modeChg = document.getElementById('mode-chg');
-    const modeVal = document.getElementById('sim-mode-val');
-    modeDisch.addEventListener('click', () => {
-        modeDisch.classList.add('active'); modeChg.classList.remove('active');
-        modeVal.value = 'discharge'; updateSimulation();
-    });
-    modeChg.addEventListener('click', () => {
-        modeChg.classList.add('active'); modeDisch.classList.remove('active');
-        modeVal.value = 'charge'; updateSimulation();
-    });
-
+       
+    // --- GLOBAL MATERIALS (Created once for performance) ---
     const wireRedMat = new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.5 });
     const wireBlackMat = new THREE.MeshStandardMaterial({ color: 0x212121, roughness: 0.5 });
     const lineMat = new THREE.LineBasicMaterial({ color: 0x333333 });
-    let interConnMat = new THREE.MeshStandardMaterial({ color: 0xb87333, roughness: 0.4, metalness: 0.8 });
+    
+    // Define these globally so we don't recreate them every frame
+    const cellMat = new THREE.MeshStandardMaterial({ roughness: 0.4 });
+    const capMat = new THREE.MeshStandardMaterial({ roughness: 0.4 });
+    const busMat = new THREE.MeshStandardMaterial({ roughness: 0.4 });
+    const spacerMat = new THREE.MeshStandardMaterial({ roughness: 0.8 });
+    const interConnMat = new THREE.MeshStandardMaterial({ roughness: 0.4 });
+	
     let perfToastTimer = null; 
     let currentStats = {}; 
     let currentNickelLen = 0; 
     let userHasTouchedBusMode = false;
-    let lastUserBusMode = 'both'; 
-
+    let lastUserBusMode = 'both';
+	let userHasTouchedBusColor = false;
+	let simMaxVal = 100; // Stores the physical max (Amps or Watts) for the slider
+    let lastSimAmps = 0; // NEW: For smooth switching
+    let lastSimWatts = 0; // NEW: For smooth switching
+	
     const busSelect = document.getElementById('bus-mode');
     busSelect.addEventListener('change', (e) => {
         userHasTouchedBusMode = true;
@@ -1488,83 +1695,308 @@
         }
     });
 
-    function updateSimulation() {
-        const loadA = parseFloat(inputs['sim-load-slider'].value);
+    // --- ADVANCED VOLTAGE CURVES ---
+    function getOpenCircuitVoltage(soc, min, max, nom) {
+        const range = max - min;
+        
+        // 1. AUTO-DETECT CHEMISTRY
+        // based on the Nominal Voltage setting
+        let chem = 'li-ion';
+        if (nom >= 3.15 && nom <= 3.45) chem = 'lfp';       // LiFePO4
+        else if (nom >= 2.0 && nom <= 2.8) chem = 'lto';    // LTO (Titanate)
+        else if (nom >= 2.9 && nom <= 3.1) chem = 'na-ion'; // Sodium-Ion (rough approx)
+
+        // 2. APPLY CURVE MATH
+        if (chem === 'lfp') {
+            // LFP PROFILE: 
+            // 100% -> 90%: Fast drop from Max (3.65) to Plateau (3.3)
+            // 90% -> 15%: Flat Plateau (3.3 -> 3.1)
+            // 15% -> 0%:  Cliff drop (3.1 -> 2.5)
+            
+            if (soc >= 0.9) {
+                // Top 10% (Surface charge burn-off)
+                const p = (soc - 0.9) / 0.1; 
+                const platTop = min + (range * 0.85); 
+                return platTop + (max - platTop) * p;
+            } else if (soc >= 0.15) {
+                // The Great Plateau (75% of capacity)
+                const p = (soc - 0.15) / 0.75;
+                const platBot = min + (range * 0.70); // ~3.15V for a 2.5-3.65 cell
+                const platTop = min + (range * 0.85); // ~3.35V
+                return platBot + (platTop - platBot) * p;
+            } else {
+                // The Cliff (Bottom 15%)
+                const p = soc / 0.15;
+                const platBot = min + (range * 0.70);
+                return min + (platBot - min) * p;
+            }
+        } 
+        else if (chem === 'lto') {
+            // LTO PROFILE: Slightly more linear but lower voltage sag
+            // Simple slope for now, but safer than Li-ion defaults
+            return min + (range * Math.pow(soc, 0.9));
+        }
+        else {
+            // STANDARD LI-ION (NMC/NCA/Na-Ion)
+            // Mostly linear slope with a bit of curve at ends
+            return min + (range * soc); 
+        }
+    }
+
+	function rescaleLoadSlider() {
+        const slider = document.getElementById('sim-load-slider');
+        const inputType = document.getElementById('sim-load-type'); 
+        const mode = document.getElementById('sim-mode-val').value;
+        const numInput = document.getElementById('sim-load-input');
+        
+        if(!slider) return;
+
+        slider.max = 1000; 
+
+        const S = parseInt(inputs['s-count'].value) || 1;
+        const P = parseInt(inputs['p-count'].value) || 1;
+        const cellAmp = parseFloat(inputs['c-amp'].value) || 20;
+        const cellMax = parseFloat(inputs['c-max-v'].value) || 4.2; // NEW: Use Max V for headroom
+        const cellMah = parseFloat(inputs['c-mah'].value) || 2500;
+
+        // Rate Limits
+        const dischargeMaxA = (P * cellAmp) * 1.5; // 150% Stress Factor
+        const packAh = (P * cellMah) / 1000;
+        const chargeMaxA = packAh * 5.0; 
+
+        let maxA = (mode === 'discharge') ? dischargeMaxA : chargeMaxA;
+
+        // Update Global Max Value
+        if(inputType && inputType.value === 'cc') {
+            simMaxVal = maxA;
+            document.getElementById('sim-input-unit').innerText = "A";
+        } else {
+            // UPDATED: Use MAX voltage (e.g. 4.2V) for the power limit.
+            // This ensures the slider can reach the peak potential power of a full pack.
+            const packVMax = S * cellMax; 
+            simMaxVal = maxA * packVMax;
+            document.getElementById('sim-input-unit').innerText = "W";
+        }
+
+        if(numInput) {
+            numInput.max = simMaxVal.toFixed(1);
+        }
+    }
+
+    function updateSimulation(e) {
+        const slider = document.getElementById('sim-load-slider');
+        const numInput = document.getElementById('sim-load-input');
+        const cellVoltInput = document.getElementById('sim-cell-volt-input'); 
+        
+        // --- EXPONENTIAL SLIDER LOGIC ---
+        let val = 0;
+
+        if (e && e.target === numInput) {
+            val = parseFloat(numInput.value);
+            if(isNaN(val)) val = 0;
+            if(val > simMaxVal) val = simMaxVal;
+            const ratio = val / simMaxVal;
+            slider.value = 1000 * Math.sqrt(ratio);
+        } else {
+            const sliderPos = parseFloat(slider.value); 
+            const ratio = sliderPos / 1000;
+            val = simMaxVal * (ratio * ratio);
+            
+            let decimals = 1;
+            if(val < 10) decimals = 2;
+            else if(val >= 100) decimals = 0;
+
+            if(document.activeElement !== numInput) {
+                numInput.value = val.toFixed(decimals);
+            }
+        }
+        
+        // Smart Arrows
+        let smartStep = 1.0;
+        if(val < 1) smartStep = 0.05;       
+        else if(val < 10) smartStep = 0.5; 
+        else if(val < 50) smartStep = 1.0;  
+        else smartStep = 5.0;               
+        numInput.step = smartStep;
+
+        // Gather Inputs
+        const mode = document.getElementById('sim-mode-val').value;
+        const type = document.getElementById('sim-load-type').value;
+        const soc = parseFloat(document.getElementById('sim-soc').value) / 100;
+        
+        const S = parseInt(inputs['s-count'].value);
+        const P = parseInt(inputs['p-count'].value);
+        const cellMin = parseFloat(inputs['c-min-v'].value);
+        const cellMax = parseFloat(inputs['c-max-v'].value);
+        const cellNom = parseFloat(inputs['c-volts'].value); 
+        const cellAh = parseFloat(inputs['c-mah'].value) / 1000;
+        const cellAmp = parseFloat(inputs['c-amp'].value);
+        
+        const cutoffEl = document.getElementById('sys-cutoff');
+        let cutoff = parseFloat(cutoffEl.value);
+        
+        if(cutoff < cellMin) { cutoff = cellMin; cutoffEl.value = cellMin.toFixed(2); }
+        if(e && e.target === cutoffEl && e.type === 'change') { cutoffEl.value = cutoff.toFixed(2); }
+        
+        const rowLVC = document.getElementById('row-lvc-inputs');
+        const rowUsable = document.getElementById('row-usable-cap');
+        if (mode === 'charge') {
+            rowLVC.classList.add('disabled');
+            rowUsable.classList.add('disabled');
+            document.getElementById('lbl-runtime').innerText = "Chg Time";
+        } else {
+            rowLVC.classList.remove('disabled');
+            rowUsable.classList.remove('disabled');
+            document.getElementById('lbl-runtime').innerText = "Runtime";
+        }
+
+        // Calculations
         const irCell = parseFloat(inputs['sim-cell-ir'].value) / 1000; 
         const rho = parseFloat(inputs['sim-strip-mat'].value) * 1e-8;
         const wStrip = parseFloat(inputs['sim-strip-w'].value) / 1000; 
         const tStrip = parseFloat(inputs['sim-strip-t'].value) / 1000; 
-        const S = parseInt(inputs['s-count'].value);
-        const P = parseInt(inputs['p-count'].value);
         const d = parseFloat(inputs['c-diam'].value) / 1000;
         const sp = parseFloat(inputs['c-spacing'].value) / 1000;
-        const capAh = parseFloat(inputs['c-mah'].value) / 1000;
-        const nomV = parseFloat(inputs['c-volts'].value);
-        const maxAmps = P * parseFloat(inputs['c-amp'].value);
-        const packAh = P * capAh;
-        const packV = S * nomV;
-        const cRate = (packAh > 0) ? (loadA / packAh) : 0;
-        const loadPerc = (maxAmps > 0) ? (loadA / maxAmps) * 100 : 0;
-
+        
         const rCellsTotal = (S * irCell) / P;
-        const lenSeg = d + sp; 
-        const areaStrip = wStrip * tStrip;
-        const rSeg = (rho * lenSeg) / areaStrip;
-        const rStripsTotal = ((S * rSeg) / P) * 1.2;
-        const rTotal = rCellsTotal + rStripsTotal;
-        const vDiff = loadA * rTotal;
-        const powerLoss = loadA * loadA * rTotal;
-        const heatCells = loadA * loadA * rCellsTotal;
-        const heatStrips = loadA * loadA * rStripsTotal;
-        
-        const isCharge = (document.getElementById('sim-mode-val').value === 'charge');
-        let netV = 0; let eff = 0; let outputPower = 0;
+        const rStripsTotal = ((S * ((rho * (d+sp)) / (wStrip * tStrip))) / P) * 1.2; 
+        const R_total = rCellsTotal + rStripsTotal;
 
-        if (isCharge) {
-            const reqV = packV + vDiff;
-            outputPower = reqV * loadA; 
-            const storedPower = packV * loadA;
-            netV = reqV;
-            eff = (outputPower > 0) ? (storedPower / outputPower) * 100 : 100;
-            document.getElementById('lbl-sim-sag').innerText = "Voltage Rise";
-            document.getElementById('out-sim-sag').innerText = `+${vDiff.toFixed(2)} V`;
-            document.getElementById('lbl-sim-net').innerText = "Req. Voltage";
-            document.getElementById('lbl-sim-power').innerText = "Input Power"; // Update label
-        } else {
-            netV = Math.max(0, packV - vDiff);
-            outputPower = netV * loadA; 
-            const sourcePower = packV * loadA;
-            eff = (sourcePower > 0) ? (outputPower / sourcePower) * 100 : 100;
-            document.getElementById('lbl-sim-sag').innerText = "Voltage Sag";
-            document.getElementById('out-sim-sag').innerText = `-${vDiff.toFixed(2)} V`;
-            document.getElementById('lbl-sim-net').innerText = "Net Output";
-            document.getElementById('lbl-sim-power').innerText = "Output Power"; // Update label
+        const cellVoc = getOpenCircuitVoltage(soc, cellMin, cellMax, cellNom);
+        const packVoc = cellVoc * S;
+
+        if(document.activeElement !== cellVoltInput) {
+            cellVoltInput.value = cellVoc.toFixed(2);
         }
-        document.getElementById('lbl-sim-load').innerText = `${loadA} A`;
-        document.getElementById('lbl-sim-c').innerText = `${cRate.toFixed(2)} C (${Math.round(loadPerc)}%)`;
-        document.getElementById('out-sim-netv').innerText = `${netV.toFixed(2)} V`;
-		let pwrStr = "";
-        if(outputPower >= 1000) {
-            // 4 Significant Figures for kW (e.g., "1.234 kW" or "1050 kW")
-            pwrStr = `${(outputPower/1000).toPrecision(4)} kW`;
+        
+        const socLbl = document.getElementById('val-soc');
+        socLbl.innerText = `${Math.round(soc*100)}% (${packVoc.toFixed(1)}V)`;
+        socLbl.style.color = `hsl(${soc*120}, 80%, 35%)`;
+        
+        let I = 0;
+        let isCollapse = false;
+
+        if (type === 'cp') {
+            const P_target = val; 
+            if (P_target > 0) {
+                if(mode === 'discharge') {
+                    const a = R_total; const b = -packVoc; const c = P_target;
+                    const disc = (b*b) - (4*a*c);
+                    if (disc < 0) { isCollapse = true; I = packVoc / (2*R_total); } 
+                    else { I = (-b - Math.sqrt(disc)) / (2*a); }
+                } else {
+                    I = P_target / packVoc; 
+                }
+            }
         } else {
-            // Keep Watts simple
-            pwrStr = `${Math.round(outputPower)} W`;
+            I = val; 
         }
 
-        document.getElementById('out-sim-power').innerText = pwrStr;
-        document.getElementById('out-sim-eff').innerText = `${eff.toFixed(1)}%`;
+        const vDrop = I * R_total;
+        let vNet = (mode === 'discharge') ? (packVoc - vDrop) : (packVoc + vDrop);
+        if(vNet < 0) vNet = 0;
+
+        const heatCells = (I * I) * rCellsTotal;
+        const heatStrips = (I * I) * rStripsTotal;
+        const heatTotal = heatCells + heatStrips;
+
+        let pUseful = 0; let pTotal = 0;
+        if (mode === 'discharge') { pUseful = vNet * I; pTotal = packVoc * I; } 
+        else { pTotal = vNet * I; pUseful = packVoc * I; }
         
-        // Helper to switch W -> kW (Updated to match 4 sig fig style)
-        const fmtPwr = (v) => {
-            if(v >= 1000) return `${(v/1000).toPrecision(4)} kW`;
-            if(v < 10) return `${v.toFixed(1)} W`; // Show 1 decimal for tiny heat values (e.g. 0.5 W)
-            return `${Math.round(v)} W`;
+        const eff = (pTotal > 0) ? (pUseful / pTotal) * 100 : 100;
+
+        // --- NEW: Save State for Mode Switching ---
+        lastSimAmps = I;
+        // For Watts, we generally care about the useful load power
+        lastSimWatts = (mode === 'discharge') ? pUseful : pTotal;
+
+        // UI Updates
+        const fmtPwr = (v) => (v >= 1000) ? `${(v/1000).toFixed(2)} kW` : `${Math.round(v)} W`;
+        const fmtHeat = (v) => {
+            if(v >= 100) return `${Math.round(v)} W`;
+            if(v >= 10) return `${v.toFixed(1)} W`;
+            return `${v.toFixed(2)} W`;
         };
 
-        document.getElementById('out-sim-heat-cell').innerText = fmtPwr(heatCells);
-        document.getElementById('out-sim-heat-strip').innerText = fmtPwr(heatStrips);
-        document.getElementById('out-sim-total-waste').innerText = fmtPwr(powerLoss);
+        if(mode === 'discharge') {
+            document.getElementById('lbl-sim-sag').childNodes[0].nodeValue = "Sag ";
+            document.getElementById('out-sim-sag').innerText = `-${vDrop.toFixed(2)} V`;
+            document.getElementById('lbl-sim-net').innerText = "Net Output";
+        } else {
+            document.getElementById('lbl-sim-sag').childNodes[0].nodeValue = "Rise ";
+            document.getElementById('out-sim-sag').innerText = `+${vDrop.toFixed(2)} V`;
+            document.getElementById('lbl-sim-net').innerText = "Req. Voltage";
+        }
+        document.getElementById('out-sim-netv').innerText = `${vNet.toFixed(2)} V`;
+        document.getElementById('out-sim-amps').innerText = `${I.toFixed(1)} A`;
+        
+        const packAh = P * cellAh;
+        const cRate = (packAh > 0) ? (I / packAh) : 0;
+        document.getElementById('lbl-sim-c').innerText = `${cRate.toFixed(2)}C`;
+        
+        const ratedMaxAmps = P * cellAmp;
+        const loadPerc = (ratedMaxAmps > 0) ? (I / ratedMaxAmps) * 100 : 0;
+        
+        const percEl = document.getElementById('lbl-load-perc');
+        if(percEl) {
+            percEl.innerText = `${Math.round(loadPerc)}% of max current`;
+            if(loadPerc > 100) percEl.style.color = '#ef4444'; 
+            else if(loadPerc > 80) percEl.style.color = '#f59e0b'; 
+            else percEl.style.color = '#94a3b8'; 
+        }
+
+        document.getElementById('out-sim-power-total').innerText = fmtPwr(pTotal);
+        document.getElementById('out-sim-power-useful').innerText = fmtPwr(pUseful);
+        
+        document.getElementById('out-sim-heat-cell').innerText = fmtHeat(heatCells);
+        document.getElementById('out-sim-heat-strip').innerText = fmtHeat(heatStrips);
+        document.getElementById('out-sim-heat-total').innerText = fmtHeat(heatTotal);
+        
+        document.getElementById('out-sim-eff').innerText = `${eff.toFixed(1)}%`;
+        
+        let cutoffSoC = 0;
+        const cutoffCompare = cutoff * S; 
+        
+        if(mode === 'discharge') {
+             const vCellSag = (I * R_total) / S;
+             const vCellCutoff = cutoff;
+             const vCellOpenNeeded = vCellCutoff + vCellSag;
+             let low = 0, high = 1;
+             for(let k=0; k<8; k++) {
+                let mid = (low + high) / 2;
+                if(getOpenCircuitVoltage(mid, cellMin, cellMax, cellNom) < vCellOpenNeeded) low = mid; else high = mid;
+             }
+             cutoffSoC = (low+high)/2;
+        }
+
+        const usablePerc = Math.max(0, 100 - (cutoffSoC * 100));
+        document.getElementById('out-sim-usable').innerText = `${Math.round(usablePerc)}%`;
+
+        const elRuntime = document.getElementById('out-sim-runtime');
+        if(I > 0.01) {
+             if(mode === 'discharge') {
+                 const hrs = (packAh * Math.max(0, soc - cutoffSoC)) / I;
+                 const h = Math.floor(hrs); const m = Math.round((hrs-h)*60);
+                 elRuntime.innerText = (h>99)?">99h":`${h}h ${m}m`;
+             } else {
+                 const hrs = (packAh * (1.0 - soc)) / I;
+                 const h = Math.floor(hrs); const m = Math.round((hrs-h)*60);
+                 elRuntime.innerText = (h>99)?">99h":`~${h}h ${m}m`;
+             }
+        } else { elRuntime.innerText = "--"; }
+
+        const statusRow = document.getElementById('row-status');
+        const statusText = document.getElementById('status-text');
+        let warn = false;
+        if(mode === 'discharge') {
+            if(isCollapse) { warn = true; statusText.innerText = "⚠️ COLLAPSE"; }
+            else if(vNet < cutoffCompare) { warn = true; statusText.innerText = "⚠️ HIT LVC"; }
+        } else {
+            if(vNet > (cellMax * S)) { warn = true; statusText.innerText = "⚠️ OVER V"; }
+        }
+        statusText.style.display = warn ? 'block' : 'none';
+        document.getElementById('out-sim-netv').style.color = warn ? '#d32f2f' : '#008cc9';
     }
 
     function updatePack() {
@@ -1598,6 +2030,14 @@
         const S_Total = parseInt(inputs['s-count'].value);
         const P = parseInt(inputs['p-count'].value);
         let Layers = parseInt(inputs['pack-layers'].value) || 1;
+        const spacing = parseFloat(inputs['c-spacing'].value);
+        const effectiveD = d + spacing;
+        const isHex = inputs['hex-mode'].checked;
+        const nomV = parseFloat(inputs['c-volts'].value);
+        const busMode = inputs['bus-mode'].value;
+        const showGeo = busMode !== 'none';
+        const physLayerSpace = parseFloat(inputs['layer-spacing'].value) || 0;
+        const visualLayerSpace = inputs['exploded-view'].checked ? 40 : 0; 
         if(Layers < 1) Layers = 1; if(Layers > S_Total) Layers = S_Total; 
         const totalInstances = S_Total * P;
 
@@ -1651,33 +2091,38 @@
             inpInterMet.disabled = true;
         }
 
-        interConnMat = new THREE.MeshStandardMaterial({ 
-            color: inpInterCol.value, 
-            roughness: 0.4, 
-            metalness: parseFloat(inpInterMet.value) 
-        });
+        // --- OPTIMIZED MATERIAL UPDATES ---
+        // 1. Inter-connects
+        interConnMat.color.set(inpInterCol.value);
+        interConnMat.metalness = parseFloat(inpInterMet.value);
 
-        const physLayerSpace = parseFloat(inputs['layer-spacing'].value) || 0;
-        const explodedView = explCheck.checked;
-        const visualLayerSpace = explodedView ? 40.0 : 0.0;
-        const spacing = parseFloat(inputs['c-spacing'].value);
-        const nomV = parseFloat(inputs['c-volts'].value);
-        const isHex = inputs['hex-mode'].checked;
-        const busMode = inputs['bus-mode'].value;
-        const showGeo = busMode !== 'none';
-        const effectiveD = d + spacing;
+        // 2. Cells & Caps (Link Color + Metalness)
+        cellMat.color.set(inputs['col-cell'].value);
+        cellMat.metalness = parseFloat(inputs['met-cell'].value); // RESTORED
 
-        const cellMat = new THREE.MeshLambertMaterial({ color: inputs['col-cell'].value });
-        const capMat = new THREE.MeshLambertMaterial({ color: inputs['col-cap'].value });
+        capMat.color.set(inputs['col-cap'].value);
+        capMat.metalness = parseFloat(inputs['met-cap'].value);   // RESTORED
         
+        // 3. Spacers
+        spacerMat.color.set(inputs['col-spacer'].value);
+        spacerMat.metalness = parseFloat(inputs['met-spacer'].value); // RESTORED
+        
+        // Busbar Color Logic
         const matRho = parseFloat(inputs['sim-strip-mat'].value);
         let busColor = inputs['col-bus'].value;
-        if(matRho <= 2.0 && userHasTouchedBusMode===false) busColor = '#b87333'; 
-        else if(matRho >= 13.0 && userHasTouchedBusMode===false) busColor = '#475569'; 
-        else if(userHasTouchedBusMode===false) busColor = '#d1d5db'; 
-        const busMat = new THREE.MeshLambertMaterial({ color: busColor });
         
-        const spacerMat = new THREE.MeshLambertMaterial({ color: inputs['col-spacer'].value });
+        // Only override color if the user has NOT manually picked a color
+        if (userHasTouchedBusColor === false) {
+            if(matRho <= 2.0) busColor = '#b87333';       // Copper
+            else if(matRho >= 13.0) busColor = '#475569'; // Steel
+            else busColor = '#d1d5db';                    // Nickel
+            
+            // Sync the color picker UI to match the auto-selected color
+            inputs['col-bus'].value = busColor;
+        }
+        
+        busMat.color.set(busColor);
+        busMat.metalness = parseFloat(inputs['met-bus'].value);
 
         let segs = 32;
         if (totalInstances > 500) segs = 16;
@@ -1954,15 +2399,20 @@
         
         const maxAmps = P * parseFloat(inputs['c-amp'].value);
         inputs['sim-load-slider'].max = maxAmps * 1.5; 
-        updateSimulation();
+        rescaleLoadSlider();
+		updateSimulation();
     }
 
     document.getElementById('sim-strip-mat').addEventListener('change', (e) => {
-        const val = parseFloat(e.target.value);
-        const colInput = document.getElementById('col-bus');
-        if(val >= 6.0 && val <= 8.0) colInput.value = '#d1d5db'; 
-        else if(val >= 13.0) colInput.value = '#475569'; 
-        else if(val <= 2.0) colInput.value = '#b87333'; 
+        // When material changes, we WANT auto-color to happen again.
+        // So we reset the manual override flag.
+        userHasTouchedBusColor = false; 
+        updatePack();
+    });
+	
+	document.getElementById('col-bus').addEventListener('input', (e) => {
+        // User is manually picking a color -> Disable auto-color
+        userHasTouchedBusColor = true;
         updatePack();
     });
 
@@ -2345,28 +2795,56 @@
         }
     });
 
-    // Create the debounced version of the main render function
-    const debouncedUpdate = debounce(updatePack, 50);
+    // --- CORRECTED EVENT LISTENERS ---
+    
+    // 1. Fine Tune Input (The box next to the slider)
+    const fineTuneInput = document.getElementById('sim-load-input');
+    const sliderEl = document.getElementById('sim-load-slider');
+    
+    if(fineTuneInput && sliderEl) {
+        fineTuneInput.addEventListener('input', updateSimulation);
+        fineTuneInput.addEventListener('change', () => {
+            let val = parseFloat(fineTuneInput.value);
+            
+            // BUG FIX: Use the global physical max (simMaxVal), NOT the slider's internal max
+            const max = simMaxVal; 
+            
+            if(val > max) {
+                fineTuneInput.value = max.toFixed(1);
+                val = max;
+            }
+            if(val < 0) fineTuneInput.value = 0;
+            updateSimulation({target: fineTuneInput});
+        });
+    }
 
+    // 2. Main Inputs Loop
+    // This connects all the inputs to the update functions
+    // --- CORRECTED EVENT LISTENERS ---
     inputIds.forEach(id => {
         const el = document.getElementById(id);
         if(el) {
-            el.addEventListener('input', () => {
-                // If it's the "Load" slider or IR, we only need to update the math (fast), not the 3D model (slow)
+            // PASS 'e' to the function so we can track which element triggered it
+            el.addEventListener('input', (e) => {
+                // Instant update for Simulation sliders (fast)
                 if(id === 'sim-load-slider' || id === 'sim-cell-ir') {
-                    updateSimulation();
+                    updateSimulation(e); // <--- IMPORTANT: Passing 'e' here fixes the slider sync
                 } 
-                // For other sliders/text, use the delayed (debounced) update to prevent lag
+                // Debounced update for Geometry inputs (slow)
                 else if(el.type === 'range' || el.type === 'number' || el.type === 'text') {
                     debouncedUpdate();
                 } 
-                // Checkboxes and color pickers are instant
+                // Instant update for Checkboxes/Color (fast enough)
                 else {
                     updatePack();
                 }
             });
-            // When the user releases the slider or clicks out of a box, update immediately
-            el.addEventListener('change', updatePack);
+            
+            // On 'change' (release/blur), we usually force a geometry update
+            // EXCEPTION: The Load Slider. Releasing it shouldn't rebuild the pack!
+            if(id !== 'sim-load-slider') {
+                 el.addEventListener('change', updatePack);
+            }
         }
     });
 	
@@ -2473,32 +2951,36 @@
         renderer.render(scene, camera);
         
         if (time - lastOccTime > 200 && currentStats.cells <= 500) { 
-            lastOccTime = time;
-            for(const label of labels) {
-                label.getWorldPosition(v3);
-                const dir = v3.clone().sub(camera.position);
-                const dist = dir.length();
-                dir.normalize();
-                
-                raycaster.set(camera.position, dir);
-                // Slightly push ray origin forward to avoid self-intersection artifacts
-                raycaster.ray.origin.add(dir.multiplyScalar(0.5));
-                
-                // Raycast against the instanced mesh (fast enough when throttled)
-                const intersects = raycaster.intersectObjects(occluders, false);
-                
-                if(intersects.length > 0) {
-                    // If something is closer than the label, occlude it
-                    if(intersects[0].distance < dist - 2.0) { 
-                        label.element.classList.add('occluded'); 
-                    } else { 
-                        label.element.classList.remove('occluded'); 
-                    }
-                } else { 
-                    label.element.classList.remove('occluded'); 
-                }
-            }
-        } else if (currentStats.cells > 500) {
+			lastOccTime = time;
+			for(const label of labels) {
+				label.getWorldPosition(v3);
+				
+				// Use the global vDir to calculate direction
+				vDir.copy(v3).sub(camera.position); 
+				const dist = vDir.length();
+				vDir.normalize();
+				
+				raycaster.set(camera.position, vDir);
+
+				// FIX IS HERE: Changed 'dir' to 'vDir'
+				// Slightly push ray origin forward to avoid self-intersection artifacts
+				raycaster.ray.origin.add(vDir.multiplyScalar(0.5));
+				
+				// Raycast against the instanced mesh
+				const intersects = raycaster.intersectObjects(occluders, false);
+				
+				if(intersects.length > 0) {
+					// If something is closer than the label, occlude it
+					if(intersects[0].distance < dist - 2.0) { 
+						label.element.classList.add('occluded'); 
+					} else { 
+						label.element.classList.remove('occluded'); 
+					}
+				} else { 
+					label.element.classList.remove('occluded'); 
+				}
+			}
+		} else if (currentStats.cells > 500) {
             // Ensure labels aren't stuck in occluded state if user switched back to low count or forced visibility
             if(labels.length > 0 && labels[0].element.classList.contains('occluded')) {
                 labels.forEach(l => l.element.classList.remove('occluded'));
@@ -2507,6 +2989,129 @@
         
         labelRenderer.render(scene, camera);
     }
+	
+	// --- FINAL EVENT LISTENERS ---
+    
+    // Attach other simulation inputs only for inputs NOT in inputIds
+	['sim-soc', 'sys-cutoff'].forEach(id => {
+		const el = document.getElementById(id);
+		if(el) el.addEventListener('input', updateSimulation);
+	});
+	
+	// --- CELL VOLTAGE INPUT LISTENER (Voltage -> SoC) ---
+    const simCellVoltInput = document.getElementById('sim-cell-volt-input');
+    if(simCellVoltInput) {
+        simCellVoltInput.addEventListener('input', (e) => {
+            const cellMin = parseFloat(inputs['c-min-v'].value);
+            const cellMax = parseFloat(inputs['c-max-v'].value);
+            const cellNom = parseFloat(inputs['c-volts'].value);
+
+            let val = parseFloat(simCellVoltInput.value);
+            if(isNaN(val)) return;
+
+            // Clamp to Cell Limits
+            if(val < cellMin) val = cellMin;
+            if(val > cellMax) val = cellMax;
+
+            // Reverse Lookup: Find SoC for this Cell Voltage
+            let low = 0, high = 1;
+            for(let i=0; i<20; i++) {
+                let mid = (low + high) / 2;
+                if(getOpenCircuitVoltage(mid, cellMin, cellMax, cellNom) < val) low = mid; 
+                else high = mid;
+            }
+            const newSoC = (low + high) / 2;
+
+            // Update Slider and Trigger Sim
+            document.getElementById('sim-soc').value = Math.round(newSoC * 100);
+            updateSimulation();
+        });
+    }
+
+    // --- NEW TOGGLE LOGIC ---
+    
+    // 1. Load Type Toggle (Amps vs Watts)
+    // --- LOAD TYPE TOGGLE (AMPS vs WATTS) with Value Preservation ---
+    const toggleLoad = document.getElementById('toggle-load-type');
+    const inputLoad = document.getElementById('sim-load-type');
+    
+    if(toggleLoad) {
+        toggleLoad.addEventListener('click', (e) => {
+            if(!e.target.classList.contains('it-opt')) return;
+            
+            // 1. UI Toggle
+            toggleLoad.querySelectorAll('.it-opt').forEach(el => el.classList.remove('active'));
+            e.target.classList.add('active');
+            
+            const newType = e.target.dataset.val; // 'cc' or 'cp'
+            inputLoad.value = newType;
+            
+            // 2. Recalculate Limits
+            rescaleLoadSlider();
+            
+            // 3. CONVERSION LOGIC
+            let targetVal = 0;
+            if(newType === 'cc') {
+                // Switching TO Amps. Use last known Amps.
+                targetVal = lastSimAmps;
+            } else {
+                // Switching TO Watts. Use last known Watts.
+                targetVal = lastSimWatts;
+            }
+            
+            // Clamp to new Max 
+            if(targetVal > simMaxVal) targetVal = simMaxVal;
+            
+            // 4. Set Slider Position (Exponential Reverse Calculation)
+            // val = Max * (pos/1000)^2  ->  pos = 1000 * sqrt(val/Max)
+            const ratio = (simMaxVal > 0) ? (targetVal / simMaxVal) : 0;
+            const newPos = 1000 * Math.sqrt(ratio);
+            
+            const slider = document.getElementById('sim-load-slider');
+            slider.value = newPos;
+            
+            // Force update input box immediately
+            const numInput = document.getElementById('sim-load-input');
+            const decimals = (targetVal < 10) ? 2 : 1;
+            numInput.value = targetVal.toFixed(decimals);
+
+            // 5. Run Sim
+            updateSimulation();
+        });
+    }
+
+    // 2. Mode Toggle (Charge vs Discharge)
+    const toggleMode = document.getElementById('toggle-sim-mode');
+    const inputMode = document.getElementById('sim-mode-val');
+    
+    toggleMode.addEventListener('click', (e) => {
+        if(!e.target.classList.contains('it-opt')) return;
+        const val = e.target.dataset.val;
+        
+        toggleMode.querySelectorAll('.it-opt').forEach(el => el.classList.remove('active'));
+        e.target.classList.add('active');
+        
+        inputMode.value = val;
+        rescaleLoadSlider(); // Charge has different max C-rate
+        updateSimulation();
+    });
+
+    // 3. LVC Sync Logic
+    const lvcCell = document.getElementById('sys-cutoff');
+    const lvcPack = document.getElementById('sys-cutoff-pack');
+    
+    lvcCell.addEventListener('input', () => {
+        const S = parseInt(inputs['s-count'].value) || 1;
+        lvcPack.value = (parseFloat(lvcCell.value) * S).toFixed(1);
+        updateSimulation();
+    });
+    lvcPack.addEventListener('input', () => {
+        const S = parseInt(inputs['s-count'].value) || 1;
+        lvcCell.value = (parseFloat(lvcPack.value) / S).toFixed(2);
+        updateSimulation();
+    });
+  
+    // Initial calls
     updatePack();
     animate();
 </script>
