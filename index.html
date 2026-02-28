@@ -146,17 +146,12 @@
 			cursor: pointer; line-height: 1.2; font-family: inherit; white-space: nowrap;
 		}
 		.btn-header:hover { border-color: #3b82f6; color: #3b82f6; }
-		#btn-reset.btn-header:hover { border-color: #d32f2f; color: #d32f2f; }
+		#btn-reset:hover { border-color: #d32f2f; color: #d32f2f; }
 
 		/* --- MOBILE TWEAKS --- */
 		@media (max-width: 400px) {
-			/* Slightly reduce text size on very narrow screens to ensure "Architect" fits */
 			h1 { font-size: 0.9rem; } 
-			
-			/* Reduce padding on the container to give more width to content */
 			.header { padding: 10px 8px; } 
-			
-			/* Tighten button padding slightly */
 			.btn-header { padding: 4px 6px; } 
 			#btn-donate { padding: 3px 6px; }
 		}
@@ -229,7 +224,7 @@
             font-size: 0.65rem; color: #64748b; font-weight: 700; line-height: 1; 
             text-transform: uppercase; cursor: pointer; 
             display: flex; flex-direction: column; justify-content: center; 
-            text-align: center; /* CENTER ALIGNED */
+            text-align: center;
         }
         .layer-check-label.disabled { color: #94a3b8; cursor: not-allowed; }
 
@@ -263,20 +258,17 @@
         .btn-icon:disabled { opacity: 0.3; cursor: not-allowed; }
 
         /* Visual Settings */
-        /* Changed margin from '0 15px 10px 15px' to '0 0 10px 0' */
-		details { margin-top: 8px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; margin: 0 0 10px 0; }
         summary { cursor: pointer; font-weight: 600; color: #64748b; font-size: 0.75rem; padding: 6px 10px; background: #f1f5f9; list-style: none; }
-        /* Tweaked for visibility */
 		summary:after { 
 			content: "+"; 
 			float: right; 
 			font-weight: 900; 
-			font-size: 1.2rem; /* Larger */
-			color: #3b82f6;    /* Bright Blue */
+			font-size: 1.2rem;
+			color: #3b82f6;
 		}
 		details[open] summary:after { 
 			content: "-"; 
-			color: #64748b; /* Grey when open */
+			color: #64748b;
 		}
         .details-content { padding: 10px; }
 
@@ -310,18 +302,18 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.25); transition: opacity 0.2s;
             font-size: 0.7rem; font-weight: 400; line-height: 1.4; white-space: normal;
         }
-		/* Tooltip: Centered bubble on the RIGHT with arrow on LEFT */
+
         .help-icon .tip-content.tip-right { 
-            left: 18px; /* Move to right of icon */
-            top: 50%; transform: translateY(-50%); /* Vertically Center */
+            left: 18px;
+            top: 50%; transform: translateY(-50%);
             bottom: auto; right: auto; 
             text-align: left; width: 200px;
         }
         .help-icon .tip-content.tip-right::after { 
-            right: 100%; /* Arrow attaches to left side of bubble */
+            right: 100%;
             top: 50%; margin-top: -6px; 
             left: auto; 
-            border-color: transparent #334155 transparent transparent; /* Point left */
+            border-color: transparent #334155 transparent transparent;
         }
 		.help-icon .tip-content::after {
             content: ""; position: absolute; top: 100%; right: 10px;
@@ -365,8 +357,8 @@
         .stats-v-sep { width: 1px; background: #f1f5f9; margin: 5px 0; }
 		.cell-count-wrap {
 			white-space: nowrap;
-			font-size: 0.95em; /* Optional: keeps it slightly smaller like the surrounding text */
-			color: #64748b;   /* Optional: matches your existing secondary text color */
+			font-size: 0.95em;
+			color: #64748b;
 		}
         /* COLORS */
         .c-dark { color: #334155; } .c-blue { color: #008cc9; } .c-teal { color: #008796; }
@@ -461,24 +453,7 @@
         }
         #btn-agree:hover { background: #991b1b; }
 
-        /* SIMULATION RESULTS STYLE */
-        #sim-results {
-            margin-top: 8px; background: #f1f5f9; border-radius: 4px; padding: 8px; border: 1px solid #e2e8f0;
-            /* 55% Left, 1px Line, 45% Right */
-            display: grid; grid-template-columns: 1.1fr 1px 0.9fr; gap: 8px;
-        }
-        .sim-col { display: flex; flex-direction: column; gap: 4px; }
-        .sim-v-sep { width: 1px; background: #e2e8f0; }
-        .sim-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; }
-        .sim-val { font-weight: 700; font-family: 'SF Mono', monospace; }
-            
-        .mode-opt.active { background: #fff; color: #3b82f6; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-        .mode-opt.active.charge { color: #059669; }
-		/* SLIMMER TOGGLES */
-		.mode-toggle-wrap { padding: 1px; margin-bottom: 6px; min-height: 22px; }
-		.mode-opt { padding: 2px; font-size: 0.65rem; line-height: 1.3; }
-
-		/* CUSTOM TOOLTIP */
+        /* CUSTOM TOOLTIP */
 		.tooltip-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; background: #e2e8f0; border-radius: 50%; color: #64748b; font-size: 10px; font-weight: bold; cursor: help; margin-left: 4px; }
 		.tooltip-wrap:hover { background: #3b82f6; color: #fff; }
 		.tooltip-wrap:hover::after {
@@ -510,9 +485,8 @@
 
 		/* Smart Input (Units inside) */
 		.smart-input-wrap { position: relative; display: flex; align-items: center; }
-		/* Fix Input Text Cutoff by Arrows */
         .smart-input-wrap input {
-            padding-right: 14px; /* Reduced slightly to give text more room */
+            padding-right: 14px;
             text-align: right; font-family: 'SF Mono', monospace; 
             font-weight: 700; color: #334155; border: 1px solid #cbd5e1; 
             height: 22px; font-size: 0.75rem; border-radius: 4px; width: 100%;
@@ -523,7 +497,6 @@
 		}
 
 		/* Results Grid - Compact & Overflow Visible for Tooltips */
-		/* 1. Adjust Grid: Give left side more space (1.25fr vs 0.75fr) */
         #sim-results {
             display: grid; grid-template-columns: 1.1fr 1px 0.9fr; gap: 0; 
             background: #fff; border: 1px solid #e2e8f0; border-radius: 6px; 
@@ -531,13 +504,11 @@
             overflow: visible; 
         }
 
-        /* 2. New Colors */
         .c-indigo { color: #6366f1; }
         .c-violet { color: #8b5cf6; }
 
-        /* 3. Fix Efficiency Bouncing: Status row gets fixed height */
         #row-status {
-            min-height: 14px; /* Reserve space */
+            min-height: 14px;
             display: flex; justify-content: flex-end; align-items: center;
         }
 		.res-col { padding: 6px 10px; display: flex; flex-direction: column; gap: 3px; }
@@ -573,7 +544,7 @@
 			<h1>
 				<span style="font-size:1.2em; margin-right:4px;">🔋</span>
 				<span class="title-text">Pack Architect</span>
-				<span class="version-span">v82</span>
+				<span class="version-span">v85</span>
 			</h1>
 			
 			<div class="header-actions">
@@ -717,6 +688,18 @@
                 <label for="hex-mode" style="cursor:pointer;">Hexagonal Nesting</label>
                 <input type="checkbox" id="hex-mode" checked>
             </div>
+            
+            <div class="toggle-row">
+                <label for="calc-ladder" style="cursor:pointer;">Ladder / Wide Strip
+                    <span class="help-icon">?
+                        <div class="tip-content tip-right" style="width: 160px;">
+                            <strong>Roll Length Calculation</strong><br>
+                            Assumes one wide sheet of nickel connects the parallel group, dividing the required linear roll length by P.
+                        </div>
+                    </span>
+                </label>
+                <input type="checkbox" id="calc-ladder">
+            </div>
         </div>
 
         <div class="group-box">
@@ -724,9 +707,9 @@
                 <div class="section-title" style="margin:0;">4. Simulation & Efficiency</div>
             </div>
 
-            <details open>
+            <details>
                 <summary style="font-size:0.7rem; padding:6px 10px; background:#f8fafc; color:#64748b; font-weight:600; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center;">
-                    <span>⚙️ Advanced Strip Parameters</span>
+                    <span>⚙️ Click for Advanced Strip Parameters</span>
                     </summary>
                 <div style="padding:10px; border-top:1px solid #e2e8f0;">
                     <div class="control-item"><label>Strip Material</label>
@@ -884,7 +867,7 @@
             </div>      
         </div>
 		
-		<details open>
+		<details>
             <summary>Visual Settings</summary>
             <div class="details-content">
                 <div class="mat-header-row"><div>Element</div><div>Color</div><div style="text-align:center; letter-spacing: -0.5px;">Metallic</div></div>
@@ -926,7 +909,13 @@
         <div class="stats-col">
             <div class="stat-header">Electrical</div>
             <div class="stat-row"><span>Config</span><span class="val c-dark" id="out-config">--</span></div>
-            <div class="stat-row"><span>Strip Length <span class="help-icon" style="background:#e2e8f0; color:#64748b; font-weight:600; margin-left:2px; font-size:8px;">? <div class="tip-content tip-right">Excludes inter-layer series connections.</div></span></span><span class="val c-dark" id="out-nickel" style="font-size:0.75rem;">--</span></div>
+            <div class="stat-row">
+				<span>Strip Length 
+					<span class="help-icon" style="background:#e2e8f0; color:#64748b; font-weight:600; margin-left:2px; font-size:8px;">? <div class="tip-content tip-right">Excludes inter-layer series connections.</div></span>
+					<span id="badge-ladder" style="display:none; background:#3b82f6; color:white; font-size:8px; padding:1px 4px; border-radius:3px; margin-left:4px; font-weight:bold; vertical-align:middle;">LADDER</span>
+				</span>
+				<span class="val c-dark" id="out-nickel" style="font-size:0.75rem;">--</span>
+			</div>
             <div class="stat-row"><span>Label Rating</span><span class="val c-blue" id="out-nom-label">--</span></div>
             <div class="stat-row"><span>V Range</span><span class="val c-gray" style="font-size:0.75rem;" id="out-v-range">--</span></div>
             <div class="stat-row"><span>Max Output</span><span class="val c-red" id="out-output">--</span></div>
@@ -1020,7 +1009,6 @@
     import { STLExporter } from 'three/addons/exporters/STLExporter.js';
 	import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
     import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
-    import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
 	const debounce = (fn, delay) => {
         let timeoutId;
@@ -1192,7 +1180,6 @@
         { name: "Vapcell S40 (18650)", d:18.5, l:65.2, w:49, cap:4000, amp:10, v:3.6, type:'li-ion', ir: 28 },
         { name: "Vapcell T8 (16340)", d:16.4, l:34.0, w:18, cap:850, amp:3, v:3.6, type:'li-ion', ir: 40 },
         { name: "Wotech 32700 LFP", d:32.2, l:70.5, w:145, cap:6000, amp:30, v:3.2, type:'lfp', ir: 8 },
-        { name: "iJoy 26650", d:26.5, l:65.3, w:95, cap:4200, amp:40, v:3.7, type:'li-ion', ir: 10 },
     ];
 
     const searchInput = document.getElementById('db-search-input');
@@ -1303,11 +1290,13 @@
     labelRenderer.domElement.style.pointerEvents = 'none';
     container.appendChild(labelRenderer.domElement);
     const controls = new OrbitControls(camera, renderer.domElement);
+	controls.addEventListener('change', () => { needsOcclusionUpdate = true; });
     controls.enableDamping = true;
     const raycaster = new THREE.Raycaster();
     const occluders = [];
     const labels = [];
     const v3 = new THREE.Vector3();
+	let needsOcclusionUpdate = true;
     const vDir = new THREE.Vector3();
 	scene.add(new THREE.AmbientLight(0xffffff, 0.6));
     const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
@@ -1323,11 +1312,11 @@
     const dimGroup = new THREE.Group();
     scene.add(dimGroup);
  
-	// --- INPUTS MANAGEMENT (FIXED) ---
+	// --- INPUTS MANAGEMENT ---
 	const inputIds = [
         'c-diam','c-len','c-volts','c-mah','c-amp','c-min-v','c-max-v','c-weight', 'c-cost',
         's-count','p-count','c-spacing','hex-mode','pack-layers', 'layer-spacing', 
-        'exploded-view', 'pack-name',
+        'exploded-view', 'pack-name', 'calc-ladder',
         'sim-cell-ir', 'sim-strip-mat', 'sim-strip-w', 'sim-strip-t', 'sim-load-slider',
         'col-cell', 'col-bg', 'met-cell', 'col-cap', 'col-spacer', 'col-bus', 'col-inter', 'met-inter', 'met-cap', 'met-bus', 'met-spacer'
     ];
@@ -1530,11 +1519,9 @@
 
 // --- SMART POKA-YOKE & AUTO-DETECT LOGIC ---
 
-    // Define the list of fields that define a cell's identity
     const identityFields = ['c-diam', 'c-len', 'c-mah', 'c-amp', 'c-volts', 'c-weight', 'c-cost'];
 
     function attemptReverseLookup() {
-        // Gather current values
         const current = {
             d: parseFloat(inputs['c-diam'].value),
             l: parseFloat(inputs['c-len'].value),
@@ -1554,24 +1541,26 @@
         // ---------------------------------------------------------
         for(let i=0; i<sel.options.length; i++) {
             const opt = sel.options[i];
-            if(opt.dataset.user === "true") {
-                try {
-                    const p = JSON.parse(opt.value);
-                    if (Math.abs(p.d - current.d) < 0.05 &&
-                        Math.abs(p.l - current.l) < 0.5 &&
-                        Math.abs(p.cap - current.cap) < 1 &&
-                        Math.abs(p.amp - current.amp) < 0.1 &&
-                        Math.abs(p.w - current.w) < 0.1 &&
-                        p.cost === current.cost) {
-                        
-                        // Stop immediately if we find a user custom match
-                        if(sel.selectedIndex !== i) sel.selectedIndex = i;
-                        dbInput.value = ""; 
-                        dbInput.placeholder = "Search DB...";
-                        return; 
-                    }
-                } catch(e) {}
-            }
+            if(opt.dataset.user === "true" && opt.value.trim().startsWith('{')) {
+				try {
+					const p = JSON.parse(opt.value);
+					if (Math.abs(p.d - current.d) < 0.05 &&
+						Math.abs(p.l - current.l) < 0.5 &&
+						Math.abs(p.cap - current.cap) < 1 &&
+						Math.abs(p.amp - current.amp) < 0.1 &&
+						Math.abs(p.w - current.w) < 0.1 &&
+						p.cost === current.cost) {
+						
+						// Stop immediately if we find a user custom match
+						if(sel.selectedIndex !== i) sel.selectedIndex = i;
+						dbInput.value = ""; 
+						dbInput.placeholder = "Search DB...";
+						return; 
+					}
+				} catch(e) {
+					console.warn("Skipping invalid preset:", opt.text);
+				}
+			}
         }
 
         // ---------------------------------------------------------
@@ -1599,14 +1588,14 @@
         };
 
         if (matches.length === 1) {
-            // SINGLE MATCH: Identify it precisely
+            // SINGLE MATCH:
             setDBOption(`[DB] ${matches[0].name}`);
             dbInput.value = ""; 
             dbInput.placeholder = "Search DB...";
             return;
         } 
         else if (matches.length > 1) {
-            // MULTIPLE MATCHES: Be ambiguous but helpful
+            // MULTIPLE MATCHES:
             setDBOption(`[DB] Multiple Matches Found`);
             
             // List the candidates in the placeholder so the user knows what they are
@@ -1636,11 +1625,10 @@
             el.addEventListener('input', () => {
                 attemptReverseLookup();
                 updateDeleteButtons();
-                // updatePack() is handled by other listeners already
             });
         }
     });
-    // Also attach to IR since that's part of the identity
+
     document.getElementById('sim-cell-ir').addEventListener('input', attemptReverseLookup);
 
     ['c-weight', 'c-cost'].forEach(id => {
@@ -1666,8 +1654,6 @@
     const wireRedMat = new THREE.MeshStandardMaterial({ color: 0xd32f2f, roughness: 0.5 });
     const wireBlackMat = new THREE.MeshStandardMaterial({ color: 0x212121, roughness: 0.5 });
     const lineMat = new THREE.LineBasicMaterial({ color: 0x333333 });
-    
-    // Define these globally so we don't recreate them every frame
     const cellMat = new THREE.MeshStandardMaterial({ roughness: 0.4 });
     const capMat = new THREE.MeshStandardMaterial({ roughness: 0.4 });
     const busMat = new THREE.MeshStandardMaterial({ roughness: 0.4 });
@@ -1680,9 +1666,9 @@
     let userHasTouchedBusMode = false;
     let lastUserBusMode = 'both';
 	let userHasTouchedBusColor = false;
-	let simMaxVal = 100; // Stores the physical max (Amps or Watts) for the slider
-    let lastSimAmps = 0; // NEW: For smooth switching
-    let lastSimWatts = 0; // NEW: For smooth switching
+	let simMaxVal = 100;
+    let lastSimAmps = 0;
+    let lastSimWatts = 0;
 	
     const busSelect = document.getElementById('bus-mode');
     busSelect.addEventListener('change', (e) => {
@@ -1702,9 +1688,9 @@
         // 1. AUTO-DETECT CHEMISTRY
         // based on the Nominal Voltage setting
         let chem = 'li-ion';
-        if (nom >= 3.15 && nom <= 3.45) chem = 'lfp';       // LiFePO4
-        else if (nom >= 2.0 && nom <= 2.8) chem = 'lto';    // LTO (Titanate)
-        else if (nom >= 2.9 && nom <= 3.1) chem = 'na-ion'; // Sodium-Ion (rough approx)
+        if (nom >= 3.15 && nom <= 3.45) chem = 'lfp';
+        else if (nom >= 2.0 && nom <= 2.8) chem = 'lto';
+        else if (nom >= 2.9 && nom <= 3.1) chem = 'na-ion';
 
         // 2. APPLY CURVE MATH
         if (chem === 'lfp') {
@@ -1756,7 +1742,7 @@
         const S = parseInt(inputs['s-count'].value) || 1;
         const P = parseInt(inputs['p-count'].value) || 1;
         const cellAmp = parseFloat(inputs['c-amp'].value) || 20;
-        const cellMax = parseFloat(inputs['c-max-v'].value) || 4.2; // NEW: Use Max V for headroom
+        const cellMax = parseFloat(inputs['c-max-v'].value) || 4.2; // Using Max V for headroom
         const cellMah = parseFloat(inputs['c-mah'].value) || 2500;
 
         // Rate Limits
@@ -1766,13 +1752,11 @@
 
         let maxA = (mode === 'discharge') ? dischargeMaxA : chargeMaxA;
 
-        // Update Global Max Value
         if(inputType && inputType.value === 'cc') {
             simMaxVal = maxA;
             document.getElementById('sim-input-unit').innerText = "A";
         } else {
-            // UPDATED: Use MAX voltage (e.g. 4.2V) for the power limit.
-            // This ensures the slider can reach the peak potential power of a full pack.
+            // Using MAX voltage (e.g. 4.2V) for the power limit. Ensures the slider can reach the peak potential power of a full pack.
             const packVMax = S * cellMax; 
             simMaxVal = maxA * packVMax;
             document.getElementById('sim-input-unit').innerText = "W";
@@ -1906,12 +1890,10 @@
         
         const eff = (pTotal > 0) ? (pUseful / pTotal) * 100 : 100;
 
-        // --- NEW: Save State for Mode Switching ---
+        // Save State for Mode Switching ---
         lastSimAmps = I;
-        // For Watts, we generally care about the useful load power
         lastSimWatts = (mode === 'discharge') ? pUseful : pTotal;
 
-        // UI Updates
         const fmtPwr = (v) => (v >= 1000) ? `${(v/1000).toFixed(2)} kW` : `${Math.round(v)} W`;
         const fmtHeat = (v) => {
             if(v >= 100) return `${Math.round(v)} W`;
@@ -2000,7 +1982,10 @@
     }
 
     function updatePack() {
-        scene.background.set(inputs['col-bg'].value);
+        const stripWidth = parseFloat(inputs['sim-strip-w'].value) || (d * 0.4);
+		const stripThick = parseFloat(inputs['sim-strip-t'].value) || 0.3;
+		
+		scene.background.set(inputs['col-bg'].value);
         currentNickelLen = 0; 
         occluders.length = 0;
         labels.forEach(l => { 
@@ -2009,18 +1994,24 @@
         });
         labels.length = 0;
 
-    while(packGroup.children.length > 0) {
+
+	while(packGroup.children.length > 0) {
 		const c = packGroup.children[0];
 		if(c.geometry) c.geometry.dispose();
-		
-		// FIX: Dispose materials to prevent memory leak
+
 		if(c.material) {
-			if(Array.isArray(c.material)) c.material.forEach(m => m.dispose());
-			else c.material.dispose();
-    }
-    
-    packGroup.remove(c);
-}
+			const isGlobal = (c.material === cellMat || c.material === capMat || 
+							  c.material === busMat || c.material === spacerMat || 
+							  c.material === interConnMat);
+			
+			if (!isGlobal) {
+				if(Array.isArray(c.material)) c.material.forEach(m => m.dispose());
+				else c.material.dispose();
+			}
+		}
+        packGroup.remove(c);
+	}
+	
         while(dimGroup.children.length > 0) dimGroup.remove(dimGroup.children[0]);
         const domLabels = document.querySelectorAll('.label-tag, .dim-tag');
         domLabels.forEach(el => el.remove());
@@ -2033,6 +2024,7 @@
         const spacing = parseFloat(inputs['c-spacing'].value);
         const effectiveD = d + spacing;
         const isHex = inputs['hex-mode'].checked;
+		const isLadder = inputs['calc-ladder'].checked; // Define this early
         const nomV = parseFloat(inputs['c-volts'].value);
         const busMode = inputs['bus-mode'].value;
         const showGeo = busMode !== 'none';
@@ -2040,6 +2032,19 @@
         const visualLayerSpace = inputs['exploded-view'].checked ? 40 : 0; 
         if(Layers < 1) Layers = 1; if(Layers > S_Total) Layers = S_Total; 
         const totalInstances = S_Total * P;
+		
+		let segs = 32;
+        if (totalInstances > 500) segs = 16;
+        if (totalInstances > 1000) segs = 10;
+
+		if (window.lastBoxGeo) window.lastBoxGeo.dispose();
+		if (window.lastCylGeo) window.lastCylGeo.dispose();
+
+		const boxGeo = new THREE.BoxGeometry(stripWidth, stripThick, 1.0);
+		const cylGeo = new THREE.CylinderGeometry(stripWidth/2, stripWidth/2, stripThick, segs);
+
+		window.lastBoxGeo = boxGeo;
+		window.lastCylGeo = cylGeo;
 
         const highPerf = totalInstances > 500;
         const toast = document.getElementById('perf-toast');
@@ -2098,14 +2103,14 @@
 
         // 2. Cells & Caps (Link Color + Metalness)
         cellMat.color.set(inputs['col-cell'].value);
-        cellMat.metalness = parseFloat(inputs['met-cell'].value); // RESTORED
+        cellMat.metalness = parseFloat(inputs['met-cell'].value);
 
         capMat.color.set(inputs['col-cap'].value);
-        capMat.metalness = parseFloat(inputs['met-cap'].value);   // RESTORED
+        capMat.metalness = parseFloat(inputs['met-cap'].value);
         
         // 3. Spacers
         spacerMat.color.set(inputs['col-spacer'].value);
-        spacerMat.metalness = parseFloat(inputs['met-spacer'].value); // RESTORED
+        spacerMat.metalness = parseFloat(inputs['met-spacer'].value);
         
         // Busbar Color Logic
         const matRho = parseFloat(inputs['sim-strip-mat'].value);
@@ -2124,12 +2129,7 @@
         busMat.color.set(busColor);
         busMat.metalness = parseFloat(inputs['met-bus'].value);
 
-        let segs = 32;
-        if (totalInstances > 500) segs = 16;
-        if (totalInstances > 1000) segs = 10;
-
         const cellGeo = new THREE.CylinderGeometry(d/2, d/2, l, segs);
-        // Standard Cap (0.5mm)
         const capGeo = new THREE.CylinderGeometry(d/2 * 0.7, d/2 * 0.7, 0.5, Math.max(8, segs/2));
         const edgesGeo = !highPerf ? new THREE.EdgesGeometry(cellGeo, 20) : null;
         const spacerGeo = new THREE.CylinderGeometry(effectiveD/2, effectiveD/2, 2.0, segs);
@@ -2142,14 +2142,7 @@
         const meshSpacers = new THREE.InstancedMesh(spacerGeo, spacerMat, hasSpacers ? totalInstances * 2 : 0);
         meshSpacers.name = 'spacers';
         const applyShadows = (mesh) => { mesh.castShadow = !highPerf; mesh.receiveShadow = !highPerf; };
-        applyShadows(meshCells); applyShadows(meshCaps); applyShadows(meshSpacers);
-        
-        const stripWidth = parseFloat(inputs['sim-strip-w'].value) || (d * 0.4);
-        const stripThick = parseFloat(inputs['sim-strip-t'].value) || 0.3;
-        
-        const boxGeo = new THREE.BoxGeometry(stripWidth, stripThick, 1.0); 
-        const cylGeo = new THREE.CylinderGeometry(stripWidth/2, stripWidth/2, stripThick, segs);
-        
+        applyShadows(meshCells); applyShadows(meshCaps); applyShadows(meshSpacers);           
         const maxConns = totalInstances * 4;
         const meshStrips = new THREE.InstancedMesh(boxGeo, busMat, maxConns);
         meshStrips.name = 'busbars';
@@ -2201,7 +2194,17 @@
                 for (let p = 0; p < P; p++) {
                     let x = currentXSlot * effectiveD;
                     let z = p * effectiveD;
-                    if (isHex) { z = p * (effectiveD * 0.866); if (p % 2 !== 0) x += effectiveD * 0.5; }
+                    if (isHex) { 
+						z = p * (effectiveD * 0.866); 
+						
+						if (isLadder) {
+							// Skewed / Parallelogram Hex (for continuous ladder strips)
+							x += (p * 0.5 * effectiveD);
+						} else {
+							// Standard Zig-Zag Hex (for standard dense packing)
+							if (p % 2 !== 0) x += effectiveD * 0.5; 
+						}
+					}
                     minX = Math.min(minX, x - d/2); maxX = Math.max(maxX, x + d/2);
                     minZ = Math.min(minZ, z - d/2); maxZ = Math.max(maxZ, z + d/2);
                     const cellY = layerYBase + l/2;
@@ -2264,12 +2267,7 @@
                     meshBusCaps.setMatrixAt(busCapIdx++, dummyBusCap.matrix);
                     return mid; 
                 };
-
-				// --- FIX FOR STRIP PLACEMENT ---
-                // We go back to simple absolute positioning relative to layer bounds.
-                // layerYBase is the BOTTOM of the current layer of cells.
-                // Top of cell = layerYBase + l.
-                // We add a fixed offset (0.5 for cap + half strip thickness) to sit on top.
+				
                 const offset = 0.5 + (stripThick / 2); 
                 
                 let yTop = layerYBase + l + offset;
@@ -2365,7 +2363,6 @@
             globalSIndex += currentLayerS;
         }
         
-        // --- MOVED OUTSIDE LOOP TO FIX 2-LAYER DISAPPEARING BUG ---
         packGroup.add(meshCells);
 		meshCells.instanceMatrix.needsUpdate = true;
         if (!highPerf) occluders.push(meshCells); 
@@ -2373,7 +2370,7 @@
 		meshCaps.instanceMatrix.needsUpdate = true;
         if(hasSpacers) {
 			packGroup.add(meshSpacers);
-			meshSpacers.instanceMatrix.needsUpdate = true; // Add this
+			meshSpacers.instanceMatrix.needsUpdate = true;
 		}
         if (showGeo && stripIdx > 0) {
             meshStrips.count = stripIdx; meshBusCaps.count = busCapIdx;
@@ -2386,10 +2383,20 @@
             const finalEdges = new THREE.LineSegments(mergedEdgeGeo, new THREE.LineBasicMaterial({ color: 0x000000, opacity: 0.1, transparent: true }));
             packGroup.add(finalEdges);
         }
-        // -----------------------------------------------------------
+		
+		// --- LADDER STRIP MATH & UI ---
+        if (isLadder && P > 1) {
+            currentNickelLen /= P;
+        }
+        
+        // Toggle the UI badge
+        const badge = document.getElementById('badge-ladder');
+        if (badge) badge.style.display = isLadder ? 'inline-block' : 'none';
+        // -----------------------------------
 
         minX -= spacing/2; maxX += spacing/2; minZ -= spacing/2; maxZ += spacing/2;
         const bW = (maxX - minX); const bD = (maxZ - minZ);
+        
         const physHeight = (l * Layers) + (physLayerSpace * (Layers - 1));
         const renderHeight = (l * Layers) + ((physLayerSpace + visualLayerSpace) * (Layers - 1));
         const cX = (minX + maxX)/2; const cZ = (minZ + maxZ)/2;
@@ -2401,17 +2408,15 @@
         inputs['sim-load-slider'].max = maxAmps * 1.5; 
         rescaleLoadSlider();
 		updateSimulation();
+		needsOcclusionUpdate = true;
     }
 
     document.getElementById('sim-strip-mat').addEventListener('change', (e) => {
-        // When material changes, we WANT auto-color to happen again.
-        // So we reset the manual override flag.
         userHasTouchedBusColor = false; 
         updatePack();
     });
 	
 	document.getElementById('col-bus').addEventListener('input', (e) => {
-        // User is manually picking a color -> Disable auto-color
         userHasTouchedBusColor = true;
         updatePack();
     });
@@ -2610,9 +2615,9 @@
                         }
                     });
 
-                    // 5. Fallback: STRICT MATCHING
+                // 5. Fallback: STRICT MATCHING
                     // Only select a preset if EVERY parameter matches. 
-                    // If the user changed Cost, Weight, or IR even slightly, it remains "Custom".
+                    // If the user changed Cost, Weight, or IR , it remains "Custom".
                     if (!restoredSelection) {
                         const selSize = document.getElementById('preset-selector');
                         selSize.value = 'custom'; // Default to "Custom" immediately
@@ -2768,36 +2773,28 @@
         fileMenuDropdown.classList.remove('show');
     });
 
-	// 1. Open the modal when clicking the menu item
     document.getElementById('menu-export-stl').addEventListener('click', (e) => {
         e.preventDefault();
         document.getElementById('export-overlay').style.display = 'flex';
         fileMenuDropdown.classList.remove('show');
     });
 
-    // 2. Handle the actual export when clicking "Download" inside the modal
     document.getElementById('btn-do-export').addEventListener('click', () => {
         const incCells = document.getElementById('ex-cells').checked;
         const incSpacers = document.getElementById('ex-spacers').checked;
         const incBus = document.getElementById('ex-bus').checked;
         
-        // Call the new robust function
         exportSTL(incCells, incSpacers, incBus);
         
-        // Close modal
         document.getElementById('export-overlay').style.display = 'none';
     });
 
-    // 3. Close modal when clicking outside (standard behavior)
     document.getElementById('export-overlay').addEventListener('click', (e) => {
         if(e.target === document.getElementById('export-overlay')) {
             document.getElementById('export-overlay').style.display = 'none';
         }
     });
 
-    // --- CORRECTED EVENT LISTENERS ---
-    
-    // 1. Fine Tune Input (The box next to the slider)
     const fineTuneInput = document.getElementById('sim-load-input');
     const sliderEl = document.getElementById('sim-load-slider');
     
@@ -2805,8 +2802,6 @@
         fineTuneInput.addEventListener('input', updateSimulation);
         fineTuneInput.addEventListener('change', () => {
             let val = parseFloat(fineTuneInput.value);
-            
-            // BUG FIX: Use the global physical max (simMaxVal), NOT the slider's internal max
             const max = simMaxVal; 
             
             if(val > max) {
@@ -2818,78 +2813,53 @@
         });
     }
 
-    // 2. Main Inputs Loop
-    // This connects all the inputs to the update functions
-    // --- CORRECTED EVENT LISTENERS ---
     inputIds.forEach(id => {
         const el = document.getElementById(id);
         if(el) {
-            // PASS 'e' to the function so we can track which element triggered it
             el.addEventListener('input', (e) => {
-                // Instant update for Simulation sliders (fast)
                 if(id === 'sim-load-slider' || id === 'sim-cell-ir') {
-                    updateSimulation(e); // <--- IMPORTANT: Passing 'e' here fixes the slider sync
+                    updateSimulation(e);
                 } 
-                // Debounced update for Geometry inputs (slow)
                 else if(el.type === 'range' || el.type === 'number' || el.type === 'text') {
                     debouncedUpdate();
-                } 
-                // Instant update for Checkboxes/Color (fast enough)
+                }
                 else {
                     updatePack();
                 }
             });
             
-            // On 'change' (release/blur), we usually force a geometry update
-            // EXCEPTION: The Load Slider. Releasing it shouldn't rebuild the pack!
             if(id !== 'sim-load-slider') {
                  el.addEventListener('change', updatePack);
             }
         }
     });
 	
-// --- FINAL STL EXPORT FUNCTION (Orientation Fixed) ---
     function exportSTL(includeCells, includeSpacers, includeBusbars) {
-        // 1. Setup
         const exportGroup = new THREE.Group();
         const tempMatrix = new THREE.Matrix4();
         const finalMatrix = new THREE.Matrix4();
         
-        // CORRECTION: Rotate 90 degrees around X to convert Y-Up (Three.js) to Z-Up (3D Printing)
         const correctionMatrix = new THREE.Matrix4().makeRotationX(Math.PI / 2);
 
-        // Notify user if it might freeze for a second
         const totalObjs = packGroup.children.length; 
         if(totalObjs > 0) document.body.style.cursor = 'wait';
 
-        // 2. Helper: Bake position/rotation into the geometry
         function addBakedInstance(instancedMesh) {
             const count = instancedMesh.count;
             const originalGeom = instancedMesh.geometry;
             const meshWorldMatrix = instancedMesh.matrixWorld;
 
             for (let i = 0; i < count; i++) {
-                // A. Get instance local transform
-                instancedMesh.getMatrixAt(i, tempMatrix);
-                
-                // B. Calculate absolute world position
+                instancedMesh.getMatrixAt(i, tempMatrix);              
                 finalMatrix.multiplyMatrices(meshWorldMatrix, tempMatrix);
-                
-                // C. APPLY THE ROTATION FIX HERE
-                // We rotate the entire world frame 90 degrees so 'Up' becomes 'Up' in the STL
                 finalMatrix.premultiply(correctionMatrix);
-
-                // D. Bake into geometry
                 const bakedGeom = originalGeom.clone();
                 bakedGeom.applyMatrix4(finalMatrix);
-
-                // E. Create export mesh
                 const mesh = new THREE.Mesh(bakedGeom, new THREE.MeshBasicMaterial());
                 exportGroup.add(mesh);
             }
         }
 
-        // 3. Iterate and Select
         scene.updateMatrixWorld(true);
 
         packGroup.children.forEach(child => {
@@ -2912,7 +2882,6 @@
             return;
         }
 
-        // 4. Export
         try {
             const exporter = new STLExporter();
             const result = exporter.parse(exportGroup, { binary: true });
@@ -2921,13 +2890,13 @@
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
             const packName = (inputs['pack-name'].value || 'battery_pack').replace(/[^a-z0-9]/gi, '_');
-            link.download = `${packName}_${Date.now()}.stl`;
+			const configStr = `${inputs['s-count'].value}S${inputs['p-count'].value}P`;
+			link.download = `${packName}_${configStr}_${Date.now()}.stl`;
             link.click();
         } catch (e) {
             console.error(e);
             alert("Export failed. See console for details.");
         } finally {
-            // 5. Cleanup
             exportGroup.traverse(o => {
                 if (o.geometry) o.geometry.dispose();
                 if (o.material) o.material.dispose();
@@ -2946,31 +2915,26 @@
     let lastOccTime = 0;
 
     function animate(time) {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-        
-        if (time - lastOccTime > 200 && currentStats.cells <= 500) { 
-			lastOccTime = time;
+		requestAnimationFrame(animate);
+		controls.update();
+		renderer.render(scene, camera);
+
+		if (needsOcclusionUpdate && currentStats.cells <= 500) {
+			needsOcclusionUpdate = false;
+
 			for(const label of labels) {
 				label.getWorldPosition(v3);
-				
-				// Use the global vDir to calculate direction
 				vDir.copy(v3).sub(camera.position); 
 				const dist = vDir.length();
 				vDir.normalize();
 				
 				raycaster.set(camera.position, vDir);
 
-				// FIX IS HERE: Changed 'dir' to 'vDir'
-				// Slightly push ray origin forward to avoid self-intersection artifacts
-				raycaster.ray.origin.add(vDir.multiplyScalar(0.5));
+				raycaster.ray.origin.add(vDir.clone().multiplyScalar(0.5));
 				
-				// Raycast against the instanced mesh
 				const intersects = raycaster.intersectObjects(occluders, false);
 				
 				if(intersects.length > 0) {
-					// If something is closer than the label, occlude it
 					if(intersects[0].distance < dist - 2.0) { 
 						label.element.classList.add('occluded'); 
 					} else { 
@@ -2980,15 +2944,15 @@
 					label.element.classList.remove('occluded'); 
 				}
 			}
-		} else if (currentStats.cells > 500) {
-            // Ensure labels aren't stuck in occluded state if user switched back to low count or forced visibility
-            if(labels.length > 0 && labels[0].element.classList.contains('occluded')) {
-                labels.forEach(l => l.element.classList.remove('occluded'));
-            }
-        }
-        
-        labelRenderer.render(scene, camera);
-    }
+		} 
+		else if (currentStats.cells > 500) {
+			if(labels.length > 0 && labels[0].element.classList.contains('occluded')) {
+				labels.forEach(l => l.element.classList.remove('occluded'));
+			}
+		}
+
+		labelRenderer.render(scene, camera);
+	}
 	
 	// --- FINAL EVENT LISTENERS ---
     
@@ -3049,7 +3013,7 @@
             // 2. Recalculate Limits
             rescaleLoadSlider();
             
-            // 3. CONVERSION LOGIC
+            // 3. Conversion Logic
             let targetVal = 0;
             if(newType === 'cc') {
                 // Switching TO Amps. Use last known Amps.
@@ -3111,7 +3075,6 @@
         updateSimulation();
     });
   
-    // Initial calls
     updatePack();
     animate();
 </script>
