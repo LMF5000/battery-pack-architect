@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>Battery Pack Architect | 3D Design & Calculation Tool</title>
-    <meta name="description" content="Free 3D Battery Pack Simulator and Designer. Calculate voltage sag, heat, and efficiency for 18650/21700 packs. Export to STL for 3D printing.">
+    <meta name="description" content="Free 3D Battery Pack Simulator and Designer. Estimate voltage sag, heat, runtime, and efficiency for 18650/21700 packs. Export a visual-reference STL model.">
     <meta name="keywords" content="battery pack designer, 18650 calculator, 21700 designer, battery visualization, DIY battery pack, battery series parallel, battery pack architect">
     <meta name="author" content="Luke Formosa">
     <link rel="canonical" href="https://lmf5000.github.io/battery-pack-architect/">
@@ -34,7 +34,7 @@
 		"price": "0",
 		"priceCurrency": "USD"
 	  },
-	  "description": "3D design and simulation tool for custom lithium-ion battery packs. Features STL export, voltage sag calculation, and heat simulation.",
+	  "description": "3D design and simulation tool for custom lithium-ion battery packs. Features visual-reference STL export and first-order voltage sag, heat, and runtime estimates.",
 	  "featureList": "3D Visualization, Voltage Sag Simulation, STL Export, 18650 Calculator, Mobile Support"
 	}
 	</script>
@@ -222,18 +222,48 @@
             text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
         }
 
-        .controls-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: end; }
-        .controls-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; align-items: end; }
-        .control-item { display: flex; flex-direction: column; }
+        .controls-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: end; }
+        .controls-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; align-items: end; }
+        .control-item { display: flex; flex-direction: column; min-width: 0; }
         .control-item.full-width { grid-column: span 2; }
-        .cost-weight-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 8px; row-gap: 3px; align-items: start; margin-bottom: 8px; }
-        .cost-weight-grid label { margin: 0; height: 16px; align-self: end; }
-        .currency-label { grid-column: 2; grid-row: 1; }
-        .currency-input-row { grid-column: 2; grid-row: 2; display: grid; grid-template-columns: 58px minmax(92px, 1fr); gap: 6px; position: relative; align-items: center; }
-		.currency-input-row input { min-width: 0; width: 100%; }
-		#currency-btn { height: 25px; padding: 0 5px; background: #fff; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: #1e293b; min-width: 0; box-sizing: border-box; }
-		#currency-symbol { font-weight: 800; color: #334155; min-width: 10px; text-align: center; }
-		#currency-note { grid-column: 2; grid-row: 3; font-size: 0.62rem; color: #94a3b8; margin-top: 0; line-height: 1.15; min-height: 0; }
+
+        /* Cell specification layout: compact physical, electrical and rating rows. */
+        .cell-physical-grid,
+        .cell-electrical-grid {
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 6px; align-items: end; margin-bottom: 8px;
+        }
+        .cell-rating-grid {
+            display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px; align-items: end;
+        }
+        .cell-physical-grid label,
+        .cell-electrical-grid label {
+            font-size: 0.66rem; letter-spacing: -0.12px;
+        }
+        .cell-cost-block { min-width: 0; }
+        .cell-cost-input-row {
+            display: grid; grid-template-columns: 42px minmax(0, 1fr);
+            gap: 4px; position: relative; align-items: center; min-width: 0;
+        }
+        .cell-cost-input-row > * { min-width: 0; }
+        .cell-cost-input-row #c-cost { padding-left: 5px; padding-right: 5px; }
+		#currency-btn { height: 25px; padding: 0 3px; background: #fff; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.72rem; display: flex; align-items: center; justify-content: center; gap: 3px; cursor: pointer; color: #1e293b; min-width: 0; box-sizing: border-box; }
+		#currency-symbol { font-weight: 800; color: #334155; min-width: 8px; text-align: center; }
+        #currency-panel { width: min(260px, calc(100vw - 30px)) !important; max-width: none; }
+
+        @media (max-width: 340px) {
+            .cell-physical-grid { gap: 4px; }
+            .cell-physical-grid label,
+            .cell-electrical-grid label { font-size: 0.61rem; letter-spacing: -0.2px; }
+            .cell-physical-grid input,
+            .cell-electrical-grid input { padding-left: 4px; padding-right: 4px; }
+            .cell-electrical-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .cell-cost-block { grid-column: 1 / -1; }
+            .cell-cost-input-row { grid-template-columns: 52px minmax(0, 1fr); }
+        }
         
         label { font-size: 0.7rem; color: #475569; margin-bottom: 3px; font-weight: 600; white-space: nowrap; display: flex; align-items: center; }
         
@@ -635,8 +665,44 @@
         .c-violet { color: #8b5cf6; }
 
         #row-status {
-            min-height: 14px;
+            min-height: 12px;
             display: flex; justify-content: flex-end; align-items: center;
+        }
+        #status-text {
+            display: none;
+            max-width: 100%;
+            color: #64748b;
+            font-size: 0.61rem !important;
+            font-weight: 600 !important;
+            line-height: 1.15;
+            text-align: right;
+            letter-spacing: 0;
+            white-space: normal;
+        }
+        #status-text.status-note { color: #64748b !important; }
+        #status-text.status-caution { color: #b45309 !important; }
+        #status-text.status-alert { color: #b91c1c !important; }
+
+        /* A red load control means the requested discharge cannot be delivered at the selected SoC.
+           The control deliberately remains interactive so the user can drag back into the valid range. */
+        #sim-load-slider {
+            accent-color: #3b82f6;
+            border-radius: 999px;
+            transition: background-color 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+        }
+        #sim-load-slider.load-constrained {
+            accent-color: #dc2626;
+            background: #fecaca !important;
+            box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.22);
+        }
+        #sim-load-slider.load-constrained:focus-visible {
+            outline: 2px solid #dc2626;
+            outline-offset: 3px;
+        }
+        #sim-load-input.load-constrained {
+            border-color: #ef4444 !important;
+            background: #fff7f7 !important;
+            color: #b91c1c !important;
         }
 		.res-col { padding: 6px 10px; display: flex; flex-direction: column; gap: 3px; }
 		.res-v-sep { width: 1px; background: #f1f5f9; margin: 4px 0; }
@@ -652,7 +718,30 @@
 		.disabled { opacity: 0.4; pointer-events: none; filter: grayscale(100%); transition: opacity 0.2s; }
 		@keyframes rfqPulse { 0%,100% { box-shadow:0 0 0 0 rgba(21,128,61,0.55);} 50% { box-shadow:0 0 0 8px rgba(21,128,61,0);} }
 		.rfq-pulse { animation: rfqPulse 0.8s ease-out 2; }
-    </style>
+    
+
+        /* VALIDATION, ACCESSIBILITY & STARTUP FALLBACK */
+        #validation-toast {
+            position:absolute; top:10px; left:50%; transform:translateX(-50%);
+            max-width:min(560px, calc(100% - 24px)); box-sizing:border-box;
+            background:rgba(255,255,255,0.98); border:1px solid #f59e0b; border-left:4px solid #f59e0b;
+            color:#7c2d12; padding:8px 12px; border-radius:6px; box-shadow:0 5px 18px rgba(0,0,0,.12);
+            font-size:.72rem; line-height:1.35; font-weight:600; display:none; z-index:70;
+        }
+        #fatal-error {
+            position:absolute; inset:20px; margin:auto; width:min(520px, calc(100% - 40px)); height:max-content;
+            box-sizing:border-box; background:#fff; border:1px solid #fecaca; border-left:5px solid #dc2626;
+            color:#7f1d1d; border-radius:8px; padding:16px; box-shadow:0 15px 35px rgba(0,0,0,.18);
+            z-index:90; display:none; font-size:.82rem; line-height:1.5;
+        }
+        .input-invalid { border-color:#dc2626 !important; box-shadow:0 0 0 1px rgba(220,38,38,.12); }
+        .sim-model-note { margin:8px 0 0; padding:6px 8px; border-radius:5px; background:#fffbeb; border:1px solid #fde68a; color:#854d0e; font-size:.64rem; line-height:1.35; }
+        button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible,
+        [tabindex="0"]:focus-visible { outline:2px solid #2563eb !important; outline-offset:2px; }
+        .help-icon:focus .tip-content, .tooltip-wrap:focus::after, .tooltip-wrap:focus::before { visibility:visible; opacity:1; }
+        .help-icon:focus { background:#3b82f6; }
+        .inline-toggle[role="radiogroup"] .it-opt[role="radio"] { outline:none; }
+</style>
     
     <script type="importmap">
         {
@@ -674,7 +763,7 @@
 			<h1>
 				<span style="font-size:1.2em; margin-right:4px;">🔋</span>
 				<span class="title-text">Pack Architect</span>
-				<span class="version-span">v89</span>
+				<span class="version-span">v91</span>
 			</h1>
 			
 			<div class="header-actions">
@@ -727,45 +816,43 @@
                     <button class="btn-icon del" id="btn-del-preset-size" title="Delete" disabled>🗑️</button>
                 </div>
             </div>
-            <div class="controls-grid" style="margin-bottom: 8px;">
-                <div class="control-item"><label>Diameter (mm)</label><input type="number" id="c-diam" value="18.4"></div>
-                <div class="control-item"><label>Length (mm)</label><input type="number" id="c-len" value="65"></div>
+            <div class="cell-physical-grid">
+                <div class="control-item"><label for="c-diam">Diameter (mm)</label><input type="number" id="c-diam" value="18.4"></div>
+                <div class="control-item"><label for="c-len">Length (mm)</label><input type="number" id="c-len" value="65"></div>
+                <div class="control-item"><label for="c-weight">Weight (g)</label><input type="number" id="c-weight" value="45"></div>
             </div>
-            <div class="cost-weight-grid">
-                <label for="c-weight">Weight (g)</label>
-                <label for="c-cost" class="currency-label">
-                    Cell Cost Estimate
-                    <span class="help-icon">?
-                        <div class="tip-content tip-left" style="width:230px;">
-                            Indicative only. Currency conversion uses hardcoded approximate yearly average rates.
-                            Not a live quote and not a manufacturing price guarantee.
-                        </div>
-                    </span>
-                </label>
 
-                <input type="number" id="c-weight" value="45">
-                <input type="hidden" id="pricing-currency" value="EUR">
-
-                <div class="currency-input-row">
-					<button type="button" id="currency-btn" title="Select currency">
-						<span id="currency-flag" class="fi fi-eu"></span>
-						<span id="currency-symbol">€</span>
-						<span style="color:#94a3b8; font-size:0.62rem; line-height:1;">&#9662;</span>
-					</button>
-
-					<input type="text" id="c-cost" value="4.50" inputmode="decimal">
-
-                    <div id="currency-panel"
-                        style="display:none; position:absolute; top:27px; right:0; width:260px; max-height:240px; overflow-y:auto; background:#fff; border:1px solid #cbd5e1; border-radius:4px; box-shadow:0 8px 20px rgba(0,0,0,0.15); z-index:160;"></div>
+            <input type="hidden" id="pricing-currency" value="EUR">
+            <div class="cell-electrical-grid">
+                <div class="control-item"><label for="c-mah">Capacity (mAh)</label><input type="number" id="c-mah" value="2500" step="100"></div>
+                <div class="control-item"><label for="sim-cell-ir">Cell IR (mΩ)</label><input type="number" id="sim-cell-ir" value="25" step="0.1"></div>
+                <div class="control-item cell-cost-block">
+                    <label for="c-cost">
+                        Cell Cost
+                        <span class="help-icon">?
+                            <div class="tip-content tip-left" style="width:230px;">
+                                Estimate only. Currency conversion uses hardcoded approximate yearly average rates; verify current vendor pricing.
+                            </div>
+                        </span>
+                    </label>
+                    <div class="cell-cost-input-row">
+						<button type="button" id="currency-btn" title="Select currency">
+							<span id="currency-flag" class="fi fi-eu"></span>
+							<span id="currency-symbol">€</span>
+							<span style="color:#94a3b8; font-size:0.58rem; line-height:1;">&#9662;</span>
+						</button>
+                        <input type="text" id="c-cost" value="4.50" inputmode="decimal" aria-label="Estimated cell cost">
+                        <div id="currency-panel"
+                            style="display:none; position:absolute; top:27px; right:0; width:260px; max-height:240px; overflow-y:auto; background:#fff; border:1px solid #cbd5e1; border-radius:4px; box-shadow:0 8px 20px rgba(0,0,0,0.15); z-index:160;"></div>
+                    </div>
                 </div>
-
-                <div></div>
-                <div id="currency-note">All prices are estimates only.</div>
             </div>
-            <div class="controls-grid">
-                <div class="control-item"><label>Capacity (mAh)</label><input type="number" id="c-mah" value="2500" step="100"></div>
-                <div class="control-item"><label>Max Current (A)</label><input type="number" id="c-amp" value="20"></div>
-				<div class="control-item"><label>Cell IR (mΩ)</label><input type="number" id="sim-cell-ir" value="25"></div>
+
+            <div class="cell-rating-grid">
+                <div class="control-item"><label for="c-amp">Max Discharge (A)</label><input type="number" id="c-amp" value="20" step="0.1"></div>
+                <div class="control-item"><label for="c-charge-amp">Max Charge (A)
+                    <span class="help-icon warn">!<div class="tip-content tip-left" style="width:230px;">Charge ratings are separate from discharge ratings. Database entries use a conservative 0.5C placeholder unless you enter a verified datasheet value.</div></span>
+                </label><input type="number" id="c-charge-amp" value="1.25" step="0.1"></div>
             </div>
         </div>
 
@@ -915,11 +1002,12 @@
                                     <ul style="padding-left:12px; margin:4px 0; text-align:left;">
                                         <li style="margin-bottom:6px;"><strong>Discharge (Stress Test Simulation):</strong>
                                             <div style="padding-left:8px; margin-top:2px; color:#cbd5e1; font-weight:400;">
-                                                • <strong>Amps:</strong> Up to 150% of rated current.<br>
-                                                • <strong>Watts:</strong> Includes 150% Overpower capability. Scaled to Max Voltage (4.2V/cell) for peak burst simulation.
+                                                • <strong>Scale:</strong> The slider represents equivalent current, so switching Amps/Watts preserves the same current and C-rate.<br>
+                                                • <strong>Amps:</strong> Up to 150% of rated discharge current.<br>
+                                                • <strong>Watts:</strong> The selected power stays constant as SoC falls; runtime ends at the first current limit, LVC, or power limit.
                                             </div>
                                         </li>
-                                        <li><strong>Charge:</strong> Up to 5C (Ultra Fast Charge).</li>
+                                        <li><strong>Charge:</strong> Limited by the separate per-cell Max Charge value.</li>
                                     </ul>
                                 </div>
                             </span>
@@ -1019,10 +1107,11 @@
                     </div>
                     
                     <div class="res-row" id="row-status">
-                        <span id="status-text" style="color:#d32f2f; font-weight:800; font-size:0.7rem; display:none;">⚠️ CUTOFF</span>
+                        <span id="status-text" aria-live="polite"></span>
                     </div>
                 </div>
-            </div>      
+            </div>
+            <div class="sim-model-note"><strong>First-order estimate:</strong> resistance, heat, efficiency and runtime are comparative calculations—not a thermal model, BMS design, fuse calculation, certification result, or substitute for verified datasheets and engineering review.</div>
         </div>
 		
 		<details>
@@ -1045,9 +1134,9 @@
             </p>
             <ul style="font-size:0.7rem; color:#64748b; padding-left:16px; margin:0 0 10px 0; line-height:1.4;">
                 <li><strong>3D Visualization:</strong> Auto-generates spot-welding strips & hex layouts.</li>
-                <li><strong>Physics Engine:</strong> Simulates Voltage Sag, Joule Heating, and Efficiency losses.</li>
-                <li><strong>Dynamic Runtime:</strong> Estimates runtime based on Constant Power/Current loads and SoC.</li>
-                <li><strong>Chemistry Aware:</strong> Accurate curves for Li-ion, LiFePO4 (LFP), and LTO.</li>
+                <li><strong>Electrical Estimate:</strong> First-order voltage sag, Joule heating, and efficiency calculations.</li>
+                <li><strong>Dynamic Runtime:</strong> Numerically estimates runtime across changing SoC for constant-power or constant-current loads.</li>
+                <li><strong>Chemistry Aware:</strong> Approximate, chemistry-specific open-circuit-voltage curves for comparison.</li>
             </ul>
             <div style="font-size:0.65rem; color:#cbd5e1; margin-top:8px;">
                 Licensed under GPL v3
@@ -1099,6 +1188,8 @@
     <div id="watermark" class="overlay-text">Designed by Luke Formosa</div>
     <div id="controls-hint" class="overlay-text"><span>🖱️ Left: Rotate</span><span>🖱️ Right: Pan</span><span>🖱️ Scroll: Zoom</span></div>
     <div id="perf-toast"><span>⚡ High Performance Mode Active</span><span style="font-weight:400;">(Labels hidden to save FPS)</span></div>
+    <div id="validation-toast" role="status" aria-live="polite"></div>
+    <div id="fatal-error" role="alert"><strong>Battery Pack Architect could not start.</strong><br>The 3D libraries may have been blocked or WebGL may be unavailable. Check your connection, content blockers and browser WebGL support, then reload the page.</div>
 </div>
 
 <div id="modal-overlay" class="modal-base-overlay"><div id="comp-modal"><div class="modal-header"><h3 style="margin:0; color:#1e293b;">Comparison Matrix</h3><button onclick="document.getElementById('modal-overlay').style.display='none'" style="border:none; background:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button></div><div class="modal-body"><table class="comp-table"><thead><tr id="comp-head-row"><th>Parameter</th></tr></thead><tbody id="comp-body"></tbody></table></div></div></div>
@@ -1106,11 +1197,11 @@
 <div id="disclaimer-overlay" class="modal-base-overlay"><div id="disclaimer-box"><div class="disc-header"><span style="font-size:1.5rem">⚠️</span><span>IMPORTANT SAFETY & LEGAL DISCLAIMER</span></div><div class="disc-content">
             <p><strong>PLEASE READ CAREFULLY BEFORE USING THIS SOFTWARE.</strong></p>
             
-            <p><strong>1. "AS IS" / GPL / NON-COMMERCIAL USE</strong><br>
+            <p><strong>1. "AS IS" / GPL LICENCE</strong><br>
             This software ("Battery Pack Architect") is a <strong>visualization aid</strong> for hobbyists. It is <strong>NOT</strong> professional engineering software and does not perform certification-level calculations for thermal dissipation, current path resistance, fuse ratings, or similar safety-critical parameters.<br>
             The software is provided <strong>"AS IS", without warranty of any kind</strong>, express or implied. It is licensed under the <strong>GNU General Public License v3.0</strong>.<br>
             <em style="display:block; margin-top:6px; color:#475569;">
-            The software is provided free of charge. Any voluntary donations or support (e.g., via "Buy Me a Coffee") do not constitute a commercial transaction, sale, or business activity, and do not alter the non-commercial, hobbyist nature of this project.</em></p>
+            The tool is intended as a hobbyist visualisation aid. GPLv3 permits use, modification and redistribution subject to its licence terms; the safety limitations above apply regardless of how the software is used.</em></p>
             
             <p><strong>2. NOT PROFESSIONAL ADVICE</strong><br>
             Designs visualized here do not constitute professional engineering or electrical advice. You agree that you will not rely solely on this software for the construction of high-energy devices. <strong>Always</strong> have your designs reviewed by a qualified electrical engineer or other appropriately certified professional before construction.</p>
@@ -1166,7 +1257,7 @@
 <div id="rfq-overlay" class="modal-base-overlay"><div id="rfq-box">
     <div class="modal-header"><h3 style="margin:0; color:#1e293b;">🏭 Request Manufacturing Quote</h3><button id="rfq-close" style="border:none; background:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button></div>
     <div class="modal-body" id="rfq-body">
-        <div class="rfq-intro">Get a manufacturing quote for <b id="rfq-pack-label">your pack</b>. A PDF spec sheet (with an embedded 3D snapshot) and your BPA design file are attached automatically.<br><span style="color:#94a3b8; font-size:0.68rem;">Tip: the verification code can land in spam.</span></div>
+        <div class="rfq-intro">Get a manufacturing quote for <b id="rfq-pack-label">your pack</b>. A PDF spec sheet (with an embedded 3D snapshot) and your BPA design file are attached automatically.<br><b>Minimum order quantity: 10 packs.</b><br><span style="color:#94a3b8; font-size:0.68rem;">Tip: the verification code can land in spam.</span></div>
         <label>Manufacturing Region</label>
         <select id="rfq-region"></select>
         <div id="rfq-partner-card"></div>
@@ -1174,6 +1265,7 @@
             <div><label>Your Name *</label><input type="text" id="rfq-name" autocomplete="name" maxlength="120"></div>
             <div><label>Your Company Name<span style="font-weight:400; color:#94a3b8; margin-left:6px;">(optional)</span></label><input type="text" id="rfq-company" autocomplete="organization" maxlength="120" placeholder="Individual builder"></div>
             <div><label>Your Email *</label><input type="text" id="rfq-email" inputmode="email" autocomplete="email" maxlength="160"></div>
+            <div><label>Quantity (packs) * <span style="font-weight:400; color:#94a3b8; margin-left:6px;">(minimum 10)</span></label><input type="number" id="rfq-quantity" min="10" step="1" value="10" inputmode="numeric"></div>
             <div><label>Phone Number *</label>
 				<div style="display:flex; gap:4px; position:relative;">
 					<button type="button" id="rfq-cc-btn" style="flex:0 0 90px; height:25px; padding:0 6px; background:#fff; border:1px solid #cbd5e1; border-radius:4px; font-size:0.8rem; display:flex; align-items:center; gap:5px; cursor:pointer; color:#1e293b;">
@@ -1185,7 +1277,7 @@
 				</div>
         </div>
         <label>Note for Supplier *</label>
-        <textarea id="rfq-note" rows="4" maxlength="5000" placeholder="Region, quantity needed, target price, timeline, application, enclosure / BMS requirements..."></textarea>
+        <textarea id="rfq-note" rows="4" maxlength="5000" placeholder="Target price, timeline, application, enclosure / BMS requirements..."></textarea>
         <input type="text" id="rfq-website" tabindex="-1" autocomplete="off" style="position:absolute; left:-5000px; width:1px; height:1px;" aria-hidden="true">
         <div id="rfq-verify-row">
             <button id="rfq-send-code" class="btn-action btn-add">Send verification code</button>
@@ -1195,7 +1287,7 @@
         </div>
         <div id="rfq-status"></div>
         <button id="rfq-submit" disabled>Send RFQ</button>
-        <div class="rfq-smallprint">Your request goes to the selected manufacturer with a copy to Battery Pack Architect for quality tracking. The manufacturer replies directly to your email. Verification codes expire after 10 minutes.</div>
+        <div class="rfq-smallprint">By sending, you submit your contact details, note, design JSON, 3D snapshot and generated PDF to the selected manufacturer, with a copy to Battery Pack Architect for delivery and quality tracking. The manufacturer replies directly to your email. Do not include unnecessary personal or confidential information. Verification codes expire after 10 minutes.</div>
     </div>
 </div></div>
 <div id="export-overlay" class="modal-base-overlay">
@@ -1204,7 +1296,7 @@
             <h3 style="margin:0; color:#1e293b;">Export 3D Model (STL)</h3>
             <button onclick="document.getElementById('export-overlay').style.display='none'" style="border:none; background:none; font-size:1.5rem; cursor:pointer;">&times;</button>
         </div>
-        <p style="font-size:0.8rem; color:#64748b; margin-top:0;">Select parts to include in the STL file:</p>
+        <p style="font-size:0.8rem; color:#64748b; margin-top:0;">Select parts to include. This is a <strong>visual-reference STL</strong>: components are separate overlapping shells and are not automatically converted into a watertight printable assembly.</p>
         
         <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
             <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
@@ -1225,6 +1317,15 @@
     </div>
 </div>
 
+<script>
+    window.__bpaReady = false;
+    window.__bpaStartupTimer = setTimeout(function () {
+        if (!window.__bpaReady) {
+            var box = document.getElementById('fatal-error');
+            if (box) box.style.display = 'block';
+        }
+    }, 12000);
+</script>
 <script type="module">
     import * as THREE from 'three';
     import { STLExporter } from 'three/addons/exporters/STLExporter.js';
@@ -1414,7 +1515,13 @@
             matches.slice(0, 10).forEach(cell => {
                 const div = document.createElement('div');
                 div.className = 'db-item';
-                div.innerHTML = `<div class="db-name">${cell.name}</div><div class="db-meta">${cell.cap}mAh | ${cell.amp}A</div>`;
+                const nameEl = document.createElement('div');
+                nameEl.className = 'db-name';
+                nameEl.textContent = cell.name;
+                const metaEl = document.createElement('div');
+                metaEl.className = 'db-meta';
+                metaEl.textContent = `${cell.cap}mAh | ${cell.amp}A discharge`;
+                div.append(nameEl, metaEl);
                 div.addEventListener('click', () => {
                     applyCellData(cell);
                     searchResults.style.display = 'none';
@@ -1450,6 +1557,7 @@
 
         inputs['c-mah'].value = data.cap;
         inputs['c-amp'].value = data.amp;
+        inputs['c-charge-amp'].value = data.charge || conservativeChargeCurrent(data);
         document.getElementById('sim-cell-ir').value = data.ir || 25;
         
         const sel = document.getElementById('preset-selector');
@@ -1510,7 +1618,7 @@
     labelRenderer.domElement.style.pointerEvents = 'none';
     container.appendChild(labelRenderer.domElement);
     const controls = new OrbitControls(camera, renderer.domElement);
-	controls.addEventListener('change', () => { needsOcclusionUpdate = true; });
+	controls.addEventListener('change', () => { needsOcclusionUpdate = true; requestRender(); });
     controls.enableDamping = true;
     const raycaster = new THREE.Raycaster();
     const occluders = [];
@@ -1834,7 +1942,7 @@
 
         setCellCostBaseEUR(baseCostEUR, hidden.value);
         syncCurrencyButton();
-        updatePack();
+        updateStatsAndSimulationOnly();
     }
 
     function initCurrencySelector() {
@@ -1852,7 +1960,7 @@
             setCellCostBaseEUR(initialBaseCostEUR, hidden.value);
             costInput.addEventListener('blur', () => {
                 setCellCostBaseEUR(currentCellCostBaseEUR(), hidden.value);
-                updatePack();
+                updateStatsAndSimulationOnly();
             });
         }
 
@@ -1940,11 +2048,11 @@
  
 	// --- INPUTS MANAGEMENT ---
 	const inputIds = [
-        'c-diam','c-len','c-volts','c-mah','c-amp','c-min-v','c-max-v','c-weight', 'c-cost', 'pricing-currency',
-        's-count','p-count','c-spacing','hex-mode','pack-layers', 'layer-spacing', 
-        'exploded-view', 'pack-name', 'calc-ladder',
-        'sim-cell-ir', 'sim-strip-mat', 'sim-strip-w', 'sim-strip-t', 'sim-load-slider',
-        'col-cell', 'col-bg', 'met-cell', 'col-cap', 'col-spacer', 'col-bus', 'col-inter', 'met-inter', 'met-cap', 'met-bus', 'met-spacer'
+        'c-diam','c-len','c-volts','c-mah','c-amp','c-charge-amp','c-min-v','c-max-v','c-weight','c-cost','pricing-currency',
+        's-count','p-count','c-spacing','hex-mode','pack-layers','layer-spacing','exploded-view','pack-name','calc-ladder','bus-mode',
+        'sim-cell-ir','sim-strip-mat','sim-strip-w','sim-strip-t','sim-load-slider','sim-load-input','sim-soc','sim-cell-volt-input',
+        'sim-mode-val','sim-load-type','sys-cutoff','sys-cutoff-pack',
+        'col-cell','col-bg','met-cell','col-cap','col-spacer','col-bus','col-inter','met-inter','met-cap','met-bus','met-spacer'
     ];
 
     // Lazy-Load Proxy: Always gets the fresh element from the DOM
@@ -1971,6 +2079,12 @@
         { name: "32700 [⌀32.4 x 70.0mm]", group: "Specialist Lithium", data: { d:32.4, l:70.0, w:145, cost:'€12.00', cap:6000, amp:20, type:'lfp', ir:8 } },
         { name: "4680 [⌀46.0 x 80.0mm]", group: "Specialist Lithium", data: { d:46.0, l:80.0, w:350, cost:'€20.00', cap:9000, amp:50, type:'li-ion', ir:8 } }
     ];
+    function conservativeChargeCurrent(data) {
+        const capacityAh = Math.max(0.05, Number(data && (data.cap || data.mah)) / 1000 || 1);
+        const dischargeA = Math.max(0.05, Number(data && data.amp) || capacityAh);
+        return Math.min(dischargeA, capacityAh * 0.5); // 0.5C placeholder until verified from a datasheet
+    }
+
     const DEFAULT_CHEM_PRESETS = [
         { name: "Li-ion", group: "Standard", id:'li-ion', data: { nom:3.6, min:2.5, max:4.2 } },
         { name: "LiFePO4", group: "Standard", id:'lfp', data: { nom:3.2, min:2.5, max:3.65 } },
@@ -1980,8 +2094,18 @@
         { name: "Alkaline", group: "Standard", id:'alk', data: { nom:1.5, min:0.9, max:1.6 } },
         { name: "LiPo (HV)", group: "Hobby", id:'lipo', data: { nom:3.8, min:3.0, max:4.35 } } // NEW
     ];
-    let userSizePresets = JSON.parse(localStorage.getItem('batt_vis_presets_size_v40') || '[]');
-    let userChemPresets = JSON.parse(localStorage.getItem('batt_vis_presets_chem_v40') || '[]');
+    function safeStorageArray(key) {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+            return Array.isArray(parsed) ? parsed.slice(0, 200) : [];
+        } catch (error) {
+            console.warn(`Ignoring corrupted local storage entry: ${key}`, error);
+            try { localStorage.removeItem(key); } catch (_) {}
+            return [];
+        }
+    }
+    let userSizePresets = safeStorageArray('batt_vis_presets_size_v40');
+    let userChemPresets = safeStorageArray('batt_vis_presets_chem_v40');
 
     function populatePresets() {
         const selSize = document.getElementById('preset-selector');
@@ -2060,6 +2184,7 @@
         inputs['c-weight'].value = d.w; setCellCostBaseEUR(parseCostInput(d.cost));
         if(d.cap) inputs['c-mah'].value = d.cap; 
         if(d.amp) inputs['c-amp'].value = d.amp;
+        inputs['c-charge-amp'].value = d.charge || conservativeChargeCurrent(d);
         document.getElementById('sim-cell-ir').value = d.ir || 25; 
         if(d.type) {
              const chemSel = document.getElementById('chem-selector');
@@ -2082,6 +2207,7 @@
                 cost: currentCellCostBaseEUR().toFixed(2),
                 cap: parseFloat(inputs['c-mah'].value),
                 amp: parseFloat(inputs['c-amp'].value),
+                charge: parseFloat(inputs['c-charge-amp'].value),
                 ir: parseFloat(inputs['sim-cell-ir'].value)
             };
             userSizePresets.push({ name: name, data: newData });
@@ -2145,7 +2271,7 @@
 
 // --- SMART POKA-YOKE & AUTO-DETECT LOGIC ---
 
-    const identityFields = ['c-diam', 'c-len', 'c-mah', 'c-amp', 'c-volts', 'c-weight', 'c-cost'];
+    const identityFields = ['c-diam', 'c-len', 'c-mah', 'c-amp', 'c-charge-amp', 'c-volts', 'c-weight', 'c-cost'];
 
     function attemptReverseLookup() {
         const current = {
@@ -2153,6 +2279,7 @@
             l: parseFloat(inputs['c-len'].value),
             cap: parseFloat(inputs['c-mah'].value),
             amp: parseFloat(inputs['c-amp'].value),
+            charge: parseFloat(inputs['c-charge-amp'].value),
             v: parseFloat(inputs['c-volts'].value),
             w: parseFloat(inputs['c-weight'].value),
             cost: currentCellCostBaseEUR().toFixed(2),
@@ -2174,6 +2301,7 @@
 						Math.abs(p.l - current.l) < 0.5 &&
 						Math.abs(p.cap - current.cap) < 1 &&
 						Math.abs(p.amp - current.amp) < 0.1 &&
+						Math.abs((p.charge || conservativeChargeCurrent(p)) - current.charge) < 0.1 &&
 						Math.abs(p.w - current.w) < 0.1 &&
 						p.cost === current.cost) {
 						
@@ -2197,6 +2325,7 @@
             Math.abs(c.l - current.l) < 0.5 &&
             Math.abs(c.cap - current.cap) < 1 &&
             Math.abs(c.amp - current.amp) < 0.1 &&
+            Math.abs(conservativeChargeCurrent(c) - current.charge) < 0.1 &&
             Math.abs(c.v - current.v) < 0.1 &&
             (c.w ? Math.abs(c.w - current.w) < 0.5 : true)
         );
@@ -2269,7 +2398,7 @@
         if(el && valEl) {
             el.addEventListener('input', () => {
                 valEl.innerText = Math.round(el.value * 100) + "%";
-                updatePack();
+                updateMaterialsOnly();
             });
         }
     });
@@ -2307,311 +2436,606 @@
         }
     });
 
-    // --- ADVANCED VOLTAGE CURVES ---
-    function getOpenCircuitVoltage(soc, min, max, nom) {
-        const range = max - min;
-        
-        // 1. AUTO-DETECT CHEMISTRY
-        // based on the Nominal Voltage setting
-        let chem = 'li-ion';
-        if (nom >= 3.15 && nom <= 3.45) chem = 'lfp';
-        else if (nom >= 2.0 && nom <= 2.8) chem = 'lto';
-        else if (nom >= 2.9 && nom <= 3.1) chem = 'na-ion';
+    // --- CENTRAL VALIDATION, SAFE STATE & ACCESSIBILITY ---
+    const BPA_LIMITS = Object.freeze({ maxCells: 5000, maxSeries: 500, maxParallel: 500, maxLayers: 100, maxSnapshots: 50 });
+    let validationToastTimer = null;
 
-        // 2. APPLY CURVE MATH
-        if (chem === 'lfp') {
-            // LFP PROFILE: 
-            // 100% -> 90%: Fast drop from Max (3.65) to Plateau (3.3)
-            // 90% -> 15%: Flat Plateau (3.3 -> 3.1)
-            // 15% -> 0%:  Cliff drop (3.1 -> 2.5)
-            
-            if (soc >= 0.9) {
-                // Top 10% (Surface charge burn-off)
-                const p = (soc - 0.9) / 0.1; 
-                const platTop = min + (range * 0.85); 
-                return platTop + (max - platTop) * p;
-            } else if (soc >= 0.15) {
-                // The Great Plateau (75% of capacity)
-                const p = (soc - 0.15) / 0.75;
-                const platBot = min + (range * 0.70); // ~3.15V for a 2.5-3.65 cell
-                const platTop = min + (range * 0.85); // ~3.35V
-                return platBot + (platTop - platBot) * p;
-            } else {
-                // The Cliff (Bottom 15%)
-                const p = soc / 0.15;
-                const platBot = min + (range * 0.70);
-                return min + (platBot - min) * p;
-            }
-        } 
-        else if (chem === 'lto') {
-            // LTO PROFILE: Slightly more linear but lower voltage sag
-            // Simple slope for now, but safer than Li-ion defaults
-            return min + (range * Math.pow(soc, 0.9));
-        }
-        else {
-            // STANDARD LI-ION (NMC/NCA/Na-Ion)
-            // Mostly linear slope with a bit of curve at ends
-            return min + (range * soc); 
-        }
+    function finiteOr(value, fallback) {
+        const n = Number(value);
+        return Number.isFinite(n) ? n : fallback;
     }
 
-	function rescaleLoadSlider() {
-        const slider = document.getElementById('sim-load-slider');
-        const inputType = document.getElementById('sim-load-type'); 
-        const mode = document.getElementById('sim-mode-val').value;
-        const numInput = document.getElementById('sim-load-input');
-        
-        if(!slider) return;
-
-        slider.max = 1000; 
-
-        const S = parseInt(inputs['s-count'].value) || 1;
-        const P = parseInt(inputs['p-count'].value) || 1;
-        const cellAmp = parseFloat(inputs['c-amp'].value) || 20;
-        const cellMax = parseFloat(inputs['c-max-v'].value) || 4.2; // Using Max V for headroom
-        const cellMah = parseFloat(inputs['c-mah'].value) || 2500;
-
-        // Rate Limits
-        const dischargeMaxA = (P * cellAmp) * 1.5; // 150% Stress Factor
-        const packAh = (P * cellMah) / 1000;
-        const chargeMaxA = packAh * 5.0; 
-
-        let maxA = (mode === 'discharge') ? dischargeMaxA : chargeMaxA;
-
-        if(inputType && inputType.value === 'cc') {
-            simMaxVal = maxA;
-            document.getElementById('sim-input-unit').innerText = "A";
+    function setValidatedNumber(id, fallback, min, max, integer, warnings, label) {
+        const el = document.getElementById(id);
+        if (!el) return fallback;
+        const raw = String(el.value ?? '').trim();
+        let value = raw === '' ? fallback : finiteOr(raw, fallback);
+        const original = raw === '' ? NaN : value;
+        if (integer) value = Math.round(value);
+        value = Math.min(max, Math.max(min, value));
+        if (!Number.isFinite(Number(el.value)) || value !== original) {
+            el.value = integer ? String(value) : String(Number(value.toFixed(6)));
+            warnings.push(`${label || id} was corrected to ${el.value}.`);
+            el.classList.add('input-invalid');
         } else {
-            // Using MAX voltage (e.g. 4.2V) for the power limit. Ensures the slider can reach the peak potential power of a full pack.
-            const packVMax = S * cellMax; 
-            simMaxVal = maxA * packVMax;
-            document.getElementById('sim-input-unit').innerText = "W";
+            el.classList.remove('input-invalid');
+        }
+        return value;
+    }
+
+    function showValidationWarnings(warnings) {
+        const toast = document.getElementById('validation-toast');
+        if (!toast) return;
+        if (!warnings.length) {
+            toast.style.display = 'none';
+            toast.textContent = '';
+            return;
+        }
+        toast.textContent = warnings.slice(0, 4).join(' ') + (warnings.length > 4 ? ` ${warnings.length - 4} more corrections were applied.` : '');
+        toast.style.display = 'block';
+        clearTimeout(validationToastTimer);
+        validationToastTimer = setTimeout(() => { toast.style.display = 'none'; }, 7000);
+    }
+
+    function validateAndNormalizeInputs(options = {}) {
+        const warnings = [];
+        const d = setValidatedNumber('c-diam', 18.4, 1, 200, false, warnings, 'Cell diameter');
+        const l = setValidatedNumber('c-len', 65, 1, 500, false, warnings, 'Cell length');
+        const minV = setValidatedNumber('c-min-v', 2.5, 0.1, 9.8, false, warnings, 'Minimum voltage');
+        let nomV = setValidatedNumber('c-volts', 3.6, 0.1, 9.9, false, warnings, 'Nominal voltage');
+        let maxV = setValidatedNumber('c-max-v', 4.2, 0.1, 10, false, warnings, 'Maximum voltage');
+        if (nomV <= minV) {
+            nomV = Math.min(10, minV + 0.1);
+            inputs['c-volts'].value = nomV.toFixed(2);
+            warnings.push('Nominal voltage must be above minimum voltage.');
+        }
+        if (maxV <= nomV) {
+            maxV = Math.min(10, nomV + 0.1);
+            inputs['c-max-v'].value = maxV.toFixed(2);
+            warnings.push('Maximum voltage must be above nominal voltage.');
+        }
+        const capacity = setValidatedNumber('c-mah', 2500, 1, 1000000, false, warnings, 'Cell capacity');
+        const dischargeA = setValidatedNumber('c-amp', 20, 0.01, 5000, false, warnings, 'Maximum discharge current');
+        const chargeA = setValidatedNumber('c-charge-amp', Math.min(dischargeA, (capacity / 1000) * 0.5), 0.01, 5000, false, warnings, 'Maximum charge current');
+        const weight = setValidatedNumber('c-weight', 45, 0.01, 10000, false, warnings, 'Cell weight');
+        let S = setValidatedNumber('s-count', 10, 1, BPA_LIMITS.maxSeries, true, warnings, 'Series count');
+        let P = setValidatedNumber('p-count', 4, 1, BPA_LIMITS.maxParallel, true, warnings, 'Parallel count');
+        if (S * P > BPA_LIMITS.maxCells) {
+            P = Math.max(1, Math.floor(BPA_LIMITS.maxCells / S));
+            inputs['p-count'].value = String(P);
+            warnings.push(`Pack size was limited to ${BPA_LIMITS.maxCells.toLocaleString()} rendered cells.`);
+        }
+        let layers = setValidatedNumber('pack-layers', 1, 1, Math.min(BPA_LIMITS.maxLayers, S), true, warnings, 'Layer count');
+        if (layers > S) {
+            layers = S;
+            inputs['pack-layers'].value = String(layers);
+            warnings.push('Layer count cannot exceed series count.');
+        }
+        const spacing = setValidatedNumber('c-spacing', 1, 0, 100, false, warnings, 'Cell spacing');
+        const layerSpacing = setValidatedNumber('layer-spacing', 3, 0, 500, false, warnings, 'Layer spacing');
+        const ir = setValidatedNumber('sim-cell-ir', 25, 0.01, 10000, false, warnings, 'Cell internal resistance');
+        const stripW = setValidatedNumber('sim-strip-w', Math.max(1, d * 0.4), 0.01, 500, false, warnings, 'Strip width');
+        const stripT = setValidatedNumber('sim-strip-t', 0.15, 0.001, 50, false, warnings, 'Strip thickness');
+        const soc = setValidatedNumber('sim-soc', 100, 0, 100, false, warnings, 'State of charge');
+        const cutoff = setValidatedNumber('sys-cutoff', Math.max(minV, 3), minV, maxV, false, warnings, 'Cell cutoff voltage');
+        const load = setValidatedNumber('sim-load-input', 0, 0, 1e9, false, warnings, 'Simulation load');
+        const name = document.getElementById('pack-name');
+        if (name && name.value.length > 160) {
+            name.value = name.value.slice(0, 160);
+            warnings.push('Configuration name was shortened to 160 characters.');
+        }
+        if (!options.silent) showValidationWarnings(warnings);
+        return { d, l, minV, nomV, maxV, capacity, dischargeA, chargeA, weight, S, P, layers, spacing, layerSpacing, ir, stripW, stripT, soc, cutoff, load, warnings };
+    }
+
+    function sanitizePlainObject(value) {
+        return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+    }
+
+    function sanitizeImportedState(raw) {
+        raw = sanitizePlainObject(raw);
+        if (!['bpa-v1', 'bpa-v2'].includes(raw.version)) throw new Error('Incompatible configuration version.');
+        const clean = { version: 'bpa-v2', inputs: {}, userSizePresets: [], userChemPresets: [], snapshots: [] };
+        const incomingInputs = sanitizePlainObject(raw.inputs);
+        inputIds.forEach(id => {
+            if (!Object.prototype.hasOwnProperty.call(incomingInputs, id)) return;
+            const value = incomingInputs[id];
+            clean.inputs[id] = typeof value === 'boolean' ? value : String(value).slice(0, 500);
+        });
+        ['saved_db_name', 'saved_custom_preset_name'].forEach(key => {
+            if (Object.prototype.hasOwnProperty.call(incomingInputs, key)) clean.inputs[key] = String(incomingInputs[key]).slice(0, 200);
+        });
+        const sanitisePresets = arr => Array.isArray(arr) ? arr.slice(0, 200).filter(p => p && typeof p === 'object').map(p => ({
+            name: String(p.name || 'Preset').slice(0, 120),
+            group: p.group == null ? undefined : String(p.group).slice(0, 80),
+            id: p.id == null ? undefined : String(p.id).slice(0, 40),
+            data: sanitizePlainObject(p.data)
+        })) : [];
+        clean.userSizePresets = sanitisePresets(raw.userSizePresets);
+        clean.userChemPresets = sanitisePresets(raw.userChemPresets);
+        if (Array.isArray(raw.snapshots)) {
+            clean.snapshots = raw.snapshots.slice(0, BPA_LIMITS.maxSnapshots).map((snap, index) => {
+                const safeSnap = sanitizePlainObject(snap);
+                const safeInputs = {};
+                const rawInputs = sanitizePlainObject(safeSnap.inputs);
+                inputIds.forEach(id => {
+                    if (Object.prototype.hasOwnProperty.call(rawInputs, id)) safeInputs[id] = typeof rawInputs[id] === 'boolean' ? rawInputs[id] : String(rawInputs[id]).slice(0, 500);
+                });
+                const rawData = sanitizePlainObject(safeSnap.data);
+                const safeData = {};
+                Object.entries(rawData).slice(0, 80).forEach(([key, value]) => {
+                    if (typeof value === 'number' && Number.isFinite(value)) safeData[key] = value;
+                    else if (typeof value === 'string') safeData[key] = value.slice(0, 200);
+                });
+                return { inputs: safeInputs, data: safeData, id: Date.now() + index };
+            }).filter(snapshot => {
+                const required = ['s','p','l','cells','v','ah','wh','w','d','h','vol','kg','cost','kw','amp','vmin','vmax','nickel'];
+                return required.every(key => Number.isFinite(snapshot.data[key]));
+            });
+        }
+        return clean;
+    }
+
+    function syncSimulationToggleUI() {
+        [['toggle-load-type', 'sim-load-type'], ['toggle-sim-mode', 'sim-mode-val']].forEach(([groupId, inputId]) => {
+            const group = document.getElementById(groupId);
+            const input = document.getElementById(inputId);
+            if (!group || !input) return;
+            group.querySelectorAll('.it-opt').forEach(option => {
+                const active = option.dataset.val === input.value;
+                option.classList.toggle('active', active);
+                option.setAttribute('aria-checked', String(active));
+                option.tabIndex = active ? 0 : -1;
+            });
+        });
+    }
+
+    function enhanceAccessibility() {
+        document.querySelectorAll('.help-icon, .tooltip-wrap').forEach(el => {
+            if (!el.hasAttribute('tabindex')) el.tabIndex = 0;
+            if (!el.hasAttribute('aria-label')) el.setAttribute('aria-label', 'Help');
+        });
+        document.querySelectorAll('.control-item').forEach(item => {
+            const label = item.querySelector(':scope > label');
+            const control = item.querySelector(':scope > input, :scope > select, :scope > div input, :scope > div select');
+            if (label && control && control.id && !label.htmlFor) label.htmlFor = control.id;
+        });
+        const namedButtons = {
+            'btn-file-menu':'Open file and project menu', 'btn-reset':'Reset application', 'rfq-close':'Close quote request',
+            'btn-save-preset-size':'Save cell preset', 'btn-del-preset-size':'Delete cell preset',
+            'btn-save-preset-chem':'Save chemistry preset', 'btn-del-preset-chem':'Delete chemistry preset'
+        };
+        Object.entries(namedButtons).forEach(([id, label]) => { const el = document.getElementById(id); if (el) el.setAttribute('aria-label', label); });
+        document.querySelectorAll('.inline-toggle').forEach(group => {
+            group.setAttribute('role', 'radiogroup');
+            group.querySelectorAll('.it-opt').forEach(option => {
+                option.setAttribute('role', 'radio');
+                option.addEventListener('keydown', event => {
+                    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); option.click(); }
+                    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                        event.preventDefault();
+                        const options = [...group.querySelectorAll('.it-opt')];
+                        const i = options.indexOf(option);
+                        options[(i + (event.key === 'ArrowRight' ? 1 : -1) + options.length) % options.length].click();
+                    }
+                });
+            });
+        });
+        document.querySelectorAll('.modal-base-overlay').forEach(overlay => {
+            overlay.setAttribute('role', 'dialog');
+            overlay.setAttribute('aria-modal', 'true');
+        });
+        syncSimulationToggleUI();
+    }
+
+    function closeTopModal() {
+        const visible = [...document.querySelectorAll('.modal-base-overlay')].filter(el => getComputedStyle(el).display !== 'none');
+        const top = visible.at(-1);
+        if (top && top.id !== 'disclaimer-overlay') top.style.display = 'none';
+    }
+
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') closeTopModal();
+        if (event.key !== 'Tab') return;
+        const visible = [...document.querySelectorAll('.modal-base-overlay')].filter(el => getComputedStyle(el).display !== 'none').at(-1);
+        if (!visible) return;
+        const focusables = [...visible.querySelectorAll('button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])')].filter(el => el.offsetParent !== null);
+        if (!focusables.length) return;
+        const first = focusables[0], last = focusables.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    });
+
+    // --- APPROXIMATE CHEMISTRY-SPECIFIC VOLTAGE CURVES ---
+    function selectedChemistryId(nom) {
+        const selector = document.getElementById('chem-selector');
+        const selected = selector && selector.selectedOptions ? selector.selectedOptions[0] : null;
+        if (selected && selected.dataset.id) return selected.dataset.id;
+        if (nom >= 3.65) return 'lipo';
+        if (nom >= 3.15 && nom <= 3.45) return 'lfp';
+        if (nom >= 2.0 && nom <= 2.8) return 'lto';
+        if (nom >= 2.85 && nom <= 3.15) return 'na-ion';
+        if (nom >= 1.05 && nom <= 1.35) return 'nimh';
+        if (nom < 1.8) return 'alk';
+        return 'li-ion';
+    }
+
+    function interpolateCurve(soc, points) {
+        soc = Math.min(1, Math.max(0, soc));
+        for (let i = 1; i < points.length; i++) {
+            if (soc <= points[i][0]) {
+                const [x0, y0] = points[i - 1];
+                const [x1, y1] = points[i];
+                const t = (soc - x0) / Math.max(1e-9, x1 - x0);
+                return y0 + (y1 - y0) * t;
+            }
+        }
+        return points.at(-1)[1];
+    }
+
+    function getOpenCircuitVoltage(soc, min, max, nom) {
+        const curves = {
+            'li-ion': [[0,0],[.04,.07],[.1,.17],[.2,.30],[.4,.47],[.6,.62],[.8,.76],[.9,.85],[1,1]],
+            'lipo':    [[0,0],[.05,.10],[.15,.23],[.35,.43],[.6,.63],[.82,.78],[.93,.88],[1,1]],
+            'lfp':     [[0,0],[.05,.35],[.15,.70],[.45,.76],[.75,.81],[.9,.85],[.97,.91],[1,1]],
+            'lto':     [[0,0],[.08,.30],[.2,.52],[.5,.67],[.8,.80],[.95,.90],[1,1]],
+            'na-ion':  [[0,0],[.08,.12],[.2,.27],[.4,.46],[.6,.63],[.8,.79],[.93,.90],[1,1]],
+            'nimh':    [[0,0],[.08,.18],[.2,.42],[.5,.58],[.8,.70],[.95,.82],[1,1]],
+            'alk':     [[0,0],[.1,.18],[.3,.38],[.5,.55],[.7,.70],[.9,.86],[1,1]]
+        };
+        const chem = selectedChemistryId(nom);
+        const normalised = interpolateCurve(soc, curves[chem] || curves['li-ion']);
+        return min + (max - min) * normalised;
+    }
+
+    function getSimulationResistance(state) {
+        const rho = Math.max(1e-12, finiteOr(inputs['sim-strip-mat'].value, 7) * 1e-8);
+        const stripArea = (state.stripW / 1000) * (state.stripT / 1000);
+        const pitch = (state.d + state.spacing) / 1000;
+        const interLayerExtra = Math.max(0, state.layers - 1) * ((state.l + state.layerSpacing) / 1000);
+        const equivalentPath = Math.max(pitch, Math.max(0, state.S - state.layers) * pitch + interLayerExtra);
+        const rCellsTotal = (state.S * (state.ir / 1000)) / state.P;
+        const rStripsTotal = rho * equivalentPath / Math.max(1e-12, stripArea * state.P);
+        return {
+            rCellsTotal,
+            rStripsTotal,
+            R_total: Math.max(1e-12, rCellsTotal + rStripsTotal)
+        };
+    }
+
+    function getLoadControlContext(state = validateAndNormalizeInputs({ silent: true })) {
+        const mode = document.getElementById('sim-mode-val').value === 'charge' ? 'charge' : 'discharge';
+        const type = document.getElementById('sim-load-type').value === 'cp' ? 'cp' : 'cc';
+        const soc = Math.max(0, Math.min(1, finiteOr(document.getElementById('sim-soc').value, 100) / 100));
+        const maxA = mode === 'discharge' ? (state.P * state.dischargeA) * 1.5 : state.P * state.chargeA;
+        const { R_total } = getSimulationResistance(state);
+        const voc = state.S * getOpenCircuitVoltage(soc, state.minV, state.maxV, state.nomV);
+        return { state, mode, type, soc, maxA: Math.max(0, maxA), R_total, voc };
+    }
+
+    function currentToSelectedPower(current, context) {
+        const I = Math.max(0, current);
+        if (context.mode === 'discharge') return Math.max(0, I * (context.voc - I * context.R_total));
+        return Math.max(0, I * (context.voc + I * context.R_total));
+    }
+
+    function selectedPowerToCurrent(power, context) {
+        const Pwr = Math.max(0, power);
+        if (Pwr <= 0) return 0;
+        if (context.mode === 'discharge') {
+            const discriminant = context.voc * context.voc - 4 * context.R_total * Pwr;
+            if (discriminant < 0) return context.voc / (2 * context.R_total);
+            return (context.voc - Math.sqrt(discriminant)) / (2 * context.R_total);
+        }
+        return (-context.voc + Math.sqrt(context.voc * context.voc + 4 * context.R_total * Pwr)) / (2 * context.R_total);
+    }
+
+    function setLoadSliderFromEquivalentCurrent(current, context) {
+        const slider = document.getElementById('sim-load-slider');
+        if (!slider) return;
+        const ratio = context.maxA > 0 ? Math.sqrt(Math.max(0, current) / context.maxA) : 0;
+        slider.value = 1000 * Math.max(0, Math.min(1, ratio));
+    }
+
+    function formatLoadControlValue(value) {
+        const safe = Math.max(0, finiteOr(value, 0));
+        const decimals = safe < 10 ? 2 : safe < 100 ? 1 : 0;
+        return safe.toFixed(decimals);
+    }
+
+    function rescaleLoadSlider(options = {}) {
+        const slider = document.getElementById('sim-load-slider');
+        const numInput = document.getElementById('sim-load-input');
+        if (!slider || !numInput) return;
+
+        slider.max = 1000;
+        const context = getLoadControlContext();
+        const { state, mode, type, maxA, R_total } = context;
+
+        if (type === 'cc') {
+            simMaxVal = maxA;
+            document.getElementById('sim-input-unit').innerText = 'A';
+        } else {
+            if (mode === 'discharge') {
+                // Keep a stable global numeric ceiling based on a full pack. The slider itself is
+                // mapped to equivalent current at the selected SoC, which makes A/W switching exact.
+                const fullPackVoc = state.S * getOpenCircuitVoltage(1, state.minV, state.maxV, state.nomV);
+                const maxPowerCurrent = Math.min(maxA, fullPackVoc / (2 * R_total));
+                simMaxVal = Math.max(0, maxPowerCurrent * (fullPackVoc - maxPowerCurrent * R_total));
+            } else {
+                const minPackVoc = state.S * state.minV;
+                simMaxVal = Math.max(0, maxA * (minPackVoc + maxA * R_total));
+            }
+            document.getElementById('sim-input-unit').innerText = 'W';
         }
 
-        if(numInput) {
-            numInput.max = simMaxVal.toFixed(1);
-        }
+        simMaxVal = Math.max(0, simMaxVal);
+        numInput.max = simMaxVal.toFixed(1);
+
+        let value = Object.prototype.hasOwnProperty.call(options, 'value')
+            ? Math.max(0, finiteOr(options.value, 0))
+            : Math.max(0, finiteOr(numInput.value, 0));
+        value = Math.min(value, simMaxVal);
+        numInput.value = formatLoadControlValue(value);
+
+        const equivalentCurrent = type === 'cc' ? value : selectedPowerToCurrent(value, context);
+        setLoadSliderFromEquivalentCurrent(equivalentCurrent, context);
     }
 
     function updateSimulation(e) {
         const slider = document.getElementById('sim-load-slider');
         const numInput = document.getElementById('sim-load-input');
-        const cellVoltInput = document.getElementById('sim-cell-volt-input'); 
-        
-        // --- EXPONENTIAL SLIDER LOGIC ---
-        let val = 0;
+        const cellVoltInput = document.getElementById('sim-cell-volt-input');
+        const state = validateAndNormalizeInputs({ silent: true });
+        const context = getLoadControlContext(state);
+        const { mode, type, soc, maxA } = context;
 
-        if (e && e.target === numInput) {
-            val = parseFloat(numInput.value);
-            if(isNaN(val)) val = 0;
-            if(val > simMaxVal) val = simMaxVal;
-            const ratio = val / simMaxVal;
-            slider.value = 1000 * Math.sqrt(ratio);
-        } else {
-            const sliderPos = parseFloat(slider.value); 
-            const ratio = sliderPos / 1000;
-            val = simMaxVal * (ratio * ratio);
-            
-            let decimals = 1;
-            if(val < 10) decimals = 2;
-            else if(val >= 100) decimals = 0;
-
-            if(document.activeElement !== numInput) {
-                numInput.value = val.toFixed(decimals);
-            }
+        let val = Math.min(simMaxVal, Math.max(0, finiteOr(numInput.value, 0)));
+        if (e && e.target === slider) {
+            // The thumb always represents equivalent current/C-rate. In Watts mode that current
+            // is converted to terminal power at the currently selected SoC.
+            const ratio = Math.max(0, Math.min(1, finiteOr(slider.value, 0) / 1000));
+            const equivalentCurrent = maxA * ratio * ratio;
+            val = type === 'cc' ? equivalentCurrent : currentToSelectedPower(equivalentCurrent, context);
+            val = Math.min(simMaxVal, Math.max(0, val));
+            numInput.value = formatLoadControlValue(val);
+        } else if (e && e.target === numInput) {
+            numInput.value = formatLoadControlValue(val);
         }
-        
-        // Smart Arrows
-        let smartStep = 1.0;
-        if(val < 1) smartStep = 0.05;       
-        else if(val < 10) smartStep = 0.5; 
-        else if(val < 50) smartStep = 1.0;  
-        else smartStep = 5.0;               
-        numInput.step = smartStep;
-
-        // Gather Inputs
-        const mode = document.getElementById('sim-mode-val').value;
-        const type = document.getElementById('sim-load-type').value;
-        const soc = parseFloat(document.getElementById('sim-soc').value) / 100;
-        
-        const S = parseInt(inputs['s-count'].value);
-        const P = parseInt(inputs['p-count'].value);
-        const cellMin = parseFloat(inputs['c-min-v'].value);
-        const cellMax = parseFloat(inputs['c-max-v'].value);
-        const cellNom = parseFloat(inputs['c-volts'].value); 
-        const cellAh = parseFloat(inputs['c-mah'].value) / 1000;
-        const cellAmp = parseFloat(inputs['c-amp'].value);
-        
+        numInput.step = val < 1 ? 0.05 : val < 10 ? 0.5 : val < 50 ? 1 : 5;
+        const { S, P, minV: cellMin, maxV: cellMax, nomV: cellNom, capacity, dischargeA, chargeA, ir, stripW, stripT, d, spacing, layers, layerSpacing, l } = state;
+        const cellAh = capacity / 1000;
+        const packAh = P * cellAh;
         const cutoffEl = document.getElementById('sys-cutoff');
-        let cutoff = parseFloat(cutoffEl.value);
-        
-        if(cutoff < cellMin) { cutoff = cellMin; cutoffEl.value = cellMin.toFixed(2); }
-        if(e && e.target === cutoffEl && e.type === 'change') { cutoffEl.value = cutoff.toFixed(2); }
-        
+        const cutoff = Math.max(cellMin, Math.min(cellMax, finiteOr(cutoffEl.value, Math.max(cellMin, 3))));
+        cutoffEl.value = cutoff.toFixed(2);
+        document.getElementById('sys-cutoff-pack').value = (cutoff * S).toFixed(2);
+
         const rowLVC = document.getElementById('row-lvc-inputs');
         const rowUsable = document.getElementById('row-usable-cap');
-        if (mode === 'charge') {
-            rowLVC.classList.add('disabled');
-            rowUsable.classList.add('disabled');
-            document.getElementById('lbl-runtime').innerText = "Chg Time";
-        } else {
-            rowLVC.classList.remove('disabled');
-            rowUsable.classList.remove('disabled');
-            document.getElementById('lbl-runtime').innerText = "Runtime";
-        }
+        rowLVC.classList.toggle('disabled', mode === 'charge');
+        rowUsable.classList.toggle('disabled', mode === 'charge');
+        document.getElementById('lbl-runtime').innerText = mode === 'charge' ? 'Chg Time' : 'Runtime';
 
-        // Calculations
-        const irCell = parseFloat(inputs['sim-cell-ir'].value) / 1000; 
-        const rho = parseFloat(inputs['sim-strip-mat'].value) * 1e-8;
-        const wStrip = parseFloat(inputs['sim-strip-w'].value) / 1000; 
-        const tStrip = parseFloat(inputs['sim-strip-t'].value) / 1000; 
-        const d = parseFloat(inputs['c-diam'].value) / 1000;
-        const sp = parseFloat(inputs['c-spacing'].value) / 1000;
-        
-        const rCellsTotal = (S * irCell) / P;
-        const rStripsTotal = ((S * ((rho * (d+sp)) / (wStrip * tStrip))) / P) * 1.2; 
-        const R_total = rCellsTotal + rStripsTotal;
+        const { rCellsTotal, rStripsTotal, R_total } = getSimulationResistance(state);
 
-        const cellVoc = getOpenCircuitVoltage(soc, cellMin, cellMax, cellNom);
-        const packVoc = cellVoc * S;
-
-        if(document.activeElement !== cellVoltInput) {
-            cellVoltInput.value = cellVoc.toFixed(2);
-        }
-        
-        const socLbl = document.getElementById('val-soc');
-        socLbl.innerText = `${Math.round(soc*100)}% (${packVoc.toFixed(1)}V)`;
-        socLbl.style.color = `hsl(${soc*120}, 80%, 35%)`;
-        
-        let I = 0;
-        let isCollapse = false;
-
-        if (type === 'cp') {
-            const P_target = val; 
-            if (P_target > 0) {
-                if(mode === 'discharge') {
-                    const a = R_total; const b = -packVoc; const c = P_target;
-                    const disc = (b*b) - (4*a*c);
-                    if (disc < 0) { isCollapse = true; I = packVoc / (2*R_total); } 
-                    else { I = (-b - Math.sqrt(disc)) / (2*a); }
-                } else {
-                    I = P_target / packVoc; 
-                }
+        function currentAtSoc(testSoc) {
+            const voc = getOpenCircuitVoltage(testSoc, cellMin, cellMax, cellNom) * S;
+            if (val <= 0) return { I: 0, voc, collapse: false };
+            if (type === 'cc') return { I: val, voc, collapse: false };
+            if (mode === 'discharge') {
+                const disc = voc * voc - 4 * R_total * val;
+                if (disc < 0) return { I: voc / (2 * R_total), voc, collapse: true };
+                return { I: (voc - Math.sqrt(disc)) / (2 * R_total), voc, collapse: false };
             }
-        } else {
-            I = val; 
+            return { I: (-voc + Math.sqrt(voc * voc + 4 * R_total * val)) / (2 * R_total), voc, collapse: false };
         }
 
+        function terminalAtSoc(testSoc) {
+            const point = currentAtSoc(testSoc);
+            return { ...point, terminal: mode === 'discharge' ? point.voc - point.I * R_total : point.voc + point.I * R_total };
+        }
+
+        const cutoffPack = cutoff * S;
+        const dischargeCurrentLimit = P * dischargeA * 1.5;
+        const chargeCurrentLimit = P * chargeA;
+
+        function dischargeCapabilityAtSoc(testSoc) {
+            const voc = getOpenCircuitVoltage(testSoc, cellMin, cellMax, cellNom) * S;
+            const currentAtMaxPower = Math.max(0, voc / (2 * R_total));
+            const currentAtLvc = Math.max(0, (voc - cutoffPack) / R_total);
+            const candidates = [
+                { reason: 'current', amps: dischargeCurrentLimit },
+                { reason: 'lvc', amps: currentAtLvc },
+                { reason: 'collapse', amps: currentAtMaxPower }
+            ];
+            candidates.sort((a, b) => a.amps - b.amps);
+            const limiting = candidates[0];
+            return {
+                voc,
+                allowedI: Math.max(0, limiting.amps),
+                reason: limiting.reason,
+                availablePower: Math.max(0, limiting.amps * (voc - limiting.amps * R_total))
+            };
+        }
+
+        function evaluateDischargeAtSoc(testSoc) {
+            const requested = terminalAtSoc(testSoc);
+            const capability = dischargeCapabilityAtSoc(testSoc);
+            const requestedI = type === 'cc' ? val : (requested.collapse ? Infinity : requested.I);
+            const valid = !requested.collapse && requestedI <= capability.allowedI + 1e-7;
+            return { ...requested, ...capability, requestedI, valid, limitReason: valid ? '' : capability.reason };
+        }
+
+        const requestedOperating = terminalAtSoc(soc);
+        if (!(e && e.target === slider)) {
+            const sliderCurrent = type === 'cc' ? val : requestedOperating.I;
+            setLoadSliderFromEquivalentCurrent(sliderCurrent, context);
+        }
+        const dischargeEvaluation = mode === 'discharge' ? evaluateDischargeAtSoc(soc) : null;
+        const operatingLimited = mode === 'discharge' && !dischargeEvaluation.valid;
+
+        // Once the requested constant-power point is outside the pack's valid envelope, display
+        // the constrained available operating point rather than the impossible requested current.
+        const I = Math.max(0, operatingLimited ? dischargeEvaluation.allowedI : requestedOperating.I);
+        const packVoc = requestedOperating.voc;
         const vDrop = I * R_total;
-        let vNet = (mode === 'discharge') ? (packVoc - vDrop) : (packVoc + vDrop);
-        if(vNet < 0) vNet = 0;
+        let vNet = mode === 'discharge' ? Math.max(0, packVoc - vDrop) : Math.max(0, packVoc + vDrop);
+        if (mode === 'discharge' && operatingLimited && I <= 1e-9) vNet = 0;
+        const cellVoc = packVoc / S;
+        if (document.activeElement !== cellVoltInput) cellVoltInput.value = cellVoc.toFixed(2);
+        const socLbl = document.getElementById('val-soc');
+        socLbl.innerText = `${Math.round(soc * 100)}% (${packVoc.toFixed(1)}V)`;
+        socLbl.style.color = `hsl(${soc * 120}, 80%, 35%)`;
 
-        const heatCells = (I * I) * rCellsTotal;
-        const heatStrips = (I * I) * rStripsTotal;
+        const heatCells = I * I * rCellsTotal;
+        const heatStrips = I * I * rStripsTotal;
         const heatTotal = heatCells + heatStrips;
-
-        let pUseful = 0; let pTotal = 0;
-        if (mode === 'discharge') { pUseful = vNet * I; pTotal = packVoc * I; } 
-        else { pTotal = vNet * I; pUseful = packVoc * I; }
-        
-        const eff = (pTotal > 0) ? (pUseful / pTotal) * 100 : 100;
-
-        // Save State for Mode Switching ---
+        const pUseful = mode === 'discharge' ? vNet * I : packVoc * I;
+        const pTotal = mode === 'discharge' ? packVoc * I : vNet * I;
+        const eff = pTotal > 0 ? pUseful / pTotal * 100 : 100;
         lastSimAmps = I;
-        lastSimWatts = (mode === 'discharge') ? pUseful : pTotal;
+        lastSimWatts = mode === 'discharge' ? pUseful : pTotal;
 
-        const fmtPwr = (v) => (v >= 1000) ? `${(v/1000).toFixed(2)} kW` : `${Math.round(v)} W`;
-        const fmtHeat = (v) => {
-            if(v >= 100) return `${Math.round(v)} W`;
-            if(v >= 10) return `${v.toFixed(1)} W`;
-            return `${v.toFixed(2)} W`;
-        };
-
-        if(mode === 'discharge') {
-            document.getElementById('lbl-sim-sag').childNodes[0].nodeValue = "Sag ";
-            document.getElementById('out-sim-sag').innerText = `-${vDrop.toFixed(2)} V`;
-            document.getElementById('lbl-sim-net').innerText = "Net Output";
-        } else {
-            document.getElementById('lbl-sim-sag').childNodes[0].nodeValue = "Rise ";
-            document.getElementById('out-sim-sag').innerText = `+${vDrop.toFixed(2)} V`;
-            document.getElementById('lbl-sim-net').innerText = "Req. Voltage";
-        }
+        const fmtPwr = v => v >= 1000 ? `${(v / 1000).toFixed(2)} kW` : `${Math.round(v)} W`;
+        const fmtHeat = v => v >= 100 ? `${Math.round(v)} W` : v >= 10 ? `${v.toFixed(1)} W` : `${v.toFixed(2)} W`;
+        document.getElementById('lbl-sim-sag').childNodes[0].nodeValue = mode === 'discharge' ? 'Sag ' : 'Rise ';
+        document.getElementById('out-sim-sag').innerText = `${mode === 'discharge' ? '-' : '+'}${vDrop.toFixed(2)} V`;
+        document.getElementById('lbl-sim-net').innerText = mode === 'discharge' ? (operatingLimited ? 'Avail. Output' : 'Net Output') : 'Req. Voltage';
         document.getElementById('out-sim-netv').innerText = `${vNet.toFixed(2)} V`;
         document.getElementById('out-sim-amps').innerText = `${I.toFixed(1)} A`;
-        
-        const packAh = P * cellAh;
-        const cRate = (packAh > 0) ? (I / packAh) : 0;
+        const cRate = packAh > 0 ? I / packAh : 0;
         document.getElementById('lbl-sim-c').innerText = `${cRate.toFixed(2)}C`;
-        
-        const ratedMaxAmps = P * cellAmp;
-        const loadPerc = (ratedMaxAmps > 0) ? (I / ratedMaxAmps) * 100 : 0;
-        
+        const ratedMaxAmps = P * (mode === 'discharge' ? dischargeA : chargeA);
+        const loadPerc = ratedMaxAmps > 0 ? I / ratedMaxAmps * 100 : 0;
         const percEl = document.getElementById('lbl-load-perc');
-        if(percEl) {
-            percEl.innerText = `${Math.round(loadPerc)}% of max current`;
-            if(loadPerc > 100) percEl.style.color = '#ef4444'; 
-            else if(loadPerc > 80) percEl.style.color = '#f59e0b'; 
-            else percEl.style.color = '#94a3b8'; 
-        }
-
+        percEl.innerText = `${Math.round(loadPerc)}% of max ${mode === 'charge' ? 'charge' : 'discharge'} current`;
+        percEl.style.color = loadPerc > 100 ? '#ef4444' : loadPerc > 80 ? '#f59e0b' : '#94a3b8';
         document.getElementById('out-sim-power-total').innerText = fmtPwr(pTotal);
         document.getElementById('out-sim-power-useful').innerText = fmtPwr(pUseful);
-        
         document.getElementById('out-sim-heat-cell').innerText = fmtHeat(heatCells);
         document.getElementById('out-sim-heat-strip').innerText = fmtHeat(heatStrips);
         document.getElementById('out-sim-heat-total').innerText = fmtHeat(heatTotal);
-        
-        document.getElementById('out-sim-eff').innerText = `${eff.toFixed(1)}%`;
-        
+        document.getElementById('out-sim-eff').innerText = `${Math.max(0, Math.min(100, eff)).toFixed(1)}%`;
+
         let cutoffSoC = 0;
-        const cutoffCompare = cutoff * S; 
-        
-        if(mode === 'discharge') {
-             const vCellSag = (I * R_total) / S;
-             const vCellCutoff = cutoff;
-             const vCellOpenNeeded = vCellCutoff + vCellSag;
-             let low = 0, high = 1;
-             for(let k=0; k<8; k++) {
-                let mid = (low + high) / 2;
-                if(getOpenCircuitVoltage(mid, cellMin, cellMax, cellNom) < vCellOpenNeeded) low = mid; else high = mid;
-             }
-             cutoffSoC = (low+high)/2;
+        let cutoffReason = '';
+        if (mode === 'discharge' && val > 0) {
+            const atEmpty = evaluateDischargeAtSoc(0);
+            const atFull = evaluateDischargeAtSoc(1);
+            if (atEmpty.valid) {
+                cutoffSoC = 0;
+            } else if (!atFull.valid) {
+                cutoffSoC = 1;
+                cutoffReason = atFull.limitReason;
+            } else {
+                let low = 0;   // invalid side
+                let high = 1;  // valid side
+                for (let k = 0; k < 22; k++) {
+                    const mid = (low + high) / 2;
+                    if (evaluateDischargeAtSoc(mid).valid) high = mid; else low = mid;
+                }
+                cutoffSoC = (low + high) / 2;
+                const justBelow = evaluateDischargeAtSoc(Math.max(0, cutoffSoC - 1e-5));
+                cutoffReason = justBelow.limitReason || evaluateDischargeAtSoc(cutoffSoC).limitReason;
+            }
+        }
+        document.getElementById('out-sim-usable').innerText = `${Math.round(Math.max(0, 1 - cutoffSoC) * 100)}%`;
+
+        function integrateHours(startSoc, endSoc, steps) {
+            if (val <= 0 || packAh <= 0 || startSoc === endSoc) return 0;
+            const direction = endSoc > startSoc ? 1 : -1;
+            const span = Math.abs(endSoc - startSoc);
+            let hours = 0;
+            for (let i = 0; i < steps; i++) {
+                const sampleSoc = startSoc + direction * span * ((i + 0.5) / steps);
+                if (mode === 'discharge') {
+                    const point = evaluateDischargeAtSoc(sampleSoc);
+                    if (!point.valid || point.requestedI <= 1e-9) break;
+                    hours += packAh * (span / steps) / point.requestedI;
+                } else {
+                    const point = terminalAtSoc(sampleSoc);
+                    if (point.I <= 1e-9) return Infinity;
+                    hours += packAh * (span / steps) / point.I;
+                }
+            }
+            return hours;
+        }
+        const endSoc = mode === 'discharge' ? Math.max(0, Math.min(soc, cutoffSoC)) : 1;
+        const hrs = mode === 'discharge' ? integrateHours(soc, endSoc, 200) : integrateHours(soc, 1, 200);
+        const runtimeEl = document.getElementById('out-sim-runtime');
+        if (mode === 'discharge' && operatingLimited && val > 0.0001) runtimeEl.innerText = '0m';
+        else if (!Number.isFinite(hrs) || val <= 0.0001) runtimeEl.innerText = '--';
+        else {
+            // Round the complete duration first, then split it into hours/minutes.
+            // This carries values such as 1h 59.6m into 2h 0m instead of displaying 1h 60m.
+            const totalMinutes = Math.round(hrs * 60);
+            if (totalMinutes >= 100 * 60) runtimeEl.innerText = '>99h';
+            else if (totalMinutes < 1) runtimeEl.innerText = mode === 'charge' ? '~<1m' : '<1m';
+            else {
+                const h = Math.floor(totalMinutes / 60);
+                const minutes = totalMinutes % 60;
+                runtimeEl.innerText = `${mode === 'charge' ? '~' : ''}${h}h ${minutes}m`;
+            }
         }
 
-        const usablePerc = Math.max(0, 100 - (cutoffSoC * 100));
-        document.getElementById('out-sim-usable').innerText = `${Math.round(usablePerc)}%`;
-
-        const elRuntime = document.getElementById('out-sim-runtime');
-        if(I > 0.01) {
-             if(mode === 'discharge') {
-                 const hrs = (packAh * Math.max(0, soc - cutoffSoC)) / I;
-                 const h = Math.floor(hrs); const m = Math.round((hrs-h)*60);
-                 elRuntime.innerText = (h>99)?">99h":`${h}h ${m}m`;
-             } else {
-                 const hrs = (packAh * (1.0 - soc)) / I;
-                 const h = Math.floor(hrs); const m = Math.round((hrs-h)*60);
-                 elRuntime.innerText = (h>99)?">99h":`~${h}h ${m}m`;
-             }
-        } else { elRuntime.innerText = "--"; }
-
-        const statusRow = document.getElementById('row-status');
         const statusText = document.getElementById('status-text');
-        let warn = false;
-        if(mode === 'discharge') {
-            if(isCollapse) { warn = true; statusText.innerText = "⚠️ COLLAPSE"; }
-            else if(vNet < cutoffCompare) { warn = true; statusText.innerText = "⚠️ HIT LVC"; }
+        const reasonLabel = reason => ({ current: 'Current Limit', lvc: 'LVC', collapse: 'Power Limit' }[reason] || 'Limit');
+        let warning = '';
+        let statusKind = 'status-note';
+        if (mode === 'discharge') {
+            if (operatingLimited) {
+                warning = `${reasonLabel(dischargeEvaluation.limitReason)} Reached · Output Limited`;
+                statusKind = 'status-alert';
+            } else if (val > 0 && cutoffSoC > 0 && cutoffSoC < soc) {
+                warning = `${reasonLabel(cutoffReason)} at ${Math.round(cutoffSoC * 100)}% SoC`;
+                statusKind = 'status-note';
+            } else if (loadPerc > 100) {
+                warning = 'Above rated current';
+                statusKind = 'status-caution';
+            }
         } else {
-            if(vNet > (cellMax * S)) { warn = true; statusText.innerText = "⚠️ OVER V"; }
+            if (vNet > cellMax * S) {
+                warning = 'Over-voltage';
+                statusKind = 'status-alert';
+            } else if (loadPerc > 100) {
+                warning = 'Above charge rating';
+                statusKind = 'status-caution';
+            }
         }
-        statusText.style.display = warn ? 'block' : 'none';
-        document.getElementById('out-sim-netv').style.color = warn ? '#d32f2f' : '#008cc9';
+        statusText.textContent = warning;
+        statusText.className = warning ? statusKind : '';
+        statusText.style.display = warning ? 'block' : 'none';
+
+        const loadControlConstrained = mode === 'discharge' && operatingLimited && val > 0.0001;
+        slider.classList.toggle('load-constrained', loadControlConstrained);
+        numInput.classList.toggle('load-constrained', loadControlConstrained);
+        slider.setAttribute('aria-invalid', loadControlConstrained ? 'true' : 'false');
+        numInput.setAttribute('aria-invalid', loadControlConstrained ? 'true' : 'false');
+        if (loadControlConstrained) {
+            const limitName = reasonLabel(dischargeEvaluation.limitReason);
+            const helpText = `The requested load exceeds the pack's ${limitName} at ${Math.round(soc * 100)}% SoC. Output is limited; reduce the load until the control returns to blue.`;
+            slider.title = helpText;
+            numInput.title = helpText;
+        } else {
+            slider.removeAttribute('title');
+            numInput.removeAttribute('title');
+        }
+
+        document.getElementById('out-sim-netv').style.color = operatingLimited || (mode === 'charge' && warning) ? '#d32f2f' : '#008cc9';
     }
 
     function updatePack() {
-        const stripWidth = parseFloat(inputs['sim-strip-w'].value) || (d * 0.4);
-		const stripThick = parseFloat(inputs['sim-strip-t'].value) || 0.3;
-		
-		scene.background.set(inputs['col-bg'].value);
+        const validated = validateAndNormalizeInputs();
+        const d = validated.d;
+        const l = validated.l;
+        const S_Total = validated.S;
+        const P = validated.P;
+        let Layers = validated.layers;
+        const spacing = validated.spacing;
+        const stripWidth = validated.stripW;
+        const stripThick = validated.stripT;
+        scene.background.set(inputs['col-bg'].value);
         currentNickelLen = 0; 
         occluders.length = 0;
         labels.forEach(l => { 
@@ -2638,23 +3062,27 @@
         packGroup.remove(c);
 	}
 	
-        while(dimGroup.children.length > 0) dimGroup.remove(dimGroup.children[0]);
+        while (dimGroup.children.length > 0) {
+            const child = dimGroup.children[0];
+            child.traverse(obj => {
+                if (obj.geometry) obj.geometry.dispose();
+                if (obj.material && obj.material !== lineMat) {
+                    if (Array.isArray(obj.material)) obj.material.forEach(mat => mat.dispose());
+                    else obj.material.dispose();
+                }
+            });
+            dimGroup.remove(child);
+        }
         const domLabels = document.querySelectorAll('.label-tag, .dim-tag');
         domLabels.forEach(el => el.remove());
 
-        const d = parseFloat(inputs['c-diam'].value);
-        const l = parseFloat(inputs['c-len'].value);
-        const S_Total = parseInt(inputs['s-count'].value);
-        const P = parseInt(inputs['p-count'].value);
-        let Layers = parseInt(inputs['pack-layers'].value) || 1;
-        const spacing = parseFloat(inputs['c-spacing'].value);
         const effectiveD = d + spacing;
         const isHex = inputs['hex-mode'].checked;
 		const isLadder = inputs['calc-ladder'].checked; // Define this early
         const nomV = parseFloat(inputs['c-volts'].value);
         const busMode = inputs['bus-mode'].value;
         const showGeo = busMode !== 'none';
-        const physLayerSpace = parseFloat(inputs['layer-spacing'].value) || 0;
+        const physLayerSpace = validated.layerSpacing;
         const visualLayerSpace = inputs['exploded-view'].checked ? 40 : 0; 
         if(Layers < 1) Layers = 1; if(Layers > S_Total) Layers = S_Total; 
         const totalInstances = S_Total * P;
@@ -2936,6 +3364,7 @@
                         const endNode = new THREE.Vector3(layerColCenters[0][p].x, yEnd, layerColCenters[0][p].z);
                         const curve = new THREE.CatmullRomCurve3([startNode, new THREE.Vector3(startNode.x, (startNode.y+endNode.y)/2, startNode.z), endNode]);
                         const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 4, 0.8, 8, false), interConnMat);
+                        tube.name = 'interconnects';
                         packGroup.add(tube);
                         if (p === Math.floor(P/2)) { labelPos = curve.getPointAt(0.5); }
                     }
@@ -3009,6 +3438,7 @@
             const finalEdges = new THREE.LineSegments(mergedEdgeGeo, new THREE.LineBasicMaterial({ color: 0x000000, opacity: 0.1, transparent: true }));
             packGroup.add(finalEdges);
         }
+        if (edgesGeo) edgesGeo.dispose();
 		
 		// --- LADDER STRIP MATH & UI ---
         if (isLadder && P > 1) {
@@ -3034,17 +3464,44 @@
         inputs['sim-load-slider'].max = maxAmps * 1.5; 
         rescaleLoadSlider();
 		updateSimulation();
+        document.getElementById('sys-cutoff-pack').value = (finiteOr(document.getElementById('sys-cutoff').value, validated.minV) * S_Total).toFixed(2);
 		needsOcclusionUpdate = true;
+        requestRender();
     }
 
-    document.getElementById('sim-strip-mat').addEventListener('change', (e) => {
-        userHasTouchedBusColor = false; 
-        updatePack();
+    function updateMaterialsOnly() {
+        scene.background.set(inputs['col-bg'].value);
+        cellMat.color.set(inputs['col-cell'].value); cellMat.metalness = finiteOr(inputs['met-cell'].value, 0.15);
+        capMat.color.set(inputs['col-cap'].value); capMat.metalness = finiteOr(inputs['met-cap'].value, 0.2);
+        spacerMat.color.set(inputs['col-spacer'].value); spacerMat.metalness = finiteOr(inputs['met-spacer'].value, 0);
+        interConnMat.color.set(inputs['col-inter'].value); interConnMat.metalness = finiteOr(inputs['met-inter'].value, 0.8);
+        const rho = finiteOr(inputs['sim-strip-mat'].value, 7);
+        if (!userHasTouchedBusColor) {
+            inputs['col-bus'].value = rho <= 2 ? '#b87333' : rho >= 13 ? '#475569' : '#d1d5db';
+        }
+        busMat.color.set(inputs['col-bus'].value); busMat.metalness = finiteOr(inputs['met-bus'].value, 0.3);
+        requestRender();
+    }
+
+    function updateStatsAndSimulationOnly() {
+        const validated = validateAndNormalizeInputs({ silent: true });
+        if (Number.isFinite(currentStats.w) && Number.isFinite(currentStats.d) && Number.isFinite(currentStats.h)) {
+            calculateStats(currentStats.w, currentStats.d, currentStats.h, validated.S, validated.P, validated.layers);
+        }
+        rescaleLoadSlider();
+        updateSimulation();
+        requestRender();
+    }
+
+    document.getElementById('sim-strip-mat').addEventListener('change', () => {
+        userHasTouchedBusColor = false;
+        updateMaterialsOnly();
+        updateSimulation();
     });
 	
-	document.getElementById('col-bus').addEventListener('input', (e) => {
+	document.getElementById('col-bus').addEventListener('input', () => {
         userHasTouchedBusColor = true;
-        updatePack();
+        updateMaterialsOnly();
     });
 
     function addWire(startPos, y, isPos, xDir, mode) {
@@ -3056,6 +3513,7 @@
         if(mode === 'straight-out') { midPoint.y = startPos.y; endPoint.y = startPos.y; }
         const curve = new THREE.CatmullRomCurve3([startPos, midPoint, endPoint]);
         const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 12, 2.5, 8, false), isPos ? wireRedMat : wireBlackMat);
+        tube.name = 'wires';
         packGroup.add(tube);
     }
     function addLabel(text, x, y, z, color, type) {
@@ -3063,7 +3521,7 @@
         div.className = 'label-tag';
         if(type === 'inter') div.className += ' inter';
         if(color && type !== 'inter') { div.style.color = color; div.style.borderColor = color; }
-        div.innerHTML = text;
+        div.textContent = text;
         const obj = new CSS2DObject(div);
         obj.position.set(x, y, z);
         packGroup.add(obj);
@@ -3121,11 +3579,13 @@
         const maxAmps = P * amp;
         const nickelMeters = currentNickelLen / 1000; 
         document.getElementById('out-nickel').innerText = `${nickelMeters.toFixed(2)} m`;
-        let configStr = `${S_Total}S&nbsp;${P}P`;
-        if(L > 1) configStr += `&nbsp;${L}L`;
-        configStr += ` <span class="cell-count-wrap">(${totalCells} cells)</span>`;
-        document.getElementById('out-config').innerHTML = configStr;
-        document.getElementById('out-nom-label').innerHTML = `${packV.toFixed(1)}V&nbsp;${packAh.toFixed(1)}Ah`;
+        const configEl = document.getElementById('out-config');
+        configEl.replaceChildren(document.createTextNode(`${S_Total}S ${P}P${L > 1 ? ` ${L}L` : ''} `));
+        const countEl = document.createElement('span');
+        countEl.className = 'cell-count-wrap';
+        countEl.textContent = `(${totalCells} cells)`;
+        configEl.appendChild(countEl);
+        document.getElementById('out-nom-label').textContent = `${packV.toFixed(1)}V ${packAh.toFixed(1)}Ah`;
         document.getElementById('out-v-range').innerText = `${packVMin.toFixed(1)} - ${packVMax.toFixed(1)} V`;
         if(packWh >= 1000) { document.getElementById('out-wh').innerText = `${(packWh/1000).toFixed(2)} kWh`; } 
         else { document.getElementById('out-wh').innerText = `${Math.round(packWh)} Wh`; }
@@ -3144,7 +3604,7 @@
         let powerStr = "";
         if(maxKw >= 1.0) { powerStr = `${maxKw.toFixed(2)}kW`; } 
         else { powerStr = `${Math.round(maxKw*1000)}W`; }
-        document.getElementById('out-output').innerHTML = `${maxAmps.toFixed(0)}A&nbsp;<span style="font-weight:400">|</span>&nbsp;${powerStr}`;
+        document.getElementById('out-output').textContent = `${maxAmps.toFixed(0)}A | ${powerStr}`;
         const costDisplay = formatEstimatedCurrency(packCost, currency.code);
         const costConverted = convertedEstimatedCost(packCost, currency.code);
         document.getElementById('out-cost').innerText = costDisplay;
@@ -3161,7 +3621,7 @@
     }
     document.getElementById('import-file-input').addEventListener('change', importStateFromFile);
 	function exportState() {
-        const state = { version: 'bpa-v1', inputs: {}, userSizePresets: userSizePresets, userChemPresets: userChemPresets, snapshots: snapshots.map(s => ({ inputs: s.inputs, data: s.data })) };
+        const state = { version: 'bpa-v2', inputs: {}, userSizePresets: userSizePresets, userChemPresets: userChemPresets, snapshots: snapshots.map(s => ({ inputs: s.inputs, data: s.data })) };
         
         const sel = document.getElementById('preset-selector');
         // Scenario 1: Using a DB Cell
@@ -3192,8 +3652,7 @@
         const reader = new FileReader();
         reader.onload = function(event) {
             try {
-                const state = JSON.parse(event.target.result);
-                if (state.version !== 'bpa-v1') { alert('This file appears to be an incompatible or invalid configuration file.'); return; }
+                const state = sanitizeImportedState(JSON.parse(event.target.result));
                 
                 // 1. Restore User Preset Lists
                 if (state.userSizePresets) { userSizePresets = state.userSizePresets; localStorage.setItem('batt_vis_presets_size_v40', JSON.stringify(userSizePresets)); }
@@ -3251,6 +3710,7 @@
                         const i_cost = state.inputs['c-cost']; // String comparison for cost
                         const i_cap = parseFloat(state.inputs['c-mah']);
                         const i_amp = parseFloat(state.inputs['c-amp']);
+                        const i_charge = parseFloat(state.inputs['c-charge-amp']);
                         const i_ir = parseFloat(state.inputs['sim-cell-ir']);
 
                         for(let i=0; i<selSize.options.length; i++) {
@@ -3264,10 +3724,11 @@
                                 const matchW = Math.abs(p.w - i_w) < 0.1;
                                 const matchCap = Math.abs(p.cap - i_cap) < 1;
                                 const matchAmp = Math.abs(p.amp - i_amp) < 0.1;
+                                const matchCharge = !Number.isFinite(i_charge) || Math.abs((p.charge || conservativeChargeCurrent(p)) - i_charge) < 0.1;
                                 const matchIR = Math.abs((p.ir || 25) - i_ir) < 1; // Default IR is 25 if missing
                                 const matchCost = Math.abs(parseCostInput(p.cost) - parseCostInput(i_cost)) < 0.001;
 
-                                if(matchD && matchL && matchW && matchCap && matchAmp && matchIR && matchCost) { 
+                                if(matchD && matchL && matchW && matchCap && matchAmp && matchCharge && matchIR && matchCost) { 
                                     selSize.selectedIndex = i; 
                                     break; 
                                 }
@@ -3282,14 +3743,17 @@
                     renderSnapList();
                 }
                 updateDeleteButtons();
+                syncSimulationToggleUI();
+                validateAndNormalizeInputs();
                 updatePack();
-            } catch (error) { console.error(error); alert('Error parsing file.'); } finally { e.target.value = ''; }
+            } catch (error) { console.error(error); alert('The configuration file is invalid or contains unsupported values.'); } finally { e.target.value = ''; }
         };
         reader.readAsText(file);
     }
     const snapshots = [];
     const snapListEl = document.getElementById('snap-list');
     document.getElementById('btn-snap').addEventListener('click', () => {
+        if (snapshots.length >= BPA_LIMITS.maxSnapshots) { alert(`A maximum of ${BPA_LIMITS.maxSnapshots} comparison snapshots is allowed.`); return; }
         const state = {};
         inputIds.forEach(id => { const el = document.getElementById(id); state[id] = (el.type==='checkbox') ? el.checked : el.value; });
         const snap = { id: Date.now(), inputs: state, data: {...currentStats} };
@@ -3305,9 +3769,16 @@
             let desc = `${snap.data.s}S${snap.data.p}P`;
             if(snap.data.l > 1) desc += `${snap.data.l}L`;
             desc += ` | ${Math.round(snap.data.wh)}Wh | ${snap.data.costLabel || formatEstimatedCurrency(snap.data.cost, snap.data.currency)}`;
-            el.innerHTML = `<div class="snap-info"><div class="snap-name">${snap.data.name}</div><div class="snap-detail">${desc}</div></div><div class="snap-tools"><button class="tool-btn tool-load" title="Load">📂</button><button class="tool-btn tool-del" title="Delete">✕</button></div>`;
-            el.querySelector('.tool-load').addEventListener('click', () => loadSnapshot(snap));
-            el.querySelector('.tool-del').addEventListener('click', () => { snapshots.splice(idx,1); renderSnapList(); });
+            const info = document.createElement('div'); info.className = 'snap-info';
+            const name = document.createElement('div'); name.className = 'snap-name'; name.textContent = String(snap.data.name || 'Untitled pack');
+            const detail = document.createElement('div'); detail.className = 'snap-detail'; detail.textContent = desc;
+            info.append(name, detail);
+            const tools = document.createElement('div'); tools.className = 'snap-tools';
+            const load = document.createElement('button'); load.className = 'tool-btn tool-load'; load.title = 'Load'; load.setAttribute('aria-label', 'Load snapshot'); load.textContent = '📂';
+            const del = document.createElement('button'); del.className = 'tool-btn tool-del'; del.title = 'Delete'; del.setAttribute('aria-label', 'Delete snapshot'); del.textContent = '✕';
+            tools.append(load, del); el.append(info, tools);
+            load.addEventListener('click', () => loadSnapshot(snap));
+            del.addEventListener('click', () => { snapshots.splice(idx,1); renderSnapList(); });
             snapListEl.appendChild(el);
         });
     }
@@ -3321,6 +3792,8 @@
             }
         });
         syncCurrencyButton();
+        syncSimulationToggleUI();
+        validateAndNormalizeInputs();
         updatePack();
         return state;
     }
@@ -3330,12 +3803,16 @@
         const head = document.getElementById('comp-head-row');
         const body = document.getElementById('comp-body');
         modal.style.display = 'flex';
-        head.innerHTML = '<th>Parameter</th>';
+        head.replaceChildren();
+        const parameterHead = document.createElement('th'); parameterHead.textContent = 'Parameter'; head.appendChild(parameterHead);
+        const comparisonCurrency = selectedCurrency();
         snapshots.forEach(s => {
             const th = document.createElement('th');
             let sub = `${s.data.s}S ${s.data.p}P`;
             if(s.data.l > 1) sub += ` ${s.data.l}L`;
-            th.innerHTML = `<div>${s.data.name}</div><div class="comp-header-sub">${sub}</div>`;
+            const title = document.createElement('div'); title.textContent = String(s.data.name || 'Untitled pack');
+            const subtitle = document.createElement('div'); subtitle.className = 'comp-header-sub'; subtitle.textContent = sub;
+            th.append(title, subtitle);
             head.appendChild(th);
         });
         const rows = [
@@ -3354,16 +3831,16 @@
             { label: 'Max Power', key: 'kw', unit: ' kW', good: 'max' },
             { label: 'Total Energy', key: 'wh', unit: ' Wh', good: 'max' },
             { label: 'Value & Density', isHeader: true },
-            { label: 'Cell Cost', complex: d => d.costLabel || formatEstimatedCurrency(d.cost, d.currency), good: 'min', val: d=>d.costConverted || d.cost },
+            { label: 'Cell Cost', complex: d => formatEstimatedCurrency(Math.max(0, d.cost), comparisonCurrency.code), good: 'min', val: d => convertedEstimatedCost(Math.max(0, d.cost), comparisonCurrency.code) },
             { label: 'Energy Density', complex: d => `${(d.wh/d.kg).toFixed(0)} Wh/kg`, good:'max', val: d=>d.wh/d.kg },
             { label: 'Volumetric Efficiency', complex: d => `${(d.wh/d.vol).toFixed(0)} Wh/L`, good:'max', val: d=>d.wh/d.vol },
-            { label: 'Cost Efficiency', complex: d => `${(d.wh/(d.costConverted || d.cost)).toFixed(1)} Wh/${d.currency || selectedCurrency().code}`, good:'max', val: d=>d.wh/(d.costConverted || d.cost) }
+            { label: 'Cost Efficiency', complex: d => convertedEstimatedCost(d.cost, comparisonCurrency.code) > 0 ? `${(d.wh / convertedEstimatedCost(d.cost, comparisonCurrency.code)).toFixed(1)} Wh/${comparisonCurrency.code}` : '--', good:'max', val: d => convertedEstimatedCost(d.cost, comparisonCurrency.code) > 0 ? d.wh / convertedEstimatedCost(d.cost, comparisonCurrency.code) : Number.NEGATIVE_INFINITY }
         ];
         body.innerHTML = '';
         rows.forEach(r => {
             const tr = document.createElement('tr');
-            if(r.isHeader) { tr.innerHTML = `<td colspan="${snapshots.length+1}" class="row-group">${r.label}</td>`; body.appendChild(tr); return; }
-            tr.innerHTML = `<td>${r.label}</td>`;
+            if(r.isHeader) { const td = document.createElement('td'); td.colSpan = snapshots.length + 1; td.className = 'row-group'; td.textContent = r.label; tr.appendChild(td); body.appendChild(tr); return; }
+            const labelCell = document.createElement('td'); labelCell.textContent = r.label; tr.appendChild(labelCell);
             let vals = [];
             if(r.key) vals = snapshots.map(s => s.data[r.key]);
             if(r.val) vals = snapshots.map(s => r.val(s.data));
@@ -3385,7 +3862,7 @@
                 }
                 if(r.good && r.good !== 'neutral' && snapshots.length > 1) {
                     const checkVal = (r.val) ? numericVal : s.data[r.key];
-                    if(Math.abs(checkVal - best) < 0.001) td.innerHTML = `<span class="best-val">${displayTxt}</span>`;
+                    if(Math.abs(checkVal - best) < 0.001) { const badge = document.createElement('span'); badge.className = 'best-val'; badge.textContent = displayTxt; td.appendChild(badge); }
                     else td.innerText = displayTxt;
                 } else { td.innerText = displayTxt; }
                 tr.appendChild(td);
@@ -3440,27 +3917,43 @@
         });
     }
 
+    const materialOnlyIds = new Set(['col-cell','col-bg','met-cell','col-cap','col-spacer','col-bus','col-inter','met-inter','met-cap','met-bus','met-spacer','sim-strip-mat']);
+    const statsSimulationIds = new Set(['pack-name','c-weight','c-cost','pricing-currency','c-mah','c-amp','c-charge-amp','sim-cell-ir']);
+    const simulationOnlyIds = new Set(['sim-load-slider','sim-load-input','sim-soc','sim-cell-volt-input','sys-cutoff','sys-cutoff-pack']);
+    const debouncedStatsUpdate = debounce(updateStatsAndSimulationOnly, 50);
+
+    function routeUpdate(id, event) {
+        if (id === 'sys-cutoff') {
+            const series = Math.max(1, parseInt(inputs['s-count'].value) || 1);
+            document.getElementById('sys-cutoff-pack').value = (finiteOr(event.target.value, finiteOr(inputs['c-min-v'].value, 0)) * series).toFixed(2);
+            rescaleLoadSlider();
+            updateSimulation(event); return;
+        }
+        if (id === 'sys-cutoff-pack') {
+            const series = Math.max(1, parseInt(inputs['s-count'].value) || 1);
+            document.getElementById('sys-cutoff').value = (finiteOr(event.target.value, 0) / series).toFixed(2);
+            rescaleLoadSlider();
+            updateSimulation(event); return;
+        }
+        if (id === 'sim-cell-volt-input') return;
+        if (id === 'sim-soc') { rescaleLoadSlider(); updateSimulation(event); return; }
+        if (simulationOnlyIds.has(id)) { updateSimulation(event); return; }
+        if (materialOnlyIds.has(id)) { updateMaterialsOnly(); if (id === 'sim-strip-mat') updateSimulation(); return; }
+        if (statsSimulationIds.has(id)) { debouncedStatsUpdate(); return; }
+        debouncedUpdate();
+    }
+
+    const specialisedListenerIds = new Set(['bus-mode','sim-strip-mat','col-bus','met-cell','met-cap','met-bus','met-spacer','met-inter','sim-load-input']);
     inputIds.forEach(id => {
         const el = document.getElementById(id);
-        if(el) {
-            el.addEventListener('input', (e) => {
-                if(id === 'sim-load-slider' || id === 'sim-cell-ir') {
-                    updateSimulation(e);
-                } 
-                else if(el.type === 'range' || el.type === 'number' || el.type === 'text') {
-                    debouncedUpdate();
-                }
-                else {
-                    updatePack();
-                }
-            });
-            
-            if(id !== 'sim-load-slider') {
-                 el.addEventListener('change', updatePack);
-            }
-        }
+        if (!el || specialisedListenerIds.has(id)) return;
+        el.addEventListener('input', event => routeUpdate(id, event));
+        el.addEventListener('change', event => {
+            validateAndNormalizeInputs();
+            routeUpdate(id, event);
+        });
     });
-	
+
     function exportSTL(includeCells, includeSpacers, includeBusbars) {
         const exportGroup = new THREE.Group();
         const tempMatrix = new THREE.Matrix4();
@@ -3475,16 +3968,21 @@
             const count = instancedMesh.count;
             const originalGeom = instancedMesh.geometry;
             const meshWorldMatrix = instancedMesh.matrixWorld;
-
             for (let i = 0; i < count; i++) {
-                instancedMesh.getMatrixAt(i, tempMatrix);              
-                finalMatrix.multiplyMatrices(meshWorldMatrix, tempMatrix);
-                finalMatrix.premultiply(correctionMatrix);
+                instancedMesh.getMatrixAt(i, tempMatrix);
+                finalMatrix.multiplyMatrices(meshWorldMatrix, tempMatrix).premultiply(correctionMatrix);
                 const bakedGeom = originalGeom.clone();
                 bakedGeom.applyMatrix4(finalMatrix);
-                const mesh = new THREE.Mesh(bakedGeom, new THREE.MeshBasicMaterial());
-                exportGroup.add(mesh);
+                exportGroup.add(new THREE.Mesh(bakedGeom, new THREE.MeshBasicMaterial()));
             }
+        }
+
+        function addBakedMesh(mesh) {
+            if (!mesh.geometry) return;
+            finalMatrix.copy(mesh.matrixWorld).premultiply(correctionMatrix);
+            const bakedGeom = mesh.geometry.clone();
+            bakedGeom.applyMatrix4(finalMatrix);
+            exportGroup.add(new THREE.Mesh(bakedGeom, new THREE.MeshBasicMaterial()));
         }
 
         scene.updateMatrixWorld(true);
@@ -3496,9 +3994,9 @@
                 if (child.name === 'spacers' && includeSpacers) keep = true;
                 if (child.name === 'busbars' && includeBusbars) keep = true;
 
-                if (keep) {
-                    addBakedInstance(child);
-                }
+                if (keep) addBakedInstance(child);
+            } else if (child.isMesh && includeBusbars && (child.name === 'wires' || child.name === 'interconnects')) {
+                addBakedMesh(child);
             }
         });
 
@@ -3515,11 +4013,13 @@
             
             const blob = new Blob([result], { type: 'application/octet-stream' });
             const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
+            const objectUrl = URL.createObjectURL(blob);
+            link.href = objectUrl;
             const packName = (inputs['pack-name'].value || 'battery_pack').replace(/[^a-z0-9]/gi, '_');
 			const configStr = `${inputs['s-count'].value}S${inputs['p-count'].value}P`;
 			link.download = `${packName}_${configStr}_${Date.now()}.stl`;
             link.click();
+            setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
         } catch (e) {
             console.error(e);
             alert("Export failed. See console for details.");
@@ -3537,14 +4037,20 @@
         camera.updateProjectionMatrix();
         renderer.setSize(container.clientWidth, container.clientHeight);
         labelRenderer.setSize(container.clientWidth, container.clientHeight);
+        requestRender();
     });
 
-    let lastOccTime = 0;
+    let renderQueued = false;
+    function requestRender() {
+        if (renderQueued) return;
+        renderQueued = true;
+        requestAnimationFrame(renderFrame);
+    }
 
-    function animate(time) {
-		requestAnimationFrame(animate);
-		controls.update();
-		renderer.render(scene, camera);
+    function renderFrame() {
+        renderQueued = false;
+        controls.update();
+        renderer.render(scene, camera);
 
 		if (needsOcclusionUpdate && currentStats.cells <= 500) {
 			needsOcclusionUpdate = false;
@@ -3583,11 +4089,7 @@
 	
 	// --- FINAL EVENT LISTENERS ---
     
-    // Attach other simulation inputs only for inputs NOT in inputIds
-	['sim-soc', 'sys-cutoff'].forEach(id => {
-		const el = document.getElementById(id);
-		if(el) el.addEventListener('input', updateSimulation);
-	});
+    // Simulation inputs are routed through inputIds so their values are also persisted.
 	
 	// --- CELL VOLTAGE INPUT LISTENER (Voltage -> SoC) ---
     const simCellVoltInput = document.getElementById('sim-cell-volt-input');
@@ -3615,6 +4117,7 @@
 
             // Update Slider and Trigger Sim
             document.getElementById('sim-soc').value = Math.round(newSoC * 100);
+            rescaleLoadSlider();
             updateSimulation();
         });
     }
@@ -3622,52 +4125,25 @@
     // --- NEW TOGGLE LOGIC ---
     
     // 1. Load Type Toggle (Amps vs Watts)
-    // --- LOAD TYPE TOGGLE (AMPS vs WATTS) with Value Preservation ---
+    // Switching units preserves the same actual operating current/C-rate at the selected SoC.
     const toggleLoad = document.getElementById('toggle-load-type');
     const inputLoad = document.getElementById('sim-load-type');
-    
+    const loadNumberInput = document.getElementById('sim-load-input');
+
     if(toggleLoad) {
         toggleLoad.addEventListener('click', (e) => {
             if(!e.target.classList.contains('it-opt')) return;
-            
-            // 1. UI Toggle
-            toggleLoad.querySelectorAll('.it-opt').forEach(el => el.classList.remove('active'));
-            e.target.classList.add('active');
-            
-            const newType = e.target.dataset.val; // 'cc' or 'cp'
-            inputLoad.value = newType;
-            
-            // 2. Recalculate Limits
-            rescaleLoadSlider();
-            
-            // 3. Conversion Logic
-            let targetVal = 0;
-            if(newType === 'cc') {
-                // Switching TO Amps. Use last known Amps.
-                targetVal = lastSimAmps;
-            } else {
-                // Switching TO Watts. Use last known Watts.
-                targetVal = lastSimWatts;
-            }
-            
-            // Clamp to new Max 
-            if(targetVal > simMaxVal) targetVal = simMaxVal;
-            
-            // 4. Set Slider Position (Exponential Reverse Calculation)
-            // val = Max * (pos/1000)^2  ->  pos = 1000 * sqrt(val/Max)
-            const ratio = (simMaxVal > 0) ? (targetVal / simMaxVal) : 0;
-            const newPos = 1000 * Math.sqrt(ratio);
-            
-            const slider = document.getElementById('sim-load-slider');
-            slider.value = newPos;
-            
-            // Force update input box immediately
-            const numInput = document.getElementById('sim-load-input');
-            const decimals = (targetVal < 10) ? 2 : 1;
-            numInput.value = targetVal.toFixed(decimals);
+            const newType = e.target.dataset.val;
+            if (newType === inputLoad.value) return;
 
-            // 5. Run Sim
-            updateSimulation();
+            // updateSimulation keeps these as the actual operating current and terminal power.
+            // Using them for conversion keeps current, C-rate, power and the thumb position steady.
+            const convertedValue = newType === 'cc' ? lastSimAmps : lastSimWatts;
+
+            inputLoad.value = newType;
+            syncSimulationToggleUI();
+            rescaleLoadSlider({ value: convertedValue });
+            updateSimulation({ target: loadNumberInput });
         });
     }
 
@@ -3683,7 +4159,8 @@
         e.target.classList.add('active');
         
         inputMode.value = val;
-        rescaleLoadSlider(); // Charge has different max C-rate
+        syncSimulationToggleUI();
+        rescaleLoadSlider(); // Charge uses its separate verified rating
         updateSimulation();
     });
 
@@ -3693,12 +4170,14 @@
     
     lvcCell.addEventListener('input', () => {
         const S = parseInt(inputs['s-count'].value) || 1;
-        lvcPack.value = (parseFloat(lvcCell.value) * S).toFixed(1);
+        lvcPack.value = (finiteOr(lvcCell.value, finiteOr(inputs['c-min-v'].value, 0)) * S).toFixed(2);
+        rescaleLoadSlider();
         updateSimulation();
     });
     lvcPack.addEventListener('input', () => {
         const S = parseInt(inputs['s-count'].value) || 1;
-        lvcCell.value = (parseFloat(lvcPack.value) / S).toFixed(2);
+        lvcCell.value = (finiteOr(lvcPack.value, 0) / S).toFixed(2);
+        rescaleLoadSlider();
         updateSimulation();
     });
   
@@ -3714,6 +4193,7 @@
         { id: 'asia-pacific', label: 'Asia-Pacific (coming soon)', partner: null }
     ];
     const RFQ_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    const RFQ_MIN_QUANTITY = 10;
 	const RFQ_COUNTRY_CODES = [
         ['+1','us','United States/Canada'], ['+7','ru','Russia'], ['+20','eg','Egypt'], ['+27','za','South Africa'],
         ['+30','gr','Greece'], ['+31','nl','Netherlands'], ['+32','be','Belgium'], ['+33','fr','France'],
@@ -3738,7 +4218,7 @@
 
     // --- Shared state builder (same shape as exportState, reused for the attached design file) ---
     function buildStateObject() {
-        const state = { version: 'bpa-v1', inputs: {}, userSizePresets: userSizePresets, userChemPresets: userChemPresets, snapshots: snapshots.map(s => ({ inputs: s.inputs, data: s.data })) };
+        const state = { version: 'bpa-v2', inputs: {}, userSizePresets: userSizePresets, userChemPresets: userChemPresets, snapshots: snapshots.map(s => ({ inputs: s.inputs, data: s.data })) };
         const sel = document.getElementById('preset-selector');
         if (sel.value === 'db_selected') {
             state.inputs['saved_db_name'] = sel.options[sel.selectedIndex].text.replace('[DB] ', '');
@@ -3770,7 +4250,7 @@
             ['Configuration', rfqTxt('out-config')],
             ['Cell', rfqCellLabel() + '  (' + rfqVal('c-diam') + ' x ' + rfqVal('c-len') + ' mm)'],
             ['Chemistry', (function(){ const c = document.getElementById('chem-selector'); return c ? c.options[c.selectedIndex].text : '--'; })()],
-            ['Cell capacity / max current', rfqVal('c-mah') + ' mAh / ' + rfqVal('c-amp') + ' A'],
+            ['Cell capacity / current ratings', rfqVal('c-mah') + ' mAh / ' + rfqVal('c-amp') + ' A discharge / ' + rfqVal('c-charge-amp') + ' A charge'],
             ['Cell voltage (min / nom / max)', rfqVal('c-min-v') + ' / ' + rfqVal('c-volts') + ' / ' + rfqVal('c-max-v') + ' V'],
             ['Cell IR (sim)', rfqVal('sim-cell-ir') + ' mOhm'],
             ['Pack voltage range', rfqTxt('out-v-range')],
@@ -3888,7 +4368,7 @@
         doc.setTextColor(30, 41, 59); doc.setFontSize(11); doc.setFont(undefined, 'bold');
         doc.text('Requested by', M, y); line(6);
         doc.setFontSize(9); doc.setFont(undefined, 'normal'); doc.setTextColor(51, 65, 85);
-        [['Name', form.name], ['Company', form.company], ['Email', form.email], ['Phone', form.phone], ['Sent to', partner.name + ' (' + partner.location + ')']].forEach(r => {
+        [['Name', form.name], ['Company', form.company], ['Email', form.email], ['Phone', form.phone], ['Quantity', String(form.quantity) + ' packs'], ['Sent to', partner.name + ' (' + partner.location + ')']].forEach(r => {
             doc.setFont(undefined, 'bold'); doc.text(r[0] + ':', M, y);
             doc.setFont(undefined, 'normal'); doc.text(rfqPdfSafe(r[1]), M + 28, y); line(5);
         });
@@ -3942,7 +4422,7 @@
         overlay: document.getElementById('rfq-overlay'), region: document.getElementById('rfq-region'),
         card: document.getElementById('rfq-partner-card'), name: document.getElementById('rfq-name'),
         company: document.getElementById('rfq-company'), email: document.getElementById('rfq-email'),
-        phone: document.getElementById('rfq-phone'), note: document.getElementById('rfq-note'),
+        quantity: document.getElementById('rfq-quantity'), phone: document.getElementById('rfq-phone'), note: document.getElementById('rfq-note'),
         hp: document.getElementById('rfq-website'), sendCode: document.getElementById('rfq-send-code'),
         code: document.getElementById('rfq-code'), verify: document.getElementById('rfq-verify'),
         badge: document.getElementById('rfq-verified-badge'), status: document.getElementById('rfq-status'),
@@ -3985,8 +4465,10 @@
         rfqEls.status.style.color = kind === 'err' ? '#b91c1c' : (kind === 'ok' ? '#15803d' : '#475569');
     }
     function rfqFormValid() {
+        const quantity = Number(rfqEls.quantity.value);
         return rfqEls.name.value.trim().length > 1 &&
                RFQ_EMAIL_RE.test(rfqEls.email.value.trim()) && rfqEls.phone.value.trim().length > 4 &&
+               Number.isInteger(quantity) && quantity >= RFQ_MIN_QUANTITY &&
                rfqEls.note.value.trim().length > 0;
     }
     function rfqRefreshSubmit() {
@@ -4029,7 +4511,7 @@
     document.getElementById('btn-rfq').addEventListener('click', rfqOpen);
     document.getElementById('rfq-close').addEventListener('click', () => { rfqEls.overlay.style.display = 'none'; });
     rfqEls.region.addEventListener('change', rfqRenderRegion);
-    [rfqEls.name, rfqEls.company, rfqEls.phone, rfqEls.note].forEach(el => el.addEventListener('input', rfqRefreshSubmit));
+    [rfqEls.name, rfqEls.company, rfqEls.quantity, rfqEls.phone, rfqEls.note].forEach(el => el.addEventListener('input', rfqRefreshSubmit));
     rfqEls.email.addEventListener('input', () => {
         if (rfqVerifiedEmail && rfqEls.email.value.trim().toLowerCase() !== rfqVerifiedEmail) rfqResetVerification();
         rfqRefreshSubmit();
@@ -4076,9 +4558,12 @@
 
     rfqEls.submit.addEventListener('click', async () => {
         const partner = rfqPartner();
-        if (!partner || !rfqFormValid() || !rfqToken) return;
+        if (!partner || !rfqFormValid() || !rfqToken) {
+            if (Number(rfqEls.quantity.value) < RFQ_MIN_QUANTITY) rfqStatus('Minimum RFQ quantity is ' + RFQ_MIN_QUANTITY + ' packs.', 'err');
+            return;
+        }
         rfqBusy = true; rfqRefreshSubmit();
-        const form = { name: rfqEls.name.value.trim(), company: rfqEls.company.value.trim() || 'Individual', email: rfqEls.email.value.trim(), phone: rfqSelectedCc + ' ' + rfqEls.phone.value.trim(), note: rfqEls.note.value.trim() };
+        const form = { name: rfqEls.name.value.trim(), company: rfqEls.company.value.trim() || 'Individual', email: rfqEls.email.value.trim(), quantity: Number(rfqEls.quantity.value), phone: rfqSelectedCc + ' ' + rfqEls.phone.value.trim(), note: rfqEls.note.value.trim() };
         try {
             rfqStatus('Rendering design snapshot...');
             const shot = await rfqSnapshot(1100);
@@ -4098,18 +4583,31 @@
                 specRows: specRows, pdfBase64: pdfB64,
                 designJson: JSON.stringify(buildStateObject(), null, 2)
             });
-            document.getElementById('rfq-body').innerHTML =
-                '<div class="rfq-done"><div class="rfq-done-tick">&#10004;</div>' +
-                '<h3>RFQ sent to ' + partner.name + '</h3>' +
-                '<p>Reference <b>' + r.ref + '</b>. They will reply directly to <b>' + form.email + '</b>. Your PDF spec sheet and design file were attached.</p></div>';
+            const body = document.getElementById('rfq-body');
+            const done = document.createElement('div'); done.className = 'rfq-done';
+            const tick = document.createElement('div'); tick.className = 'rfq-done-tick'; tick.textContent = '✓';
+            const heading = document.createElement('h3'); heading.textContent = `RFQ sent to ${partner.name}`;
+            const paragraph = document.createElement('p');
+            paragraph.append('Reference ');
+            const ref = document.createElement('b'); ref.textContent = String(r.ref || 'pending'); paragraph.append(ref);
+            paragraph.append('. They will reply directly to ');
+            const email = document.createElement('b'); email.textContent = form.email; paragraph.append(email);
+            paragraph.append('. Your PDF spec sheet and design file were attached.');
+            done.append(tick, heading, paragraph); body.replaceChildren(done);
         } catch (err) {
             rfqStatus(err.message, 'err');
             rfqBusy = false; rfqRefreshSubmit();
         }
     });
     initCurrencySelector();
+    enhanceAccessibility();
+    validateAndNormalizeInputs({ silent: true });
     updatePack();
-    animate();
+    requestRender();
+    window.__bpaReady = true;
+    clearTimeout(window.__bpaStartupTimer);
+    const startupError = document.getElementById('fatal-error');
+    if (startupError) startupError.style.display = 'none';
 </script>
 </body>
 </html>
