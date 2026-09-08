@@ -2,7 +2,7 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg)](https://buymeacoffee.com/lmf5000)
-![Version](https://img.shields.io/badge/version-v78-green)
+![Version](https://img.shields.io/badge/version-v91-green)
 
 **Battery Pack Architect** is a free, open-source, browser-based tool for designing, visualizing, and **simulating** custom battery packs in 3D.
 
@@ -10,7 +10,7 @@
 
 ---
 
-## ⚡ What's New in v78?
+## ⚡ What's New?
 The tool has evolved from a visualizer into a **physics simulator**.
 * **Physics Simulation:** Calculate real-time Voltage Sag, Efficiency, and Output Power based on load (Amps).
 * **Thermal Estimates:** Estimates heat generation (Watts) in both the cells and the nickel strips (Joule heating).
