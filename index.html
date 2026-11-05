@@ -1277,7 +1277,6 @@
         </div>
         <label>Note for Supplier *</label>
         <textarea id="rfq-note" rows="4" maxlength="5000" placeholder="Region, quantity needed, target price, timeline, application, enclosure / BMS requirements..."></textarea>
-        <input type="text" id="rfq-website" tabindex="-1" autocomplete="off" style="position:absolute; left:-5000px; width:1px; height:1px;" aria-hidden="true">
         <div id="rfq-verify-row">
             <button type="button" id="rfq-send-code" class="btn-action btn-add">Send verification code</button>
             <input type="text" id="rfq-code" maxlength="6" inputmode="numeric" placeholder="6-digit code" style="display:none; width:110px; flex:0 0 auto;">
@@ -4463,7 +4462,7 @@
         card: document.getElementById('rfq-partner-card'), name: document.getElementById('rfq-name'),
         company: document.getElementById('rfq-company'), email: document.getElementById('rfq-email'),
         phone: document.getElementById('rfq-phone'), note: document.getElementById('rfq-note'),
-        hp: document.getElementById('rfq-website'), sendCode: document.getElementById('rfq-send-code'),
+        sendCode: document.getElementById('rfq-send-code'),
         code: document.getElementById('rfq-code'), verify: document.getElementById('rfq-verify'),
         badge: document.getElementById('rfq-verified-badge'), status: document.getElementById('rfq-status'),
         submit: document.getElementById('rfq-submit'), packLabel: document.getElementById('rfq-pack-label')
@@ -4577,7 +4576,6 @@
     rfqEls.sendCode.addEventListener('click', async () => {
         if (!rfqValidateRequired()) return;
         const email = rfqEls.email.value.trim();
-        if (rfqEls.hp.value) { rfqStatus('Verification code sent. Check your inbox.', 'ok'); return; } // honeypot: pretend for bots
         rfqEls.sendCode.disabled = true;
         rfqStatus('Sending verification code...');
         try {
