@@ -945,6 +945,62 @@
                 </label>
                 <input type="checkbox" id="calc-ladder">
             </div>
+
+            <div class="toggle-row">
+                <label for="frame-mode" style="cursor:pointer;">Battery Frame (Grid Limit)
+                    <span class="help-icon">?
+                        <div class="tip-content tip-right" style="width: 210px;">
+                            <strong>Fixed Frame Grid</strong><br>
+                            Constrains each layer to a fixed Cols &times; Rows frame (e.g. 5&times;8) and snakes series/parallel groups inside it.
+                        </div>
+                    </span>
+                </label>
+                <input type="checkbox" id="frame-mode">
+            </div>
+            <div id="frame-config-box" style="display:none; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px; margin-top:4px; margin-bottom:6px;">
+                <div class="controls-grid-3" style="margin-bottom:6px;">
+                    <div class="control-item"><label for="frame-cols">Cols (X)</label><input type="number" id="frame-cols" value="5" min="1" max="200"></div>
+                    <div class="control-item"><label for="frame-rows">Rows (Z)</label><input type="number" id="frame-rows" value="8" min="1" max="200"></div>
+                    <div class="control-item"><label for="frame-snake">Routing</label>
+                        <select id="frame-snake">
+                            <option value="auto">Auto</option>
+                            <option value="col">Col Snake</option>
+                            <option value="row">Row Snake</option>
+                            <option value="block2x2">2×2 Block</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <label for="frame-show" style="display:flex; align-items:center; gap:5px; font-size:0.68rem; color:#475569; cursor:pointer;">
+                        <input type="checkbox" id="frame-show" checked> Show 3D Frame
+                    </label>
+                    <span id="frame-status" style="font-size:0.66rem; font-weight:600; color:#475569;"></span>
+                </div>
+            </div>
+
+            <div class="control-item full-width" style="margin-top:6px; margin-bottom:4px;">
+                <label for="weld-mode">Welding Mode
+                    <span class="help-icon">?
+                        <div class="tip-content tip-right" style="width: 210px;">
+                            <strong>Welding Pattern</strong><br>
+                            Prefer 4&times;4 Nickel Sheet tiles same-polarity regions on each face with wide nickel plates (up to Max W&times;H) before falling back to strips.
+                        </div>
+                    </span>
+                </label>
+                <select id="weld-mode">
+                    <option value="standard">Standard Strips</option>
+                    <option value="plate2x2">Prefer 2×2 Nickel Sheet</option>
+                    <option value="plate4x4">Prefer 4×4 Nickel Sheet</option>
+                    <option value="plateCustom">Custom Sheet (W×H)</option>
+                </select>
+            </div>
+            <div id="weld-plate-box" style="display:none; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; padding:8px; margin-bottom:6px;">
+                <div class="controls-grid" style="margin-bottom:4px;">
+                    <div class="control-item"><label for="weld-plate-cols">Max Plate W</label><input type="number" id="weld-plate-cols" value="4" min="1" max="20"></div>
+                    <div class="control-item"><label for="weld-plate-rows">Max Plate H</label><input type="number" id="weld-plate-rows" value="4" min="1" max="20"></div>
+                </div>
+                <div id="weld-plate-status" style="font-size:0.66rem; font-weight:600; color:#475569;"></div>
+            </div>
         </div>
 
         <div class="group-box">
@@ -1161,6 +1217,7 @@
 				<span>Strip Length 
 					<span class="help-icon" style="background:#e2e8f0; color:#64748b; font-weight:600; margin-left:2px; font-size:8px;">? <div class="tip-content tip-right">Excludes inter-layer series connections.</div></span>
 					<span id="badge-ladder" style="display:none; background:#3b82f6; color:white; font-size:8px; padding:1px 4px; border-radius:3px; margin-left:4px; font-weight:bold; vertical-align:middle;">LADDER</span>
+					<span id="badge-plate" style="display:none; background:#0f766e; color:white; font-size:8px; padding:1px 4px; border-radius:3px; margin-left:4px; font-weight:bold; vertical-align:middle;">4×4 PLATE</span>
 				</span>
 				<span class="val c-dark" id="out-nickel" style="font-size:0.75rem;">--</span>
 			</div>
@@ -2048,6 +2105,7 @@
 	const inputIds = [
         'c-diam','c-len','c-volts','c-mah','c-amp','c-charge-amp','c-min-v','c-max-v','c-weight','c-cost','pricing-currency',
         's-count','p-count','c-spacing','hex-mode','pack-layers','layer-spacing','exploded-view','pack-name','calc-ladder','bus-mode',
+        'frame-mode','frame-cols','frame-rows','frame-snake','frame-show','weld-mode','weld-plate-cols','weld-plate-rows',
         'sim-cell-ir','sim-strip-mat','sim-strip-w','sim-strip-t','sim-load-slider','sim-load-input','sim-soc','sim-cell-volt-input',
         'sim-mode-val','sim-load-type','sys-cutoff','sys-cutoff-pack',
         'col-cell','col-bg','met-cell','col-cap','col-spacer','col-bus','col-inter','met-inter','met-cap','met-bus','met-spacer'
@@ -2412,6 +2470,8 @@
     const busMat = new THREE.MeshStandardMaterial({ roughness: 0.4 });
     const spacerMat = new THREE.MeshStandardMaterial({ roughness: 0.8 });
     const interConnMat = new THREE.MeshStandardMaterial({ roughness: 0.4 });
+    const frameMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.55, metalness: 0.25, transparent: true, opacity: 0.85 });
+    const frameEmptyMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.8, transparent: true, opacity: 0.3 });
 	
     let perfToastTimer = null; 
     let currentStats = {}; 
@@ -2511,6 +2571,17 @@
         }
         const spacing = setValidatedNumber('c-spacing', 1, 0, 100, false, warnings, 'Cell spacing');
         const layerSpacing = setValidatedNumber('layer-spacing', 3, 0, 500, false, warnings, 'Layer spacing');
+        const frameMode = Boolean(inputs['frame-mode'] && inputs['frame-mode'].checked);
+        const frameCols = setValidatedNumber('frame-cols', 5, 1, 200, true, warnings, 'Frame columns');
+        const frameRows = setValidatedNumber('frame-rows', 8, 1, 200, true, warnings, 'Frame rows');
+        if (frameMode) {
+            const maxLayerS = Math.ceil(S / layers);
+            const maxCellsInLayer = maxLayerS * P;
+            const frameCap = frameCols * frameRows;
+            if (maxCellsInLayer > frameCap) {
+                warnings.push(`Layer needs ${maxCellsInLayer} cells (${maxLayerS}S×${P}P), but ${frameCols}×${frameRows} frame holds ${frameCap}. Increase frame size or layers.`);
+            }
+        }
         const ir = setValidatedNumber('sim-cell-ir', 25, 0.01, 10000, false, warnings, 'Cell internal resistance');
         const stripW = setValidatedNumber('sim-strip-w', Math.max(1, d * 0.4), 0.01, 500, false, warnings, 'Strip width');
         const stripT = setValidatedNumber('sim-strip-t', 0.15, 0.001, 50, false, warnings, 'Strip thickness');
@@ -2523,7 +2594,7 @@
             warnings.push('Configuration name was shortened to 160 characters.');
         }
         if (!options.silent) showValidationWarnings(warnings);
-        return { d, l, minV, nomV, maxV, capacity, dischargeA, chargeA, weight, S, P, layers, spacing, layerSpacing, ir, stripW, stripT, soc, cutoff, load, warnings };
+        return { d, l, minV, nomV, maxV, capacity, dischargeA, chargeA, weight, S, P, layers, spacing, layerSpacing, frameMode, frameCols, frameRows, ir, stripW, stripT, soc, cutoff, load, warnings };
     }
 
     function sanitizePlainObject(value) {
@@ -3023,6 +3094,231 @@
         document.getElementById('out-sim-netv').style.color = operatingLimited || (mode === 'charge' && warning) ? '#d32f2f' : '#008cc9';
     }
 
+    function buildFrameGrid(cols, rows, d, effectiveD, isHex, isLadder, snakeDir) {
+        let frameMinX = Infinity, frameMaxX = -Infinity, frameMinZ = Infinity, frameMaxZ = -Infinity;
+        const coordAt = (c, r) => {
+            const z = r * (isHex ? effectiveD * 0.866 : effectiveD);
+            let x = c * effectiveD;
+            if (isHex) {
+                x += isLadder ? (r * 0.5 * effectiveD) : (r % 2 !== 0 ? effectiveD * 0.5 : 0);
+            }
+            return { x, z };
+        };
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const pt = coordAt(c, r);
+                frameMinX = Math.min(frameMinX, pt.x - d / 2);
+                frameMaxX = Math.max(frameMaxX, pt.x + d / 2);
+                frameMinZ = Math.min(frameMinZ, pt.z - d / 2);
+                frameMaxZ = Math.max(frameMaxZ, pt.z + d / 2);
+            }
+        }
+        const slots = [];
+        if (snakeDir === 'block2x2') {
+            let bandIdx = 0;
+            for (let c0 = 0; c0 < cols; c0 += 2) {
+                const bw = Math.min(2, cols - c0);
+                const down = (bandIdx % 2 === 0);
+                if (bw === 2) {
+                    const numRowPairs = Math.ceil(rows / 2);
+                    for (let rp = 0; rp < numRowPairs; rp++) {
+                        const rBase = down ? (rp * 2) : ((numRowPairs - 1 - rp) * 2);
+                        const rList = [];
+                        if (rBase < rows) rList.push(rBase);
+                        if (rBase + 1 < rows) rList.push(rBase + 1);
+                        if (!down) rList.reverse();
+                        for (let ri = 0; ri < rList.length; ri++) {
+                            const r = rList[ri];
+                            const cOrder = (ri % 2 === 0) ? [c0, c0 + 1] : [c0 + 1, c0];
+                            for (const c of cOrder) {
+                                const pt = coordAt(c, r);
+                                slots.push({ x: pt.x, z: pt.z, c, r });
+                            }
+                        }
+                    }
+                } else {
+                    for (let i = 0; i < rows; i++) {
+                        const r = down ? i : (rows - 1 - i);
+                        const pt = coordAt(c0, r);
+                        slots.push({ x: pt.x, z: pt.z, c: c0, r });
+                    }
+                }
+                bandIdx++;
+            }
+        } else if (snakeDir === 'row') {
+            for (let r = 0; r < rows; r++) {
+                const forward = (r % 2 === 0);
+                for (let i = 0; i < cols; i++) {
+                    const c = forward ? i : (cols - 1 - i);
+                    const pt = coordAt(c, r);
+                    slots.push({ x: pt.x, z: pt.z, c, r });
+                }
+            }
+        } else {
+            for (let c = 0; c < cols; c++) {
+                const forward = (c % 2 === 0);
+                for (let i = 0; i < rows; i++) {
+                    const r = forward ? i : (rows - 1 - i);
+                    const pt = coordAt(c, r);
+                    slots.push({ x: pt.x, z: pt.z, c, r });
+                }
+            }
+        }
+        return { slots, frameMinX, frameMaxX, frameMinZ, frameMaxZ };
+    }
+
+    function addFrameVisuals(bounds, layerYBase, l, spacing, emptySlots, d, segs) {
+        const railThick = Math.max(1.2, Math.min(3.0, spacing > 0.2 ? spacing * 0.8 : 1.8));
+        const railHeight = Math.max(2.0, Math.min(4.0, l * 0.05));
+        const pad = Math.max(spacing * 0.5, 0.5) + railThick * 0.5;
+        const x0 = bounds.frameMinX - pad, x1 = bounds.frameMaxX + pad;
+        const z0 = bounds.frameMinZ - pad, z1 = bounds.frameMaxZ + pad;
+        const spanX = (x1 - x0) + railThick;
+        const spanZ = (z1 - z0) + railThick;
+        const cx = (x0 + x1) * 0.5;
+        const cz = (z0 + z1) * 0.5;
+
+        const addBar = (w, h, dep, x, y, z) => {
+            const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, dep), frameMat);
+            m.position.set(x, y, z);
+            m.name = 'frame';
+            packGroup.add(m);
+        };
+        [layerYBase + railHeight * 0.5, layerYBase + l - railHeight * 0.5].forEach(y => {
+            addBar(spanX, railHeight, railThick, cx, y, z0);
+            addBar(spanX, railHeight, railThick, cx, y, z1);
+            addBar(railThick, railHeight, spanZ - railThick * 2, x0, y, cz);
+            addBar(railThick, railHeight, spanZ - railThick * 2, x1, y, cz);
+        });
+        const postH = Math.max(0.5, l - railHeight * 2);
+        const postY = layerYBase + l * 0.5;
+        [[x0, z0], [x1, z0], [x0, z1], [x1, z1]].forEach(([px, pz]) => {
+            addBar(railThick, postH, railThick, px, postY, pz);
+        });
+        if (emptySlots.length > 0) {
+            const ringGeo = new THREE.RingGeometry(d * 0.36, d * 0.48, Math.max(12, segs));
+            ringGeo.rotateX(-Math.PI / 2);
+            const ringMesh = new THREE.InstancedMesh(ringGeo, frameEmptyMat, emptySlots.length * 2);
+            ringMesh.name = 'frame';
+            const dummyRing = new THREE.Object3D();
+            let rIdx = 0;
+            emptySlots.forEach(pt => {
+                dummyRing.position.set(pt.x, layerYBase + 0.3, pt.z);
+                dummyRing.updateMatrix();
+                ringMesh.setMatrixAt(rIdx++, dummyRing.matrix);
+                dummyRing.position.set(pt.x, layerYBase + l - 0.3, pt.z);
+                dummyRing.updateMatrix();
+                ringMesh.setMatrixAt(rIdx++, dummyRing.matrix);
+            });
+            ringMesh.instanceMatrix.needsUpdate = true;
+            packGroup.add(ringMesh);
+        }
+    }
+
+    function connectFrameSeriesGroups(groupA, groupB, effectiveD, yPos, addStripInstanced) {
+        if (!groupA.length || !groupB.length) return null;
+        const maxNeighborDist = effectiveD * 1.18;
+        const usedA = new Set();
+        const usedB = new Set();
+
+        const pairs = [];
+        for (let i = 0; i < groupA.length; i++) {
+            for (let j = 0; j < groupB.length; j++) {
+                const dist = Math.hypot(groupA[i].x - groupB[j].x, groupA[i].z - groupB[j].z);
+                if (dist <= maxNeighborDist) pairs.push({ i, j, dist });
+            }
+        }
+        pairs.sort((a, b) => a.dist - b.dist);
+        let firstMid = null;
+        for (const pair of pairs) {
+            if (usedA.has(pair.i) || usedB.has(pair.j)) continue;
+            usedA.add(pair.i);
+            usedB.add(pair.j);
+            const mid = addStripInstanced(groupA[pair.i], groupB[pair.j], yPos, true);
+            if (!firstMid) firstMid = mid;
+        }
+        if (!firstMid) {
+            firstMid = addStripInstanced(groupA[groupA.length - 1], groupB[0], yPos, true);
+        }
+        return firstMid;
+    }
+
+    function tileFaceWithPlates(layerColCenters, inputIsBottom, face, maxW, maxH) {
+        const numS = layerColCenters.length;
+        const netIds = new Array(numS);
+        let curNet = 0;
+        for (let s = 0; s < numS; s++) {
+            netIds[s] = curNet;
+            if (s < numS - 1) {
+                const isTopConn = inputIsBottom ? (s % 2 === 0) : (s % 2 !== 0);
+                const bridgedOnFace = (face === 'top') ? isTopConn : !isTopConn;
+                if (!bridgedOnFace) curNet++;
+            }
+        }
+
+        const cellMap = new Map();
+        const netCells = new Map();
+        for (let s = 0; s < numS; s++) {
+            const nid = netIds[s];
+            if (!netCells.has(nid)) netCells.set(nid, []);
+            for (let p = 0; p < layerColCenters[s].length; p++) {
+                const cell = layerColCenters[s][p];
+                const entry = { cell, netId: nid, plateId: -1 };
+                cellMap.set(`${cell.gx},${cell.gz}`, entry);
+                netCells.get(nid).push(entry);
+            }
+        }
+
+        const sizes = [];
+        for (let w = 2; w <= maxW; w++) {
+            for (let h = 2; h <= maxH; h++) {
+                sizes.push({ w, h, area: w * h, minSide: Math.min(w, h) });
+            }
+        }
+        sizes.sort((a, b) => (b.area - a.area) || (b.minSide - a.minSide) || (b.w - a.w));
+
+        const plates = [];
+        const cellPlateMap = new Map();
+        let nextPlateId = 0;
+
+        for (const [nid, entries] of netCells.entries()) {
+            entries.sort((a, b) => (a.cell.gx - b.cell.gx) || (a.cell.gz - b.cell.gz));
+            for (const sz of sizes) {
+                for (const anchor of entries) {
+                    if (anchor.plateId !== -1) continue;
+                    const gx0 = anchor.cell.gx;
+                    const gz0 = anchor.cell.gz;
+                    let ok = true;
+                    const covered = [];
+                    for (let dx = 0; dx < sz.w && ok; dx++) {
+                        for (let dz = 0; dz < sz.h; dz++) {
+                            const target = cellMap.get(`${gx0 + dx},${gz0 + dz}`);
+                            if (!target || target.netId !== nid || target.plateId !== -1) {
+                                ok = false;
+                                break;
+                            }
+                            covered.push(target);
+                        }
+                    }
+                    if (!ok) continue;
+
+                    const pid = nextPlateId++;
+                    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+                    for (const item of covered) {
+                        item.plateId = pid;
+                        cellPlateMap.set(item.cell, pid);
+                        minX = Math.min(minX, item.cell.x);
+                        maxX = Math.max(maxX, item.cell.x);
+                        minZ = Math.min(minZ, item.cell.z);
+                        maxZ = Math.max(maxZ, item.cell.z);
+                    }
+                    plates.push({ minX, maxX, minZ, maxZ, w: sz.w, h: sz.h });
+                }
+            }
+        }
+        return { plates, cellPlateMap };
+    }
+
     function updatePack() {
         const validated = validateAndNormalizeInputs();
         const d = validated.d;
@@ -3050,7 +3346,8 @@
 		if(c.material) {
 			const isGlobal = (c.material === cellMat || c.material === capMat || 
 							  c.material === busMat || c.material === spacerMat || 
-							  c.material === interConnMat);
+							  c.material === interConnMat || c.material === frameMat ||
+							  c.material === frameEmptyMat);
 			
 			if (!isGlobal) {
 				if(Array.isArray(c.material)) c.material.forEach(m => m.dispose());
@@ -3077,6 +3374,45 @@
         const effectiveD = d + spacing;
         const isHex = inputs['hex-mode'].checked;
 		const isLadder = inputs['calc-ladder'].checked; // Define this early
+        const frameMode = validated.frameMode;
+        const frameCols = validated.frameCols;
+        const frameRows = validated.frameRows;
+        const frameConfigBox = document.getElementById('frame-config-box');
+        if (frameConfigBox) frameConfigBox.style.display = frameMode ? 'block' : 'none';
+        const frameCap = frameCols * frameRows;
+        const maxLayerCells = Math.ceil(S_Total / Math.max(1, Math.min(Layers, S_Total))) * P;
+        const frameStatusEl = document.getElementById('frame-status');
+        if (frameStatusEl && frameMode) {
+            const overflow = maxLayerCells > frameCap;
+            frameStatusEl.textContent = overflow
+                ? `⚠️ ${maxLayerCells} / ${frameCap} (overflow!)`
+                : `${maxLayerCells} / ${frameCap} slots${Layers > 1 ? '/layer' : ''}`;
+            frameStatusEl.style.color = overflow ? '#dc2626' : '#15803d';
+        }
+        const weldMode = validated.weldMode;
+        const isPlateWeld = weldMode !== 'standard';
+        const rawSnake = inputs['frame-snake'] ? inputs['frame-snake'].value : 'auto';
+        const snakeDir = rawSnake === 'auto'
+            ? ((isPlateWeld && frameCols >= 2 && frameRows >= 2 && P >= 2)
+                ? 'block2x2'
+                : ((frameCols % P === 0 && frameRows % P !== 0) ? 'row' : 'col'))
+            : rawSnake;
+        const frameGrid = frameMode ? buildFrameGrid(frameCols, frameRows, d, effectiveD, isHex, isLadder, snakeDir) : null;
+        const showFrame3D = frameMode && inputs['frame-show'] && inputs['frame-show'].checked;
+        const weldPlateBox = document.getElementById('weld-plate-box');
+        if (weldPlateBox) weldPlateBox.style.display = isPlateWeld ? 'block' : 'none';
+        let maxPlateW = validated.weldPlateCols;
+        let maxPlateH = validated.weldPlateRows;
+        if (weldMode === 'plate2x2') {
+            maxPlateW = 2; maxPlateH = 2;
+            if (inputs['weld-plate-cols']) inputs['weld-plate-cols'].value = '2';
+            if (inputs['weld-plate-rows']) inputs['weld-plate-rows'].value = '2';
+        } else if (weldMode === 'plate4x4') {
+            maxPlateW = 4; maxPlateH = 4;
+            if (inputs['weld-plate-cols']) inputs['weld-plate-cols'].value = '4';
+            if (inputs['weld-plate-rows']) inputs['weld-plate-rows'].value = '4';
+        }
+        let totalPlateCount = 0;
         const nomV = parseFloat(inputs['c-volts'].value);
         const busMode = inputs['bus-mode'].value;
         const showGeo = busMode !== 'none';
@@ -3222,6 +3558,12 @@
         const remainder = S_Total % Layers;
         let globalSIndex = 0; 
         let minX=Infinity, maxX=-Infinity, minZ=Infinity, maxZ=-Infinity;
+        if (frameGrid) {
+            minX = frameGrid.frameMinX;
+            maxX = frameGrid.frameMaxX;
+            minZ = frameGrid.frameMinZ;
+            maxZ = frameGrid.frameMaxZ;
+        }
         let currentXSlot = 0; let xDirection = 1; 
         let lastLayerEndCells = []; 
         let prevLayerOutputIsTop = true; 
@@ -3241,26 +3583,42 @@
             if (currentLayerS % 2 === 0) { outputIsTop = !inputIsBottom; } else { outputIsTop = inputIsBottom; }
             prevLayerOutputIsTop = outputIsTop;
 
+            let layerSlotIdx = 0;
             for (let s = 0; s < currentLayerS; s++) {
                 let colData = [];
                 for (let p = 0; p < P; p++) {
-                    let x = currentXSlot * effectiveD;
-                    let z = p * effectiveD;
-                    if (isHex) { 
-						z = p * (effectiveD * 0.866); 
-						
-						if (isLadder) {
-							// Skewed / Parallelogram Hex (for continuous ladder strips)
-							x += (p * 0.5 * effectiveD);
-						} else {
-							// Standard Zig-Zag Hex (for standard dense packing)
-							if (p % 2 !== 0) x += effectiveD * 0.5; 
-						}
-					}
-                    minX = Math.min(minX, x - d/2); maxX = Math.max(maxX, x + d/2);
-                    minZ = Math.min(minZ, z - d/2); maxZ = Math.max(maxZ, z + d/2);
+                    let x, z, gx, gz;
+                    if (frameGrid) {
+                        if (layerSlotIdx >= frameGrid.slots.length) {
+                            layerSlotIdx++;
+                            continue;
+                        }
+                        const slotPt = frameGrid.slots[layerSlotIdx++];
+                        x = slotPt.x;
+                        z = slotPt.z;
+                        gx = slotPt.c;
+                        gz = slotPt.r;
+                    } else {
+                        gx = currentXSlot;
+                        gz = p;
+                        x = currentXSlot * effectiveD;
+                        z = p * effectiveD;
+                        if (isHex) { 
+                            z = p * (effectiveD * 0.866); 
+                            
+                            if (isLadder) {
+                                // Skewed / Parallelogram Hex (for continuous ladder strips)
+                                x += (p * 0.5 * effectiveD);
+                            } else {
+                                // Standard Zig-Zag Hex (for standard dense packing)
+                                if (p % 2 !== 0) x += effectiveD * 0.5; 
+                            }
+                        }
+                        minX = Math.min(minX, x - d/2); maxX = Math.max(maxX, x + d/2);
+                        minZ = Math.min(minZ, z - d/2); maxZ = Math.max(maxZ, z + d/2);
+                    }
                     const cellY = layerYBase + l/2;
-                    colData.push({x, y: cellY, z}); 
+                    colData.push({x, y: cellY, z, gx, gz}); 
                     dummy.position.set(x, cellY, z);
                     let isUpright = (s % 2 === 0);
                     if (!inputIsBottom) isUpright = !isUpright;
@@ -3293,16 +3651,52 @@
                     }
                     instanceIdx++;
                 }
-                layerColCenters.push(colData);
+                if (colData.length > 0) layerColCenters.push(colData);
                 currentXSlot += xDirection;
             }
+            if (showFrame3D && frameGrid) {
+                const emptySlots = frameGrid.slots.slice(Math.min(layerSlotIdx, frameGrid.slots.length));
+                addFrameVisuals(frameGrid, layerYBase, l, spacing, emptySlots, d, segs);
+            }
             
-            if (showGeo) {
+            if (showGeo && layerColCenters.length > 0) {
+                const offset = 0.5 + (stripThick / 2); 
+                let yTop = layerYBase + l + offset;
+                let yBot = layerYBase - offset;
+
+                const topTiling = isPlateWeld ? tileFaceWithPlates(layerColCenters, inputIsBottom, 'top', maxPlateW, maxPlateH) : null;
+                const botTiling = isPlateWeld ? tileFaceWithPlates(layerColCenters, inputIsBottom, 'bot', maxPlateW, maxPlateH) : null;
+
+                const renderFacePlates = (tiling, yWorld) => {
+                    if (!tiling) return;
+                    for (const pl of tiling.plates) {
+                        const pw = (pl.maxX - pl.minX) + stripWidth;
+                        const pd = (pl.maxZ - pl.minZ) + stripWidth;
+                        const plateMesh = new THREE.Mesh(new THREE.BoxGeometry(pw, stripThick, pd), busMat);
+                        plateMesh.position.set((pl.minX + pl.maxX) * 0.5, yWorld, (pl.minZ + pl.maxZ) * 0.5);
+                        plateMesh.name = 'busbars';
+                        applyShadows(plateMesh);
+                        packGroup.add(plateMesh);
+                        currentNickelLen += Math.max(pw, pd);
+                        totalPlateCount++;
+                    }
+                };
+                renderFacePlates(topTiling, yTop);
+                renderFacePlates(botTiling, yBot);
+
+                const samePlateOnFace = (tiling, c1, c2) => {
+                    if (!tiling) return false;
+                    const id1 = tiling.cellPlateMap.get(c1);
+                    return id1 !== undefined && id1 === tiling.cellPlateMap.get(c2);
+                };
+
                 const addStripInstanced = (p1, p2, yWorld, isActualNickel) => {
+                    const faceTiling = (Math.abs(yWorld - yTop) < 0.01) ? topTiling : ((Math.abs(yWorld - yBot) < 0.01) ? botTiling : null);
                     const vec1 = new THREE.Vector3(p1.x, yWorld, p1.z);
                     const vec2 = new THREE.Vector3(p2.x, yWorld, p2.z);
-                    const dist = vec1.distanceTo(vec2);
                     const mid = vec1.clone().add(vec2).multiplyScalar(0.5);
+                    if (samePlateOnFace(faceTiling, p1, p2)) return mid;
+                    const dist = vec1.distanceTo(vec2);
                     if(isActualNickel) currentNickelLen += dist;
                     dummyStrip.position.copy(mid);
                     dummyStrip.lookAt(vec2);
@@ -3319,28 +3713,27 @@
                     meshBusCaps.setMatrixAt(busCapIdx++, dummyBusCap.matrix);
                     return mid; 
                 };
-				
-                const offset = 0.5 + (stripThick / 2); 
-                
-                let yTop = layerYBase + l + offset;
-                let yBot = layerYBase - offset;
 
-                for(let s=0; s<currentLayerS; s++) {
-                    for(let p=0; p<P-1; p++) {
+                for(let s=0; s<layerColCenters.length; s++) {
+                    for(let p=0; p<layerColCenters[s].length-1; p++) {
                         addStripInstanced(layerColCenters[s][p], layerColCenters[s][p+1], yTop, true);
                         addStripInstanced(layerColCenters[s][p], layerColCenters[s][p+1], yBot, true);
                     }
                 }
-                for(let s=0; s<currentLayerS-1; s++) {
+                for(let s=0; s<layerColCenters.length-1; s++) {
                     const realS = globalSIndex + s;
                     const isEvenS = (s % 2 === 0);
                     let isTopConn = isEvenS;
                     if (!inputIsBottom) isTopConn = !isTopConn;
                     const yPos = isTopConn ? yTop : yBot;
                     let labelPos = null;
-                    for(let p=0; p<P; p++) {
-                        const center = addStripInstanced(layerColCenters[s][p], layerColCenters[s+1][p], yPos, true);
-                        if(p === Math.floor(P/2)) labelPos = center;
+                    if (frameGrid) {
+                        labelPos = connectFrameSeriesGroups(layerColCenters[s], layerColCenters[s+1], effectiveD, yPos, addStripInstanced);
+                    } else {
+                        for(let p=0; p<layerColCenters[s].length; p++) {
+                            const center = addStripInstanced(layerColCenters[s][p], layerColCenters[s+1][p], yPos, true);
+                            if(p === Math.floor(P/2)) labelPos = center;
+                        }
                     }
                     if((busMode === 'bn' || busMode === 'both') && labelPos) {
                         const vNum = realS + 1;
@@ -3357,32 +3750,34 @@
 						const yEnd = inputIsBottom ? (layerYBase - offset) : (layerYBase + l + offset);
 						
 						let labelPos = null;
-						for(let p=0; p<P; p++) {
+                        const linkCount = Math.min(lastLayerEndCells.length, layerColCenters[0].length);
+						for(let p=0; p<linkCount; p++) {
 						const startNode = new THREE.Vector3(lastLayerEndCells[p].x, yStart, lastLayerEndCells[p].z);
                         const endNode = new THREE.Vector3(layerColCenters[0][p].x, yEnd, layerColCenters[0][p].z);
                         const curve = new THREE.CatmullRomCurve3([startNode, new THREE.Vector3(startNode.x, (startNode.y+endNode.y)/2, startNode.z), endNode]);
                         const tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 4, 0.8, 8, false), interConnMat);
                         tube.name = 'interconnects';
                         packGroup.add(tube);
-                        if (p === Math.floor(P/2)) { labelPos = curve.getPointAt(0.5); }
+                        if (p === Math.floor(linkCount/2)) { labelPos = curve.getPointAt(0.5); }
                     }
                     if((busMode === 'bn' || busMode === 'both') && labelPos) {
                         const vNum = globalSIndex;
                         const volt = (vNum*nomV).toFixed(1) + "V";
-                        const targetCell = layerColCenters[0][P-1]; 
+                        const targetCell = layerColCenters[0][layerColCenters[0].length - 1]; 
                         addLabel(`I${vNum} ${volt}`, targetCell.x, yEnd, targetCell.z + d/2 + 2, '#eab308', 'inter');
                     }
                 }
-                lastLayerEndCells = layerColCenters[currentLayerS - 1];
+                lastLayerEndCells = layerColCenters[layerColCenters.length - 1];
 
                 const getTerminalPos = (sLocalIndex, yLevel) => {
                     const pCenters = layerColCenters[sLocalIndex];
-                    if (P % 2 !== 0) {
-                        const idx = Math.floor(P / 2);
+                    const len = pCenters.length;
+                    if (len % 2 !== 0) {
+                        const idx = Math.floor(len / 2);
                         const centerCell = pCenters[idx];
                         return new THREE.Vector3(centerCell.x, yLevel, centerCell.z);
                     } else {
-                        const idx1 = (P / 2) - 1; const idx2 = P / 2;
+                        const idx1 = (len / 2) - 1; const idx2 = len / 2;
                         const p1 = pCenters[idx1]; const p2 = pCenters[idx2];
                         return new THREE.Vector3((p1.x + p2.x) / 2, yLevel, (p1.z + p2.z) / 2);
                     }
@@ -3399,7 +3794,7 @@
                     }
                 }
                 if(ly === Layers - 1) {
-                    const lastLocalS = currentLayerS - 1;
+                    const lastLocalS = layerColCenters.length - 1;
                     const posY = outputIsTop ? yTop : yBot;
                     const pStart = getTerminalPos(lastLocalS, posY);
                     const exitDir = xDirection; 
@@ -3416,6 +3811,9 @@
             globalSIndex += currentLayerS;
         }
         
+        meshCells.count = instanceIdx;
+        meshCaps.count = instanceIdx;
+        if(hasSpacers) meshSpacers.count = spacerIdx;
         packGroup.add(meshCells);
 		meshCells.instanceMatrix.needsUpdate = true;
         if (!highPerf) occluders.push(meshCells); 
@@ -3446,6 +3844,17 @@
         // Toggle the UI badge
         const badge = document.getElementById('badge-ladder');
         if (badge) badge.style.display = isLadder ? 'inline-block' : 'none';
+        const plateBadge = document.getElementById('badge-plate');
+        if (plateBadge) {
+            plateBadge.style.display = isPlateWeld ? 'inline-block' : 'none';
+            plateBadge.textContent = `${maxPlateW}×${maxPlateH} PLATE`;
+        }
+        const weldPlateStatus = document.getElementById('weld-plate-status');
+        if (weldPlateStatus && isPlateWeld) {
+            weldPlateStatus.textContent = totalPlateCount > 0
+                ? `Active Plates: ${totalPlateCount} (max ${maxPlateW}×${maxPlateH}) + fallback strips`
+                : `No ≥2×2 same-net block found; using strips`;
+        }
         // -----------------------------------
 
         minX -= spacing/2; maxX += spacing/2; minZ -= spacing/2; maxZ += spacing/2;
@@ -3949,6 +4358,14 @@
         el.addEventListener('change', event => {
             validateAndNormalizeInputs();
             routeUpdate(id, event);
+        });
+    });
+
+    ['weld-plate-cols', 'weld-plate-rows'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => {
+            const wm = document.getElementById('weld-mode');
+            if (wm && wm.value !== 'plateCustom') wm.value = 'plateCustom';
         });
     });
 
